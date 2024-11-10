@@ -23,7 +23,7 @@ const {elements} = useDesigner()
 
   // todo remeber to add icons
   return (
-    <div className="px-3">
+    <div className="">
     <Dialog>
     <DialogTrigger asChild>
       <Button variant='outline'>Preview</Button> 

@@ -25,11 +25,10 @@ export const FormCard = ({ form }: { form: Form }) => {
     published,
     shareURL,
     submissions,
-    userId,
     visits,
   } = form;
   return (
-    <Card className="my-2 p-1">
+    <Card className="my-2 p-1 flex flex-col gap-2 justify-between">
       <CardHeader>
         <CardTitle className="flex flex-row justify-between gap-3 items-center">
           <span className="truncate font-semibold capitalize">{name}</span>
@@ -61,7 +60,7 @@ export const FormCard = ({ form }: { form: Form }) => {
 
       <CardFooter>
         {published ? (
-          <Button className="w-full" variant="outline" asChild>
+          <Button className="w-full" variant="default" asChild>
             <Link href={`/dashboard/form/${id}`}>View Submissions</Link>
           </Button>
         ) : (

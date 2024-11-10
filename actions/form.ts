@@ -124,4 +124,47 @@ return {message : 'Form created successfully!',error:false, formID:form.id}
     
     }
 
+    export const publishForm = async(id:number)=>{
+        const user = await currentUser()
+
+        if(!user) {
+            return {message : 'User not found!',error:true}
+        }
+
+        const formData = await prisma.form.update({
+            where:{
+                userId:user.id,
+                id
+            },
+            data:{
+                published:true
+            }
+        })
+
+        return {error:false,formData}
+    
+    }
+
+    export const getFormContentById = async(id:string)=>{
+        const user = await currentUser()
+
+        if(!user) {
+            return {message : 'User not found!',error:true}
+        }
+
+        const formData = await prisma.form.findUnique({
+            where:{
+                userId:user.id,
+            },
+            data:{
+                
+            }
+        })
+
+        return {error:false,formData}
+    
+    }
+
+    //todo add an edit published form function
+
 

@@ -10,9 +10,10 @@ import { DndContext, MouseSensor, TouchSensor, useSensor, useSensors } from '@dn
 import { DragOverlayWrapper } from '../drag-overlay/drag-overlay-wrapper'
 import { useDesigner } from '@/hooks/use-designer'
 import { TbLoader3 } from 'react-icons/tb'
+import { PublishedFormView } from '@/components/ui/published-form-view'
 
 export const FormBuilder = ({form}:{form:Form}) => {
-    const { content,createdAt,description,id,name,published,shareURL,submissions,userId,visits} = form
+    const { content,id,name,published,shareURL} = form
 
     const {setElements} = useDesigner()
 
@@ -41,8 +42,8 @@ const loadingTimer = setTimeout(() => {
   setisLoaded(true)
 }, 500);
 
-return () => clearImmediate(loadingTimer)
-},[content,setElements])
+return () => clearTimeout(loadingTimer)
+},[content,setElements,isLoaded])
 
 if(!isLoaded){
 return ( <div className='h-full w-full flex items-center justify-center'>
@@ -51,6 +52,11 @@ return ( <div className='h-full w-full flex items-center justify-center'>
   </div>)
 }
 
+const shareUrl = `${window.location.origin}/submit/${shareURL}`
+
+if(published){
+  return(<PublishedFormView shareUrl={shareUrl} id={id}/>)
+}
 
   return (
     <DndContext sensors={sensors}>
@@ -63,9 +69,10 @@ return ( <div className='h-full w-full flex items-center justify-center'>
 
     <div className="flex items-center gap-2">
         <PreviewDialogBtn/>
+        {/* edit form btn */}
         {!published && (<>
         <SaveFormBtn id={id}/>
-        <PublishFormBtn/>
+        <PublishFormBtn id={id}/>
         </>)}
     </div>
 </nav>
