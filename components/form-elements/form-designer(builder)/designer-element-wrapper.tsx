@@ -59,14 +59,14 @@ const {removeElement,setSelectedElement,selectedElement} = useDesigner()
         e.stopPropagation()
         setSelectedElement(element)
       }}
-      className='relative border-2 h-[120px] flex flex-col text-foreground 
+      className='relative border-2 h-[140px] flex flex-col text-foreground 
       hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset'>
 
 <div ref={topHalf.setNodeRef}  className= 'absolute top-0  w-full h-1/2 rounded-t-md'/>
 <div ref={bottomHalf.setNodeRef} className='absolute  bottom-0 w-full h-1/2 rounded-b-md'/>
 
 {mouseIsOver && (<>
-<div className='absolute top-1/2 h-[120px] w-full left-1/2 -translate-x-1/2  -translate-y-1/2 z-50 items-center bg-accent justify-between rounded-md flex flex-row'>
+<div className='absolute top-1/2 h-[140px] w-full left-1/2 -translate-x-1/2  -translate-y-1/2 z-50 items-center bg-accent justify-between rounded-md flex flex-row'>
 <p className="text-muted-foreground text-base w-full h-full flex justify-center items-center animate-pulse ">
   Click for properties or drag to move
 </p>
@@ -87,7 +87,7 @@ onClick={(e)=>{
   <div className='absolute top-0 w-full rounded-t-md h-[7px] bg-primary'/>
 )}
 
-    <div className={cn("flex w-full items-center rounded-md bg-accent/40 pointer-events-none px-4 py-2  h-[120px]")}>
+    <div className={cn("flex w-full items-center rounded-md bg-accent/40 pointer-events-none px-4 py-2  h-[140px]")}>
 
     <DesignerElement elementInstance={element}/>
     </div>

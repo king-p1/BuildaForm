@@ -152,13 +152,67 @@ return {message : 'Form created successfully!',error:false, formID:form.id}
             return {message : 'User not found!',error:true}
         }
 
+        const formData = await prisma.form.update({
+           select:{
+            content:true
+           },
+           data:{
+            visits:{
+                   increment:1
+               }
+           },
+            where:{
+                shareURL:id,
+            },
+        })
+
+        return {error:false,formData}
+    
+    }
+
+    export const SubmitFormAction = async(url:string,JsonContent:string)=>{
+        const user = await currentUser()
+
+        if(!user) {
+            return {message : 'User not found!',error:true}
+        }
+
+        const formData = await prisma.form.update({
+           data:{
+            submissions:{
+                   increment:1
+               },
+               FormSubmissions:{
+                create:{
+                    content:JsonContent
+                }
+               }
+           },
+            where:{
+                shareURL:url,
+                published:true
+            },
+        })
+
+        return {error:false,formData}
+    
+    }
+
+    export const GetFormTableData = async(id:number)=>{
+        const user = await currentUser()
+
+        if(!user) {
+            return {message : 'User not found!',error:true}
+        }
+
         const formData = await prisma.form.findUnique({
             where:{
-                userId:user.id,
+               userId:user.id,
+              id
             },
-            data:{
-                
-            }
+           include:{
+               FormSubmissions:true
+           },
         })
 
         return {error:false,formData}

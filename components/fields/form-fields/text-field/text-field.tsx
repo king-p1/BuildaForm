@@ -5,10 +5,10 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
-} from "../form-elements/sidebar-form-values/form-elemts-type";
-import { DesignerComponent } from "./designer-component";
-import { PropertiesComponent } from "./properties-component";
-import { FormComponent } from "./form-component";
+} from "../../../form-elements/sidebar-form-values/form-elemts-type";
+import { DesignerComponent } from "../../designer-component";
+import { PropertiesComponent } from "../../properties-component";
+import { FormComponent } from "./text-form-component";
 
 const type: ElementsType = "TextField";
 
@@ -34,6 +34,15 @@ export const TextFieldFormElement: FormElement = {
   designerComponent:  DesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: PropertiesComponent,
+  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
+    const element = formElement as CustomInstance
+    if(element.extraAttributes.required){
+      return currentValue.length > 0
+    }
+
+    return true
+  }
+
 };
 
 export type CustomInstance = FormElementsInstance & {

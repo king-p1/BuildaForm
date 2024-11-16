@@ -1,7 +1,7 @@
 import { getFormStats } from "@/actions/form";
 import { ReactNode } from "react";
 import * as z from 'zod'  
-import { formSchema, propertiesSchema } from "./form-schema";
+import { formSchema, propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema,datePropertiesSchema,selectPropertiesSchema } from "./form-schema";
 
 
 export interface StatCardsProps {
@@ -21,3 +21,12 @@ export interface StatCardProps {
 
 export type formSchemaType = z.infer<typeof formSchema>
 export type propertiesSchemaType = z.infer<typeof propertiesSchema>
+export type propertiesTitleSchemaType = z.infer<typeof propertiesTitleSchema>
+export type paragraphSchemaType = z.infer<typeof propertiesParagraphSchema>
+export type textAreaSchemaType = z.infer<typeof textAreaPropertiesSchema>
+export type dateSchemaType = z.infer<typeof datePropertiesSchema>
+export type selectSchemaType = z.infer<typeof selectPropertiesSchema>
+
+export type Row = {[key:string]:string} &{
+    submittedAt:Date
+}
