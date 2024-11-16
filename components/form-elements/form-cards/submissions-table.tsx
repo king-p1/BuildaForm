@@ -21,22 +21,22 @@ import { Checkbox } from "@/components/ui/checkbox"
 const RowCell = ({type,value}:{type:ElementsType ; value:string})=>{
  let node:ReactNode = value
 
-// switch (type) {
-//   case "DateField":
-//     if(!value) break
-//     const date = new Date(value)
-//     node = <Badge>{format(date,"dd/MM/yyyy")}</Badge>
-//     break;
+switch (type) {
+  case "DateField":
+    if(!value) break
+    const date = new Date(value)
+    node = <Badge>{format(date,"dd/MM/yyyy")}</Badge>
+    break;
   
-//     case "CheckboxField":
-//     if(!value) break
-//     const checked = value === 'true' ? true : false
-//     node = <Checkbox checked={checked} disabled />
-//     break;
+    case "CheckboxField":
+    if(!value) break
+    const checked = value === 'true' ? true : false
+    node = <Checkbox checked={checked} disabled />
+    break;
 
-//   default:
-//     break;
-// }
+  default:
+    break;
+}
 
   return(
 <TableCell>{node}</TableCell>
@@ -67,6 +67,10 @@ const columns :{
 formElements.forEach(element => {
   switch(element.type){
     case"TextField":
+    case"NumberField":
+    case"TextAreaField":
+    case"DateField":
+    case"CheckboxField":
     columns.push({
 id:element.id,
 label:element.extraAttributes?.label,

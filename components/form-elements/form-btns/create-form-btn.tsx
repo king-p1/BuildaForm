@@ -60,8 +60,7 @@ try {
           title: 'Success',
           description: message,
         })
-        // todo remove the log below
-        setTimeout(() => {
+         setTimeout(() => {
             form.reset({
                 name: '',
                 description: ''
