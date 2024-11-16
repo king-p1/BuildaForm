@@ -14,7 +14,7 @@ const type: ElementsType = "CheckboxField";
 
 const extraAttributes = {
   label: "Checkbox field",
-  helperText: "Pick a date",
+  helperText: "Helper text",
   required: false,
 }
 
@@ -36,7 +36,7 @@ export const CheckboxFieldFormElement: FormElement = {
   validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
     const element = formElement as CustomInstance
     if(element.extraAttributes.required){
-      return currentValue !== 'true'
+      return currentValue === 'true'
     }
 
     return true

@@ -40,7 +40,7 @@ useEffect(()=>{
         <Popover>
   <PopoverTrigger asChild>
   <div className="flex items-center justify-center mt-1 mb-2">
-      <Button className={cn('w-3/4 flex flex-row gap-2 items-center',!date && 'text-muted-foreground',error && 'bg-red-500')}>
+      <Button className={cn('w-3/4 flex flex-row gap-2 items-center',error && 'bg-red-500')}>
 <LuCalendar size={27} className=''/>
 {date ? format(date,"PPP") : 
 (

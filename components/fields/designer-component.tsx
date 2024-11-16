@@ -92,7 +92,7 @@ export const DateFieldDesignerComponent = ({elementInstance}:{elementInstance:Fo
   )
 }
 
-export const SelectFieldDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
+export const CheckboxFieldDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as CustomInstance
 
     const {helperText,label,required} = element.extraAttributes
@@ -118,7 +118,7 @@ className='-mt-3.5'
   )
 }
 
-export const CheckboxFieldDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
+export const SelectFieldDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as CustomInstance
 
     const {helperText,label,required,options,placeholder} = element.extraAttributes
