@@ -15,7 +15,7 @@ import { PublishedFormView } from '@/components/ui/published-form-view'
 export const FormBuilder = ({form}:{form:Form}) => {
     const { content,id,name,published,shareURL} = form
 
-    const {setElements} = useDesigner()
+    const {setElements,setSelectedElement} = useDesigner()
 
     const [isLoaded, setisLoaded] = useState<boolean>(false)
 
@@ -37,13 +37,13 @@ const touchSensor = useSensor(TouchSensor,{
       if(isLoaded) return
 const elements = JSON.parse(content)
 setElements(elements)
-
+setSelectedElement(null)
 const loadingTimer = setTimeout(() => {
   setisLoaded(true)
 }, 500);
 
 return () => clearTimeout(loadingTimer)
-},[content,setElements,isLoaded])
+},[content,setElements,isLoaded,setSelectedElement])
 
 if(!isLoaded){
 return ( <div className='h-full w-full flex items-center justify-center'>
