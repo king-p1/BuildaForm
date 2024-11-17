@@ -20,16 +20,8 @@ import {
   import { Textarea } from "@/components/ui/textarea";
 import { Switch } from '../ui/switch'
 import { Slider } from '../ui/slider'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Button } from '../ui/button'
 import { PiStackPlusLight,PiTrashDuotone } from "react-icons/pi";
-import { toast } from '@/hooks/use-toast'
 
 
 
@@ -39,7 +31,7 @@ export const PropertiesComponent = ({elementInstance}:{elementInstance:FormEleme
 
     const element = elementInstance as CustomInstance
 
-    const {helperText,label,placeholder,required} = element.extraAttributes
+    const {helperText,label,placeholder,required,limit} = element.extraAttributes
 
     const form = useForm<propertiesSchemaType>({
         resolver:zodResolver(propertiesSchema),
@@ -48,7 +40,8 @@ export const PropertiesComponent = ({elementInstance}:{elementInstance:FormEleme
             label,
             helperText,
             placeholder,
-            required
+            required,
+            limit
         }
     })
 
@@ -111,6 +104,35 @@ export const PropertiesComponent = ({elementInstance}:{elementInstance:FormEleme
             </FormControl>
             <FormDescription >
                 The placeholder value  
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      
+      <FormField
+        control={form.control}
+        name="limit"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Character Limit - {field.value}</FormLabel>
+            <FormDescription >
+              Set a character limit on this field
+            </FormDescription>
+            <FormControl>
+              <Slider
+                defaultValue={[limit]}
+                value={[field.value]}
+                min={1}
+                max={200}
+                step={1}
+          onValueChange={(value) => {
+            field.onChange(value[0])
+          }}
+        />
+            </FormControl>
+            <FormDescription >
+                The character limit value  
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -312,7 +334,7 @@ export const TextAreaPropertiesComponent = ({elementInstance}:{elementInstance:F
 
     const element = elementInstance as CustomInstance
 
-    const {helperText,label,placeholder,required,rows} = element.extraAttributes
+    const {helperText,label,placeholder,required,rows,limit} = element.extraAttributes
 
     const form = useForm<textAreaSchemaType>({
         resolver:zodResolver(textAreaPropertiesSchema),
@@ -322,7 +344,8 @@ export const TextAreaPropertiesComponent = ({elementInstance}:{elementInstance:F
             helperText,
             placeholder,
             required,
-            rows
+            rows,
+            limit
         }
     })
 
@@ -413,6 +436,34 @@ export const TextAreaPropertiesComponent = ({elementInstance}:{elementInstance:F
             </FormControl>
             <FormDescription >
                 The rows value  
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+<FormField
+        control={form.control}
+        name="limit"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Character Limit - {form.watch("limit")}</FormLabel>
+            <FormDescription >
+              Set a character limit on this field
+            </FormDescription>
+            <FormControl>
+              <Slider
+                defaultValue={[limit]}
+                min={10}
+                max={400}
+                step={1}
+          onValueChange={(value) => {
+            field.onChange(value[0])
+          }}
+        />
+            </FormControl>
+            <FormDescription >
+                The character limit value  
             </FormDescription>
             <FormMessage />
           </FormItem>

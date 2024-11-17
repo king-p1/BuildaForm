@@ -5,6 +5,7 @@ import { useDesigner } from '@/hooks/use-designer'
 import { toast } from '@/hooks/use-toast'
 import React, { useTransition } from 'react'
 import { TbLoader3 } from "react-icons/tb";
+import { LuSaveAll } from "react-icons/lu";
 
 export const SaveFormBtn = ({id}:{id:number}) => {
   const {elements} = useDesigner()
@@ -39,7 +40,9 @@ export const SaveFormBtn = ({id}:{id:number}) => {
       {loading ? (
         <TbLoader3 size={22} className='animate-spin dark:text-white text-black'/>
       ) : (
-        <span>Save</span>
+        <span className='flex gap-2 items-center'>
+          <LuSaveAll size={27}/>
+          Save</span>
       )}
 
     </Button>

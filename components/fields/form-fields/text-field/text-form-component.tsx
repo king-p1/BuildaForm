@@ -15,7 +15,13 @@ useEffect(()=>{
   setError(isInvalid === true)
 },[isInvalid])
 
-    const {helperText,label,placeholder,required} = element.extraAttributes
+    const {helperText, label, placeholder, required, limit} = element.extraAttributes
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value
+      if (limit && newValue.length > limit) return
+      setValue(newValue)
+    }
 
     const handleBlur = (e) => {
       if (!submitValue) return;
@@ -37,18 +43,39 @@ useEffect(()=>{
 
   return (
     <div className='flex flex-col gap-2 w-full p-2.5 border dark:border-white border-black rounded-md dark:bg-neutral-900'>
-        <Label className={cn(error && 'text-red-500' ,'font-semibold')}>
-        {label}
-        {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
-        </Label>
+    <Label className={cn(error && 'text-red-500', 'font-semibold')}>
+      {label}
+      {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
+    </Label>
 
-        <Input placeholder={placeholder} className={cn(error && 'border-red-500' ,'border-2 dark:border-white border-neutral-700')}
-        value={value}
-        onChange={(e)=>setValue(e.target.value)}
-        onBlur={handleBlur}
-        />
-        {helperText && (<p className={cn(error && 'text-red-500','text-muted-foreground text-xs')}>{helperText}</p>)}
-        </div>
+    <Input 
+      placeholder={placeholder} 
+      className={cn(
+        error && 'border-red-500',
+        value.length === limit && 'border-yellow-500',
+        'border-2 dark:border-white border-neutral-700'
+      )}
+      value={value}
+      onChange={handleChange}
+      onBlur={handleBlur}
+    />
+    
+    <div className="flex justify-between">
+      {helperText && (
+        <p className={cn(error && 'text-red-500', 'text-muted-foreground text-xs')}>
+          {helperText}
+        </p>
+      )}
+      {limit && (
+        <p className={cn(
+          value.length === limit && 'text-yellow-500',
+          'text-muted-foreground text-xs'
+        )}>
+          {`${value.length}/${limit} characters`}
+        </p>
+      )}
+    </div>
+</div>
   )
 }
 

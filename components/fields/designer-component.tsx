@@ -17,7 +17,7 @@ import { Checkbox } from '../ui/checkbox'
 export const DesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as CustomInstance
 
-    const {helperText,label,placeholder,required} = element.extraAttributes
+    const {helperText,label,placeholder,required,limit} = element.extraAttributes
 
   return (
     <div className='flex flex-col gap-2 w-full'>
@@ -27,7 +27,13 @@ export const DesignerComponent = ({elementInstance}:{elementInstance:FormElement
         </Label>
 
         <Input readOnly disabled placeholder={placeholder} className='border-2 dark:border-white border-neutral-700'/>
+
+        <div className="flex justify-between">
+
         {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
+        
+        {limit && <p className='text-muted-foreground text-xs'>{`0/${limit} characters`}</p>}
+        </div>
         </div>
   )
 }
@@ -53,7 +59,7 @@ export const NumberDesignerComponent = ({elementInstance}:{elementInstance:FormE
 export const TextAreaDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as CustomInstance
 
-    const {helperText,label,placeholder,required,rows} = element.extraAttributes
+    const {helperText,label,placeholder,required,limit} = element.extraAttributes
 
   return (
     <div className='flex flex-col gap-2 w-full'>
@@ -63,7 +69,13 @@ export const TextAreaDesignerComponent = ({elementInstance}:{elementInstance:For
         </Label>
 
         <Textarea  readOnly disabled  placeholder={placeholder} className='border-2 dark:border-white border-neutral-700'/>
+
+        <div className="flex justify-between">
+
         {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
+        
+        {limit && <p className='text-muted-foreground text-xs'>{`0/${limit} characters`}</p>}
+        </div>
         </div>
   )
 }

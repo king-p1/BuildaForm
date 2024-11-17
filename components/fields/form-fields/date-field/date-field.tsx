@@ -28,7 +28,7 @@ export const DateFieldFormElement: FormElement = {
   
   designerBtnElement:{
     icon: BsCalendar2Date,
-    label:'Date field'
+    label:'Date Field'
   },
   designerComponent:  DateFieldDesignerComponent ,
   formComponent: FormComponent,

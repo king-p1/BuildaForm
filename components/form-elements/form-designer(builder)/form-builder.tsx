@@ -64,7 +64,9 @@ if(published){
 
 <nav className="flex justify-between border-b-2 p-4 gap-3 items-center">
     <h2 className="text-muted-foreground truncate">
-        Form :{name}
+        Form: <span className='capitalize'>
+          {name}
+          </span>
     </h2>
 
     <div className="flex items-center gap-2">

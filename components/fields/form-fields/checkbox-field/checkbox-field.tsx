@@ -28,7 +28,7 @@ export const CheckboxFieldFormElement: FormElement = {
   
   designerBtnElement:{
     icon: RiCheckboxMultipleLine,
-    label:'Checkbox field'
+    label:'Checkbox Field'
   },
   designerComponent:  CheckboxFieldDesignerComponent ,
   formComponent: FormComponent,

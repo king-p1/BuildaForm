@@ -10,7 +10,7 @@ import { DateFieldFormElement } from "@/components/fields/form-fields/date-field
 import { SelectFieldFormElement } from "@/components/fields/form-fields/select-field/select-field"
 import { CheckboxFieldFormElement } from "@/components/fields/form-fields/checkbox-field/checkbox-field"
 
-export type ElementsType = "TextField" | "TitleField" | "SubTitleField" |"ParagraphField"  |  "NumberField" | "TextAreaField" | "DateField" | "SelectField" | "CheckboxField"
+export type ElementsType = "TextField" | "TitleField" | "SubTitleField" |"ParagraphField"  |  "NumberField" | "TextAreaField" | "DateField" | "SelectField" | "CheckboxField"  | "ImageUploadField" | "FileInputField"
 
 export type SubmitFunction = (key:string,value:string)=>void
 
@@ -61,4 +61,6 @@ export const FormElements:FormElementsType = {
     DateField:DateFieldFormElement,
     SelectField:SelectFieldFormElement,
     CheckboxField:CheckboxFieldFormElement,
+    // ImageUploadField:ImageUploadFieldFormElement,
+    // FileInputField:FileInputFieldFormElement,
 }

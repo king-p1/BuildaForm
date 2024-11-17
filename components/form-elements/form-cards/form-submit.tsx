@@ -5,6 +5,13 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/use-toast'
 import { TbLoader3 } from 'react-icons/tb'
 import { SubmitFormAction } from '@/actions/form'
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+  } from "@/components/ui/card"
+  import { FiSave } from "react-icons/fi";
 
 export const FormSubmitComponent = ({content,url}:{
     url:string,
@@ -74,14 +81,37 @@ try {
         })
 }
 
-console.log(formValues.current)
+// console.log(formValues.current)
     }
 
 
-// create a custom ui to show something prompting the user to close this page once the forms submitted successsfully
+
+
+if(submitted){
+    return(
+        <div className='h-[80vh] w-full flex items-center justify-center   motion-preset-expand  '>
+            <Card className='w-1/2 border-2 shadow-lg shadow-emerald-700 p-3'>
+  <CardHeader>
+    <CardTitle className='text-center p-2 font-semibold text-2xl'>
+    Form Submitted Successfully
+        </CardTitle>
+
+  </CardHeader>
+  <div className='border-t-2 -mt-2 mx-3'/>
+  <CardContent className='p-4  text-center flex items-center justify-center'>
+  Thank you! Your form has been successfully submitted.
+  </CardContent>
+
+</Card>
+
+        </div>
+    )
+}
 
 
   return (
+
+  
     <div className='h-full w-full items-center flex justify-center p-8 '>
         <div key={renderKey} className="flex flex-col max-w-[625px] flex-grow gap-4 bg-background w-full p-8 overflow-y-auto shadow-xl rounded-lg border-2">
             {content.map((element)=>{
@@ -99,7 +129,9 @@ console.log(formValues.current)
             > {loading ? (
                 <TbLoader3 size={26} className='animate-spin  text-white dark:text-black'/>
               ) : (
-                <span>Submit</span>
+                <span className='flex gap-2 font-semibold items-center'>
+                    <FiSave size={30}/>
+                    Submit</span>
               )}
         </Button>
         </div>

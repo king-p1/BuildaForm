@@ -16,7 +16,8 @@ const extraAttributes = {
   helperText: "Helper text",
   required: false,
   placeholder:'Enter value here...',
-  rows:3
+  rows:3,
+  limit:150
 }
 
 export const TextAreaFieldFormElement: FormElement = {

@@ -15,7 +15,13 @@ useEffect(()=>{
   setError(isInvalid === true)
 },[isInvalid])
 
-    const {helperText,label,placeholder,required,rows} = element.extraAttributes
+    const {helperText,label,placeholder,required,rows,limit} = element.extraAttributes
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const newValue = e.target.value
+      if (limit && newValue.length > limit) return
+      setValue(newValue)
+    }
 
     const handleBlur = (e) => {
       if (!submitValue) return;
@@ -47,10 +53,26 @@ useEffect(()=>{
         placeholder={placeholder} 
         className={cn(error && 'border-red-500' ,'border-2 dark:border-white border-neutral-700')}
         value={value}
-        onChange={(e)=>setValue(e.target.value)}
+        onChange={handleChange}
+
         onBlur={handleBlur}
         />
-        {helperText && (<p className={cn(error && 'text-red-500','text-muted-foreground text-xs')}>{helperText}</p>)}
+
+  <div className="flex justify-between">
+      {helperText && (
+        <p className={cn(error && 'text-red-500', 'text-muted-foreground text-xs')}>
+          {helperText}
+        </p>
+      )}
+      {limit && (
+        <p className={cn(
+          value.length === limit && 'text-yellow-500',
+          'text-muted-foreground text-xs'
+        )}>
+          {`${value.length}/${limit} characters`}
+        </p>
+      )}
+    </div>
         </div>
   )
 }

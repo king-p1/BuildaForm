@@ -13,7 +13,7 @@ const FormSubmissionsLayout = async({children}:{
   return (
     <section className='flex flex-col min-h-screen min-w-full max-h-screen'>
 <Navbar/>
-<main className='w-full flex flex-grow'>
+<main className='w-full flex flex-grow items-center'>
 
         {children}
 </main>

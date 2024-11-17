@@ -16,6 +16,7 @@ import { TbLoader3 } from 'react-icons/tb'
 import { publishForm } from '@/actions/form'
 import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
+import { ImUpload } from "react-icons/im";
 
 
 export const PublishFormBtn = ({id}:{id:number}) => {
@@ -44,7 +45,9 @@ router.refresh()
     <AlertDialog>
   <AlertDialogTrigger asChild>
 
-  <Button variant='default'>Publish</Button>
+  <Button variant='default' className='flex items-center gap-2'>
+    <ImUpload size={27}/>
+    Publish</Button>
   </AlertDialogTrigger>
   <AlertDialogContent>
     <AlertDialogHeader>

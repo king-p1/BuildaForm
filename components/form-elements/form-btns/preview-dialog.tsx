@@ -17,6 +17,7 @@ import {
 } from "../../ui/card";
 import { useDesigner } from '@/hooks/use-designer';
 import { FormElements } from '../sidebar-form-values/form-elemts-type';
+import { VscPreview } from "react-icons/vsc";
 
 export const PreviewDialogBtn = () => {
 const {elements} = useDesigner()
@@ -26,10 +27,12 @@ const {elements} = useDesigner()
     <div className="">
     <Dialog>
     <DialogTrigger asChild>
-      <Button variant='outline'>Preview</Button> 
+      <Button variant='outline' className='flex items-center gap-2'>
+        <VscPreview size={27}/>
+        Preview</Button> 
     </DialogTrigger>
 
-    <DialogContent className='h-[91vh] w-[90vw] max-h-[90vh] max-w-[90vw] overflow-y-auto custom-scrollbar-2'>
+    <DialogContent className='h-[91vh] w-[90vw] max-h-[90vh] flex flex-col gap-4 max-w-[90vw] overflow-y-auto custom-scrollbar-2'>
       <DialogHeader >
         <DialogTitle>Form Preview</DialogTitle>
         <DialogDescription>

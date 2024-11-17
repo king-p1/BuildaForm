@@ -16,7 +16,8 @@ const extraAttributes = {
   label: "Text field",
   helperText: "Helper text",
   required: false,
-  placeholder:'Enter value here...'
+  placeholder:'Enter value here...',
+  limit:50
 }
 
 export const TextFieldFormElement: FormElement = {
