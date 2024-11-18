@@ -9,27 +9,37 @@ datasource db {
 }
 
 model Form {
-  id          Int      @id @default(autoincrement())
-  userId      String
-  createdAt   DateTime @default(now())
-  published   Boolean  @default(false)
-  name        String
-  description String   @default("")
-  content     String   @default("[]")
+  id            Int      @id @default(autoincrement())
+  userId        String
+  createdBy     String
+  createdAt     DateTime @default(now())
+  published     Boolean  @default(false)
+  isDeactivated Boolean  @default(false)
+  name          String
+  description   String   @default("")
+  content       String   @default("[]")
 
   visits          Int               @default(0)
   submissions     Int               @default(0)
-  shareURL        String          @unique @default(uuid())
+  shareURL        String            @unique @default(uuid())
   FormSubmissions FormSubmissions[]
+  allowMultipleSubmissions Boolean @default(false)
+  maxSubmissions Int     @default(0)
+  expiresAt     DateTime?
+  lastUpdatedAt DateTime @updatedAt
 
-  @@unique([name,userId])
+  @@unique([name, userId])
 }
 
 model FormSubmissions {
-  // add a user field here for the user who submits
   id        Int      @id @default(autoincrement())
+  email     String
   createdAt DateTime @default(now())
+  lastUpdatedAt DateTime @updatedAt
+  status    String   @default("draft")
   formId    Int
   form      Form     @relation(fields: [formId], references: [id])
   content   String
+  feedback  String   @default("")  
+
 }

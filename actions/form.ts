@@ -49,7 +49,7 @@ export const generateForm =async(data:formSchemaType)=>{
         return {message : 'User not found!',error:true}
     }
 
-    const {name,description} = data
+    const {name,description,maxSubmissions,} = data
     const form = await prisma.form.create({
 data:{
 userId:user.id,

@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import { Form } from "@prisma/client";
 import {
@@ -14,21 +15,22 @@ import { LuView } from "react-icons/lu";
 import { Button } from "../../ui/button";
 import Link from "next/link";
 import { FiEdit } from "react-icons/fi";
+import { HiOutlineViewfinderCircle } from "react-icons/hi2";
+import { LuTrash2 } from "react-icons/lu";
+import { toast } from "@/hooks/use-toast";
 
 export const FormCard = ({ form }: { form: Form }) => {
   const {
     name,
-    content,
     createdAt,
     description,
     id,
     published,
-    shareURL,
     submissions,
     visits,
   } = form;
   return (
-    <Card className="my-2 p-1 flex flex-col gap-2 justify-between">
+    <Card className="my-2 p-1 flex flex-col gap-2 justify-between border-2">
       <CardHeader>
         <CardTitle className="flex flex-row justify-between gap-3 items-center">
           <span className="truncate font-semibold capitalize">{name}</span>
@@ -39,18 +41,20 @@ export const FormCard = ({ form }: { form: Form }) => {
           )}
         </CardTitle>
 
-        <CardDescription className="flex  flex-col gap-2 text-muted-foreground text-sm">
-          {formatDistance(createdAt, new Date(), {
-            addSuffix: true,
-          })}
+        <CardDescription className="flex flex-col gap-2 text-muted-foreground text-sm">
+          <span>
+            {formatDistance(createdAt, new Date(), {
+              addSuffix: true,
+            })}
+          </span>
 
           {!published && (
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <span className="flex items-center gap-2 text-muted-foreground">
               <LuView />
               <span>{visits.toLocaleString()}</span>
               <LuView />
               <span>{submissions.toLocaleString()}</span>
-            </div>
+            </span>
           )}
         </CardDescription>
       </CardHeader>
@@ -58,16 +62,30 @@ export const FormCard = ({ form }: { form: Form }) => {
         {description || "No description available"}
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="flex items-center justify-between w-full gap-3">
         {published ? (
-          <Button className="w-full" variant="default" asChild>
-            <Link href={`/dashboard/form/${id}`}>View Submissions</Link>
+          <Button className="w-full font-semibold" variant="default" asChild>
+            <Link href={`/dashboard/form/${id}`} className="flex items-center gap-2">
+            <HiOutlineViewfinderCircle size={27}/>
+            View Submissions</Link>
           </Button>
         ) : (
-          <Button className="w-full" variant="secondary">
-            <Link href={`/dashboard/form-builder/${id}`} className="flex gap-4"><FiEdit className="dark:text-white" size={22}/>Edit Form</Link>
+          <Button className="w-full font-semibold" variant="secondary">
+            <Link href={`/dashboard/form-builder/${id}`} className="flex items-center gap-2"><FiEdit className="dark:text-white" size={27}/>Edit Form</Link>
           </Button>
         )}
+
+          <Button className=" font-semibold bg-red-700 hover:bg-red-500" 
+          onClick={()=>{
+          toast({
+          title:'Success',
+          description:'Form has been deleted',
+          })
+          }}
+           >
+             <LuTrash2 className="dark:text-white" size={33}/>
+          </Button>
+
       </CardFooter>
     </Card>
   );
