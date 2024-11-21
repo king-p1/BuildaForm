@@ -1,5 +1,5 @@
 "use client";
-import { LuImagePlus } from "react-icons/lu";
+import { ImageUp } from 'lucide-react';
 
 import {
   ElementsType,
@@ -8,12 +8,12 @@ import {
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { ImageUploadDesignerComponent } from "../../designer-component";
 import { ImageUploadPropertiesComponent } from "../../properties-component";
-import { FormComponent } from "./image-form-component";
+import { FormComponent } from "./image-upload-form-component";
 
 const type: ElementsType = "ImageUploadField";
 
 const extraAttributes = {
-  label: "Image field",
+  label: "Image Upload field",
   helperText: "Helper text",
 }
 
@@ -26,8 +26,8 @@ export const ImageUploadFieldFormElement: FormElement = {
   }),
   
   designerBtnElement:{
-    icon: LuImagePlus ,
-    label:'Image Field'
+    icon: ImageUp ,
+    label:'Image Upload'
   },
   designerComponent:  ImageUploadDesignerComponent ,
   formComponent: FormComponent,

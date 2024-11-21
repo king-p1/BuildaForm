@@ -12,6 +12,7 @@ export const FormElementSidebar = () => {
       <SidebarBtnElement formElement={FormElements.TitleField}/>
       <SidebarBtnElement formElement={FormElements.SubTitleField}/>
       <SidebarBtnElement formElement={FormElements.ParagraphField}/>
+      <SidebarBtnElement formElement={FormElements.ImageField}/>
 
       </div>
       
@@ -25,7 +26,7 @@ export const FormElementSidebar = () => {
       <SidebarBtnElement formElement={FormElements.SelectField}/>
       <SidebarBtnElement formElement={FormElements.CheckboxField}/>
       <SidebarBtnElement formElement={FormElements.ImageUploadField}/>
-      {/* <SidebarBtnElement formElement={FormElements.FileInputField}/> */}
+      <SidebarBtnElement formElement={FormElements.FileUploadField}/>
       </div>
       
         

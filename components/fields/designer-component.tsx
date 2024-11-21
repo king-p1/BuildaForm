@@ -62,6 +62,30 @@ export const ImageUploadDesignerComponent = ({elementInstance}:{elementInstance:
   )
 }
 
+export const FileUploadDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
+    const element = elementInstance as CustomInstance
+
+    const {helperText,label,placeholder,required,limit} = element.extraAttributes
+
+  return (
+    <div className='flex flex-col gap-2 w-full'>
+        <Label className='font-semibold'>
+        {label}
+        {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
+        </Label>
+
+        <Input readOnly disabled placeholder={placeholder} className='border-2 dark:border-white border-neutral-700'/>
+
+        <div className="flex justify-between">
+
+        {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
+        
+        {limit && <p className='text-muted-foreground text-xs'>{`0/${limit} characters`}</p>}
+        </div>
+        </div>
+  )
+}
+
 export const NumberDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as CustomInstance
 
@@ -238,4 +262,28 @@ export const ParagraphDesignerComponent = ({elementInstance}:{elementInstance:Fo
  
         </div>
   )
+}
+
+export const ImageDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
+  const element = elementInstance as CustomInstance
+
+  const {helperText,label,placeholder,required,limit} = element.extraAttributes
+
+return (
+  <div className='flex flex-col gap-2 w-full'>
+      <Label className='font-semibold'>
+      {label}
+      {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
+      </Label>
+
+      <Input readOnly disabled placeholder={placeholder} className='border-2 dark:border-white border-neutral-700'/>
+
+      <div className="flex justify-between">
+
+      {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
+      
+      {limit && <p className='text-muted-foreground text-xs'>{`0/${limit} characters`}</p>}
+      </div>
+      </div>
+)
 }
