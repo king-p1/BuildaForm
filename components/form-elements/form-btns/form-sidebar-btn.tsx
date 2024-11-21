@@ -21,7 +21,7 @@ data:{
     {...draggable.listeners}
     {...draggable.attributes}
     className={cn('flex flex-col gap-2 h-[123px] dark:bg-neutral-900 border-2 bg-neutral-100 dark:text-white hover:bg-neutral-200 hover:dark:bg-neutral-800 text-black w-[123px] cursor-grab',draggable.isDragging && 'border-2 border-neutral-600')}>
-        <Icon className='h-9 w-9 cursor-grab'/>
+        <Icon className='h-10 w-10 cursor-grab'/>
 <p className="text-sm font-semibold text-center">{label}</p>
     </Button>
   )

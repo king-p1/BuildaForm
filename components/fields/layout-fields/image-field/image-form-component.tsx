@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { FormElementsInstance, SubmitFunction } from '../../../form-elements/sidebar-form-values/form-elemts-type'
 import { CustomInstance, ImageFieldFormElement } from './image-field'
 import { Label } from '../../../ui/label'
-import { Input } from '../../../ui/input'
 import { cn } from '@/lib/utils'
  
 
@@ -43,7 +42,7 @@ useEffect(()=>{
       {label}
     </Label>
 
- default image space here.
+ imagekit image upload area and upload image space here.
     
     <div className="flex justify-between">
       {helperText && (

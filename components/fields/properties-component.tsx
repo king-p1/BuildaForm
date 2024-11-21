@@ -2,9 +2,9 @@
 import React, { useEffect } from 'react'
 import { FormElementsInstance } from '../form-elements/sidebar-form-values/form-elemts-type'
 import { CustomInstance } from './form-fields/text-field/text-field'
-import { propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema, datePropertiesSchema,selectPropertiesSchema } from '@/lib/form-schema'
+import { propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema, datePropertiesSchema,selectPropertiesSchema, imageSchema } from '@/lib/form-schema'
 import { useForm } from 'react-hook-form'
-import { dateSchemaType, paragraphSchemaType, propertiesSchemaType, propertiesTitleSchemaType,textAreaSchemaType,selectSchemaType } from '@/lib/types'
+import { dateSchemaType, paragraphSchemaType, propertiesSchemaType, propertiesTitleSchemaType,textAreaSchemaType,selectSchemaType, imageSchemaType } from '@/lib/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useDesigner } from '@/hooks/use-designer'
 import {
@@ -1464,17 +1464,16 @@ export const ImagePropertiesComponent = ({elementInstance}:{elementInstance:Form
 
   const element = elementInstance as CustomInstance
 
-  const {helperText,label,placeholder,required,limit} = element.extraAttributes
 
-  const form = useForm<propertiesSchemaType>({
-      resolver:zodResolver(propertiesSchema),
+  const {helperText, label,src} = element.extraAttributes
+
+  const form = useForm<imageSchemaType>({
+      resolver:zodResolver(imageSchema),
       mode:'onBlur',
       defaultValues:{
           label,
           helperText,
-          placeholder,
-          required,
-          limit
+         src
       }
   })
 
@@ -1482,7 +1481,7 @@ export const ImagePropertiesComponent = ({elementInstance}:{elementInstance:Form
       form.reset(element.extraAttributes)
   },[form,element])
 
-  const applyFormChanges = (values:propertiesSchemaType) =>{
+  const applyFormChanges = (values:imageSchemaType) =>{
       updateElement(element.id,{
           ...element,
           extraAttributes:{
@@ -1519,58 +1518,9 @@ return (
       )}
     />
 
-    <FormField
-      control={form.control}
-      name="placeholder"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Placeholder</FormLabel>
-          <FormDescription >
-            Character count: {field.value?.length || 0}/40
-          </FormDescription>
-          <FormControl>
-            <Input {...field}
-            onKeyDown={(e)=>{
-              if(e.key === 'Enter') e.currentTarget.blur() //saves the info 
-            }}
-            />
-          </FormControl>
-          <FormDescription >
-              The placeholder value  
-          </FormDescription>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
     
-    <FormField
-      control={form.control}
-      name="limit"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Character Limit - {field.value}</FormLabel>
-          <FormDescription >
-            Set a character limit on this field
-          </FormDescription>
-          <FormControl>
-            <Slider
-              defaultValue={[limit]}
-              value={[field.value]}
-              min={1}
-              max={200}
-              step={1}
-        onValueChange={(value) => {
-          field.onChange(value[0])
-        }}
-      />
-          </FormControl>
-          <FormDescription >
-              The character limit value  
-          </FormDescription>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    so on this component do not show the picture, only show it in the form and designer component just show the url maybe we will add another input field
+     
 
     <FormField
       control={form.control}
@@ -1596,29 +1546,7 @@ return (
       )}
     />
 
-    <FormField
-      control={form.control}
-      name="required"
-      render={({ field }) => (
-        <FormItem className='flex items-center justify-between rounded-lg border-2 p-3 shadow-md '>
-
-          <div className="space-y-0 5">
-
-          <FormLabel>Required</FormLabel>
-              <FormMessage />
-          <FormDescription >
-           Toggle switch to make this field required.
-          </FormDescription>
-          </div>
-
-          <FormControl>
-            <Switch checked={field.value}
-onCheckedChange={field.onChange}               
-            />
-          </FormControl>
-        </FormItem>
-      )}
-    />
+ 
     </form>
     </Form>
 )

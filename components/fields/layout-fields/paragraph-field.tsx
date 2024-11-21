@@ -1,5 +1,6 @@
 "use client";
-import { RiParagraph } from "react-icons/ri";
+import { PiArticleMediumBold } from "react-icons/pi";
+
 import {
   ElementsType,
   FormElement,
@@ -24,8 +25,8 @@ export const ParagraphFieldFormLayoutElement: FormElement = {
   }),
   
   designerBtnElement:{
-    icon: RiParagraph ,
-    label:'Paragraph Field'
+    icon: PiArticleMediumBold ,
+    label:'Article Field'
   },
   designerComponent:  ParagraphDesignerComponent ,
   formComponent: ParagraphFormComponent,

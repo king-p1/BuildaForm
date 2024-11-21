@@ -20,6 +20,12 @@ export const propertiesSchema = z.object({
     limit: z.number().min(1).max(200).default(50)
 })
 
+export const imageSchema = z.object({
+    src:z.string(),
+    label:z.string().min(4).max(40),
+    helperText:z.string().min(4).max(180),
+})
+
 export const selectPropertiesSchema = z.object({
     label:z.string().min(4).max(40),
     helperText:z.string().min(4).max(180),
