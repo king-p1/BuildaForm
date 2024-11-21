@@ -2,7 +2,14 @@ import * as z from 'zod'
 
 export const formSchema = z.object({
     name:z.string().min(4).max(40),
-    description:z.string().optional()
+    description:z.string().optional(),
+    maxSubmissions: z.number().min(0).default(0),
+    allowMultipleSubmissions: z.boolean().default(false),
+    expiresAt: z.date().optional().nullable(),
+})
+
+export const feedbackFormSchema = z.object({
+    content:z.string().min(10).max(320),
 })
 
 export const propertiesSchema = z.object({

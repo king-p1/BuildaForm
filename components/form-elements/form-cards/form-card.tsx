@@ -16,8 +16,7 @@ import { Button } from "../../ui/button";
 import Link from "next/link";
 import { FiEdit } from "react-icons/fi";
 import { HiOutlineViewfinderCircle } from "react-icons/hi2";
-import { LuTrash2 } from "react-icons/lu";
-import { toast } from "@/hooks/use-toast";
+import { DeleteFormBtn } from "../form-btns/delete-form-btn";
 
 export const FormCard = ({ form }: { form: Form }) => {
   const {
@@ -75,16 +74,7 @@ export const FormCard = ({ form }: { form: Form }) => {
           </Button>
         )}
 
-          <Button className=" font-semibold bg-red-700 hover:bg-red-500" 
-          onClick={()=>{
-          toast({
-          title:'Success',
-          description:'Form has been deleted',
-          })
-          }}
-           >
-             <LuTrash2 className="dark:text-white" size={33}/>
-          </Button>
+       <DeleteFormBtn id={id}/>
 
       </CardFooter>
     </Card>

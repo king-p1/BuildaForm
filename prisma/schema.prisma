@@ -19,27 +19,26 @@ model Form {
   description   String   @default("")
   content       String   @default("[]")
 
-  visits          Int               @default(0)
-  submissions     Int               @default(0)
-  shareURL        String            @unique @default(uuid())
-  FormSubmissions FormSubmissions[]
-  allowMultipleSubmissions Boolean @default(false)
-  maxSubmissions Int     @default(0)
-  expiresAt     DateTime?
-  lastUpdatedAt DateTime @updatedAt
+  visits                   Int               @default(0)
+  submissions              Int               @default(0)
+  maxSubmissions           Int               @default(0)
+  shareURL                 String            @unique @default(uuid())
+  FormSubmissions          FormSubmissions[]
+  allowMultipleSubmissions Boolean           @default(false)
+  expiresAt                DateTime?
+  lastUpdatedAt            DateTime          @updatedAt
 
   @@unique([name, userId])
 }
 
 model FormSubmissions {
-  id        Int      @id @default(autoincrement())
-  email     String
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  email         String
+  createdAt     DateTime @default(now())
   lastUpdatedAt DateTime @updatedAt
-  status    String   @default("draft")
-  formId    Int
-  form      Form     @relation(fields: [formId], references: [id])
-  content   String
-  feedback  String   @default("")  
-
+  status        String   @default("draft")
+  formId        Int
+  form          Form     @relation(fields: [formId], references: [id])
+  content       String
+  feedback      String   @default("")
 }

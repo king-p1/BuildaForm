@@ -2,7 +2,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -11,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { TbLoader3 } from "react-icons/tb";
 import { LuFileEdit } from "react-icons/lu";
+import { HiOutlineSaveAs } from "react-icons/hi";
 import {
   Form,
   FormControl,
@@ -29,6 +29,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { generateForm } from "@/actions/form";
 import { useRouter } from "next/navigation";
+import { Switch } from "@/components/ui/switch"; // Add this
+import { Calendar } from "@/components/ui/calendar"; // Add this
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Add this
+import { cn } from "@/lib/utils";
+import { format } from "date-fns"; // Add this
+import { CalendarIcon } from "lucide-react"; // Add this
 
 type ResponseTypes ={
     error:boolean,
@@ -42,6 +48,13 @@ export const CreateFormButton = () => {
 
   const form = useForm<formSchemaType>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      maxSubmissions: 0,
+      allowMultipleSubmissions: false,
+      expiresAt: null,
+  },
   });
 
   const onSubmit =async (values: formSchemaType) => {
@@ -61,10 +74,13 @@ try {
           description: message,
         })
          setTimeout(() => {
-            form.reset({
-                name: '',
-                description: ''
-              });
+          form.reset({
+            name: '',
+            description: '',
+            maxSubmissions: 0,
+            allowMultipleSubmissions: false,
+            expiresAt: null
+        });
 
               router.push(`/dashboard/form-builder/${formID}`)
         }, 1000);
@@ -82,21 +98,23 @@ description:'An error has occurred, please try again.'
 };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="secondary" className="flex items-center gap-3">
-          <LuFileEdit className="dark:text-white" />
-          Create a new form
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create a Form</DialogTitle>
-        </DialogHeader>
+<Dialog>
+<DialogTrigger asChild>
+<Button variant="secondary" className="flex items-center gap-3">
+<LuFileEdit className="dark:text-white" />
+Create a new form
+</Button>
+</DialogTrigger>
+<DialogContent className="sm:max-w-[425px]">
+<DialogHeader>
+<DialogTitle>Create a Form</DialogTitle>
+</DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <FormField
+<Form {...form}>
+<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+{/* Existing name and description fields ... */}
+
+         <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
@@ -127,23 +145,116 @@ description:'An error has occurred, please try again.'
               )}
             />
 
-            <DialogFooter>
-              <Button
-                className="w-full mt-3"
-                disabled={form.formState.isSubmitting}
-                type="submit"
-              >
-                {form.formState.isSubmitting && (
-                  <TbLoader3 className="animate-spin" size={28} />
-                )}
-                {!form.formState.isSubmitting && (
-                  <p className="font-semibold text-base">Save</p>
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
+<FormField
+control={form.control}
+name="maxSubmissions"
+render={({ field }) => (
+<FormItem>
+    <FormLabel>Maximum Submissions</FormLabel>
+    <FormControl>
+        <Input 
+            type="number" 
+            {...field} 
+            onChange={e => field.onChange(Number(e.target.value))}
+            min={0}
+        />
+    </FormControl>
+    <FormDescription>
+        Set to 0 for unlimited submissions
+    </FormDescription>
+    <FormMessage />
+</FormItem>
+)}
+/>
+
+<FormField
+control={form.control}
+name="allowMultipleSubmissions"
+render={({ field }) => (
+<FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+    <div className="space-y-0.5">
+        <FormLabel className="text-base">
+            Allow Multiple Submissions
+        </FormLabel>
+        <FormDescription>
+            Let users submit the form multiple times
+        </FormDescription>
+    </div>
+    <FormControl>
+        <Switch
+            checked={field.value}
+            onCheckedChange={field.onChange}
+        />
+    </FormControl>
+</FormItem>
+)}
+/>
+
+<FormField
+control={form.control}
+name="expiresAt"
+render={({ field }) => (
+<FormItem className="flex flex-col">
+    <FormLabel>Expiry Date</FormLabel>
+    <Popover>
+        <PopoverTrigger asChild>
+            <FormControl>
+                <Button
+                    variant={"outline"}
+                    className={cn(
+                        "w-full pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground"
+                    )}
+                >
+                    {field.value ? (
+                        format(field.value, "PPP")
+                    ) : (
+                        <span>No expiration date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+            </FormControl>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+                mode="single"
+                selected={field.value || undefined}
+                onSelect={field.onChange}
+                disabled={(date) =>
+                    date < new Date()
+                }
+                initialFocus
+            />
+        </PopoverContent>
+    </Popover>
+    <FormDescription>
+        Set a date when the form will automatically close
+    </FormDescription>
+    <FormMessage />
+</FormItem>
+)}
+/>
+
+<DialogFooter>
+<Button
+className="w-full mt-1"
+disabled={form.formState.isSubmitting}
+type="submit"
+>
+{form.formState.isSubmitting && (
+    <TbLoader3 className="animate-spin" size={28} />
+)}
+{!form.formState.isSubmitting && (
+    <p className="font-semibold text-base flex items-center gap-2">
+      <HiOutlineSaveAs size={33}/>
+       Save</p>
+)}
+</Button>
+</DialogFooter>
+</form>
+</Form>
+</DialogContent>
+</Dialog>
+
+);
 };

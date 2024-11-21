@@ -45,18 +45,24 @@ export const generateForm =async(data:formSchemaType)=>{
 
         const user = await currentUser()
 
-    if(!user) {
-        return {message : 'User not found!',error:true}
-    }
 
-    const {name,description,maxSubmissions,} = data
-    const form = await prisma.form.create({
-data:{
-userId:user.id,
-name,
-description
+if(!user) {
+    return {message : 'User not found!',error:true}
 }
-    })
+
+const {name, description, maxSubmissions, allowMultipleSubmissions, expiresAt} = data
+const form = await prisma.form.create({
+data:{
+    userId: user.id,
+    name,
+    description: description || "",
+    maxSubmissions: maxSubmissions || 0,
+    allowMultipleSubmissions: allowMultipleSubmissions || false,
+    expiresAt: expiresAt || null,
+    createdBy: user.emailAddresses[0].emailAddress,
+    
+}
+})
 
 if(!form) {
     return {message : 'An error occurred!',error:true}
@@ -218,6 +224,40 @@ return {message : 'Form created successfully!',error:false, formID:form.id}
         return {error:false,formData}
     
     }
+
+    // ... existing code ...
+
+export const deleteForm = async (id: number) => {
+    const user = await currentUser();
+
+    if (!user) {
+        return { message: 'User not found!', error: true };
+    }
+
+    // Use a transaction to delete the form and its submissions
+      await prisma.$transaction(async (prisma) => {
+        // Delete form submissions first
+        await prisma.formSubmissions.deleteMany({
+            where: {
+                formId: id,
+                form: {
+                    userId: user.id, // Ensure the user owns the form
+                },
+            },
+        });
+
+        // Then delete the form
+        await prisma.form.delete({
+            where: {
+                id,
+                userId: user.id, // Ensure the user owns the form
+            },
+        });
+
+    });
+
+    return { message: 'Form deleted successfully!', error: false };
+};
 
     //todo add an edit published form function
 

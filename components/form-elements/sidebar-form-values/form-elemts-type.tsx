@@ -9,6 +9,7 @@ import { TextAreaFieldFormElement } from "@/components/fields/form-fields/textar
 import { DateFieldFormElement } from "@/components/fields/form-fields/date-field/date-field"
 import { SelectFieldFormElement } from "@/components/fields/form-fields/select-field/select-field"
 import { CheckboxFieldFormElement } from "@/components/fields/form-fields/checkbox-field/checkbox-field"
+import { ImageUploadFieldFormElement } from "@/components/fields/form-fields/image-field/image-field"
 
 export type ElementsType = "TextField" | "TitleField" | "SubTitleField" |"ParagraphField"  |  "NumberField" | "TextAreaField" | "DateField" | "SelectField" | "CheckboxField"  | "ImageUploadField" | "FileInputField"
 
@@ -61,6 +62,6 @@ export const FormElements:FormElementsType = {
     DateField:DateFieldFormElement,
     SelectField:SelectFieldFormElement,
     CheckboxField:CheckboxFieldFormElement,
-    // ImageUploadField:ImageUploadFieldFormElement,
+    ImageUploadField:ImageUploadFieldFormElement,
     // FileInputField:FileInputFieldFormElement,
 }
