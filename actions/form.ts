@@ -176,55 +176,60 @@ return {message : 'Form created successfully!',error:false, formID:form.id}
     
     }
 
-    export const SubmitFormAction = async(url:string,JsonContent:string)=>{
-        const user = await currentUser()
+    // todo change to camelCase
+    export const SubmitFormAction = async(url: string, JsonContent: string) => {
+        const user = await currentUser();
 
-        if(!user) {
-            return {message : 'User not found!',error:true}
+        if (!user) {
+            return { message: 'User not found!', error: true };
         }
 
         const formData = await prisma.form.update({
-           data:{
-            submissions:{
-                   increment:1
-               },
-               FormSubmissions:{
-                create:{
-                    content:JsonContent
+            data: {
+                submissions: {
+                    increment: 1
+                },
+                FormSubmissions: {
+                    create: {
+                        content: JsonContent,
+                        email: user.emailAddresses[0].emailAddress,
+                    }
                 }
-               }
-           },
-            where:{
-                shareURL:url,
-                published:true
             },
-        })
+            where: {
+                shareURL: url,
+                published: true
+            },
+        });
 
-        return {error:false,formData}
+        return { error: false, formData };
+    };
+
+    export const getFormTableData = async(id: number) => {
+        const user = await currentUser();
     
-    }
-
-    export const GetFormTableData = async(id:number)=>{
-        const user = await currentUser()
-
-        if(!user) {
-            return {message : 'User not found!',error:true}
+        if (!user) {
+            return { message: 'User not found!', error: true };
         }
-
-        const formData = await prisma.form.findUnique({
-            where:{
-               userId:user.id,
-              id
-            },
-           include:{
-               FormSubmissions:true
-           },
-        })
-
-        return {error:false,formData}
     
-    }
-
+        const formData = await prisma.form.findUnique({
+            where: {
+                userId: user.id,
+                id
+            },
+            include: {
+                FormSubmissions: {
+                    select: {
+                        content: true,
+                        createdAt: true,
+                        email: true, // Include the email field here
+                    }
+                }
+            },
+        });
+    
+        return { error: false, formData };
+    };
     // ... existing code ...
 
 export const deleteForm = async (id: number) => {

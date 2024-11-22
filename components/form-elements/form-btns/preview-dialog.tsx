@@ -29,7 +29,7 @@ const {elements} = useDesigner()
     <div className="">
     <Dialog>
     <DialogTrigger asChild>
-      <Button variant='outline' className='flex items-center gap-2'>
+      <Button variant='secondary' className='flex items-center gap-2'>
         <VscPreview size={27}/>
         Preview</Button> 
     </DialogTrigger>
@@ -41,7 +41,7 @@ const {elements} = useDesigner()
           This is a preview of your form and how it will appeat to your visitors.
         </DialogDescription>
       </DialogHeader>
-    <div className="h-[95%] w-full dark:bg-black bg-white  dark:bg-grid-white/[0.2] bg-grid-black/[0.2] relative flex flex-grow items-center justify-center border-2 dark:border-white border-neutral-700 rounded-lg mt-5 ">
+    <div className="h-[95%] w-full dark:bg-black bg-white  dark:bg-grid-white/[0.2] bg-grid-black/[0.2] relative flex flex-grow items-center justify-center border-2 dark:border-white border-neutral-700 rounded-lg mt-5 overflow-y-auto custom-scrollbar-2 ">
     <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_100%,black)]"></div>
 
     <Card className=" max-w-[70vw] bg-transparent p-3  flex  flex-col gap-4 flex-grow w-full h-full ">

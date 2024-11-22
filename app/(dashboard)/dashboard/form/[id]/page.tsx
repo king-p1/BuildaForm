@@ -12,7 +12,7 @@ const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
 
     if(!formData) {throw new Error('Form not found.')}
 
-    const {visits,submissions,name,shareURL,id:formID} = formData
+    const {visits,submissions,name,shareURL,id:formID,userId} = formData
 
     let submissionRate = 0
 

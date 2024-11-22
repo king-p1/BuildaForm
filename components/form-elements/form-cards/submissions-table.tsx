@@ -1,4 +1,4 @@
-import { GetFormTableData } from "@/actions/form"
+import { getFormTableData } from "@/actions/form"
 import {
   Table,
   TableBody,
@@ -47,7 +47,7 @@ switch (type) {
 
 export const SubmissionsTable = async({id}:{id:number}) => {
 
-const {formData} = await GetFormTableData(id)
+const {formData} = await getFormTableData(id)
 
 if(!formData){
   toast({
@@ -86,12 +86,13 @@ type:element.type
 
 const rows:Row[] = []
 
-formData?.FormSubmissions.forEach((submission)=>{
+formData?.FormSubmissions.forEach((submission: { content: string; createdAt: string,email:string })=>{
   const content = JSON.parse(submission.content)
   rows.push({
     ...content,
-    submittedAt:submission.createdAt
-  })
+    submittedAt: submission.createdAt,
+    email: submission.email, // Add the email to the row data
+});
 })
 
   return (
@@ -108,6 +109,7 @@ formData?.FormSubmissions.forEach((submission)=>{
             <TableHead className="" key={id}>{label}</TableHead>
           ))}
           <TableHead>Submitted At</TableHead>
+          <TableHead>User</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -124,7 +126,8 @@ formData?.FormSubmissions.forEach((submission)=>{
           <TableCell className="">
             {formatDistance(row.submittedAt,new Date(),{addSuffix:true})}
           </TableCell>
-        </TableRow>
+          <TableCell className="">{row.email}</TableCell>  
+          </TableRow>
          ))}
       </TableBody>
 

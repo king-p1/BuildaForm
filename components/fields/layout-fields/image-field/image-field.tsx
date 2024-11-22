@@ -34,6 +34,14 @@ export const ImageFieldFormElement: FormElement = {
   designerComponent:  ImageDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: ImagePropertiesComponent,
+  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
+    const element = formElement as CustomInstance
+    if(element.extraAttributes.required){
+      return currentValue.length > 0
+    }
+
+    return true
+  }
 };
 
 export type CustomInstance = FormElementsInstance & {

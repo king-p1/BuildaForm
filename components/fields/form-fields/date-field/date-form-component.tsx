@@ -31,7 +31,7 @@ useEffect(()=>{
      
 
   return (
-    <div className='flex flex-col gap-2 w-full p-2.5 border dark:border-white border-black rounded-md dark:bg-neutral-900'>
+    <div className='flex flex-col gap-2 w-full p-2.5  '>
         <Label className={cn(error && 'text-red-500' ,'font-semibold')}>
         {label}
         {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}

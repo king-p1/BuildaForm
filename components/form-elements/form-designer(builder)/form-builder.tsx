@@ -12,6 +12,8 @@ import { TbLoader3 } from 'react-icons/tb'
 import { PublishedFormView } from '@/components/ui/published-form-view'
 import { useDebounce } from 'use-debounce'  
 import { updateFormContentAction } from '@/actions/form'
+import { ReturnBtn } from '../form-btns/return-btn'
+
 
 export const FormBuilder = ({form}:{form:Form}) => {
     const { content,id,name,published,shareURL} = form
@@ -87,12 +89,19 @@ if(published){
     >
 
 <nav className="flex justify-between border-b-2 p-4 gap-3 items-center">
+
+  <div className="flex items-center gap-3">
+<ReturnBtn/>
+
+<div className='border-r-[3px] h-8'/>
+
     <h2 className="text-muted-foreground truncate">
         Form: <span className='capitalize'>
           {name}
           </span>
     </h2>
 
+  </div>
     <div className="flex items-center gap-2">
         <PreviewDialogBtn/>
         {!published && (<>
