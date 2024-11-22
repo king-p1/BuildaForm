@@ -118,6 +118,8 @@ addElement(indexForNewElement,activeElement)
 
 }})
 
+console.log('Elements:', elements);
+
   return (
     <div className='flex w-full h-full'>
 

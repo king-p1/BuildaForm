@@ -23,6 +23,8 @@ export const PreviewDialogBtn = () => {
 const {elements} = useDesigner()
 
   // todo remeber to add icons
+  console.log('Elements:', elements);
+
   return (
     <div className="">
     <Dialog>
@@ -45,9 +47,9 @@ const {elements} = useDesigner()
     <Card className=" max-w-[70vw] bg-transparent p-3  flex  flex-col gap-4 flex-grow w-full h-full ">
        
       <CardContent className="flex flex-col gap-4 mt-3 ">
-        {elements.map((element)=>{
-          const FormComponent = FormElements[element.type].formComponent
-          return <FormComponent key={element.id} elementInstance={element}/>
+        {elements.map((element) => {
+          const FormComponent = FormElements[element.type].formComponent;
+          return <FormComponent key={element.id} elementInstance={element} />;
         })}
       </CardContent>
 
