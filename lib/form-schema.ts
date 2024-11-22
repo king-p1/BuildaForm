@@ -24,6 +24,9 @@ export const imageSchema = z.object({
     src:z.string(),
     label:z.string().min(4).max(40),
     helperText:z.string().min(4).max(180),
+    width: z.number().min(80).max(600).default(100),
+    height: z.number().min(80).max(600).default(100)
+
 })
 
 export const selectPropertiesSchema = z.object({

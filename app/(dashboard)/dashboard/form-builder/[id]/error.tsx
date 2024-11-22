@@ -15,17 +15,19 @@ const ErrorPage = ({error}:{error:Error}) => {
 
 <Image
 src={errorImg}
-width='350'
-height='350'
+width='400'
+height='400'
 alt="Error page"
 className="-mt-16"
+loading="lazy"
+
 />
 
-        <p className="font-semibold text-4xl text-red-500 -mt-10">
+        <p className="font-semibold text-4xl text-red-500 ">
         An Error Occurred!
         </p>
 
-<Button asChild variant='link' className=" text-red-600 text-xl">
+<Button asChild  className=" text-red-600 text-xl font-medium mt-2 hover:bg-red-600 hover:text-white">
   <Link href={'/dashboard'}>Return to Dashboard</Link>
 </Button>
 

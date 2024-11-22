@@ -41,7 +41,7 @@ propertiesComponent: React.FC<{
     elementInstance : FormElementsInstance
 }>,
 
-validate:(formElement:FormElementsInstance,currentValue:string) => boolean
+validate?:(formElement:FormElementsInstance,currentValue:string) => boolean
 }
 
 export type FormElementsInstance = {

@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FormElementsInstance } from '../form-elements/sidebar-form-values/form-elemts-type'
 import { CustomInstance } from './form-fields/text-field/text-field'
 import { propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema, datePropertiesSchema,selectPropertiesSchema, imageSchema } from '@/lib/form-schema'
@@ -22,8 +22,12 @@ import { Switch } from '../ui/switch'
 import { Slider } from '../ui/slider'
 import { Button } from '../ui/button'
 import { PiStackPlusLight,PiTrashDuotone } from "react-icons/pi";
-
-
+import { ImageKitProvider, IKUpload } from "imagekitio-next";
+import axios from 'axios'
+import { CloudUpload, Trash } from 'lucide-react'
+import { TbLoader3 } from 'react-icons/tb'
+import { toast } from '@/hooks/use-toast'
+import { Label } from '../ui/label'
 
 export const PropertiesComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
 
@@ -1465,7 +1469,7 @@ export const ImagePropertiesComponent = ({elementInstance}:{elementInstance:Form
   const element = elementInstance as CustomInstance
 
 
-  const {helperText, label,src} = element.extraAttributes
+  const {helperText, label,src,width,height} = element.extraAttributes
 
   const form = useForm<imageSchemaType>({
       resolver:zodResolver(imageSchema),
@@ -1473,25 +1477,69 @@ export const ImagePropertiesComponent = ({elementInstance}:{elementInstance:Form
       defaultValues:{
           label,
           helperText,
-         src
+         src,
+         width,
+         height
       }
   })
 
-  useEffect(()=>{
-      form.reset(element.extraAttributes)
-  },[form,element])
+  
+  
+  const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
+  const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
 
-  const applyFormChanges = (values:imageSchemaType) =>{
-      updateElement(element.id,{
-          ...element,
-          extraAttributes:{
-              ...values
+  const [image, setImage] = useState(src || '') 
+  const [isUploading, setIsUploading] = useState(false);
+
+  
+  const authenticator = async () => {
+    try {
+      const { data } = await axios.get("/api/image-upload");
+      const { token, expire, signature } = data;
+      return { token, expire, signature };
+    } catch (error) {
+      toast({title:'Error' , description:"Failed to authenticate. Please try again."});
+      throw error;
+    }
+  };
+
+  const onError = (err) => {
+    console.log(err)
+    toast({title:'Error' , description:"Image uploaded failed."}); 
+       setIsUploading(false);
+  };
+
+  
+  
+      const onUploadProgress = () => setIsUploading(true);
+      const onUploadStart = () => {};
+      
+      const ikUploadRef = useRef(null);
+      
+      const applyFormChanges = (values:imageSchemaType) =>{
+          updateElement(element.id,{
+              ...element,
+              extraAttributes:{
+                ...values
+              }
+            })
           }
-      })
-  }
-
-return (
-  <Form {...form}>
+          
+          useEffect(()=>{
+              form.reset(element.extraAttributes)
+            },[form,element])
+            
+            const onSuccess = (res) => {
+              const uploadedImageUrl = res?.filePath;
+              setImage(uploadedImageUrl);
+              form.setValue('src', uploadedImageUrl);
+              applyFormChanges({ ...form.getValues(), src: uploadedImageUrl });
+              toast({ title: 'Success', description: "Image uploaded successfully." });
+              setIsUploading(false);
+            };
+            
+      return (
+        <Form {...form}>
   <form onBlur={form.handleSubmit(applyFormChanges)} onSubmit={(e)=>{e.preventDefault()}} className="space-y-3">
       {/* helper text max is 180 */}
     <FormField
@@ -1517,10 +1565,172 @@ return (
         </FormItem>
       )}
     />
-
-    
-    so on this component do not show the picture, only show it in the form and designer component just show the url maybe we will add another input field
      
+
+           
+        
+
+<FormField
+      control={form.control}
+      name="src"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Upload an image</FormLabel>
+           
+          <FormControl>
+        <>
+
+
+        
+<div className="w-full flex justify-center items-center border-2 border-dashed h-[180px] rounded-md mt-1 mb-6 ">
+
+{image &&   (
+        <div className="flex gap-2 p-2">
+          <Input
+            value={image}
+readOnly
+/>
+<Button 
+        size='icon'
+        onClick={() => {
+          setImage('');
+          form.setValue('src', ''); // Reset the src field
+          applyFormChanges({ ...form.getValues(), src: '' }); 
+          }}
+          >
+          <Trash/>
+          </Button>
+              </div>
+)
+}
+
+
+          <ImageKitProvider
+                    urlEndpoint={urlEndpoint}
+                    publicKey={publicKey}
+                    authenticator={authenticator}
+                  >
+<IKUpload
+                fileName="upload.png"
+                onError={onError}
+                onSuccess={onSuccess}
+                onUploadProgress={onUploadProgress}
+                onUploadStart={onUploadStart}
+                className="hidden"
+                id="uploadInput"
+                // disabled={image}
+                ref={ikUploadRef}
+                accept="image/png,image/jpeg,image/jpg"
+                />
+
+
+</ImageKitProvider>
+
+{isUploading && (
+                <div className="flex items-center justify-center">
+                  <TbLoader3 size={40} className="animate-spin" />
+                </div>
+              )}
+
+
+
+
+             {!isUploading && !image &&( <label
+                htmlFor="uploadInput"
+                className={`cursor-pointer text-center flex flex-col gap-3
+                  justify-center items-center
+                  z-50`}
+              >
+                  <CloudUpload
+                    size={40}
+                    className={`dark:text-neutral-300 text-muted-foreground`}
+                    />
+
+<p className="text-sm text-muted-foreground p-2">
+  Click here to upload a picture</p>
+              </label>)}
+ 
+                    </div>
+
+                    </>
+
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+
+        
+        <Label className='mt-6 -mb-2'>Image sizes</Label>
+    
+<FormField
+        control={form.control}
+        name="width"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Width - {field.value}px</FormLabel>
+            <FormDescription >
+              Set a width on this image
+            </FormDescription>
+            <FormControl>
+              <Slider
+                defaultValue={[width]}
+                value={[field.value]}
+                min={80}
+                max={600}
+                step={1}
+          onValueChange={(value) => {
+            field.onChange(value[0])
+          }}
+        />
+            </FormControl>
+            <FormDescription >
+                The image width value  
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+       <FormField
+        control={form.control}
+        name="height"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Height - {field.value}px</FormLabel>
+            <FormDescription >
+            Set a width on this image
+            </FormDescription>
+            <FormControl>
+              <Slider
+                defaultValue={[height]}
+                value={[field.value]}
+                min={80}
+                max={600}
+                step={1}
+          onValueChange={(value) => {
+            field.onChange(value[0])
+          }}
+        />
+            </FormControl>
+            <FormDescription >
+                The character limit value  
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />          
+              
+
+              <p className="text-sm text-muted-foreground text-center">
+                See preview tab for actual image size
+              </p>
+
+
+
+
+
+
 
     <FormField
       control={form.control}

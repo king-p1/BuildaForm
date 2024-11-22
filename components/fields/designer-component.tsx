@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import { FormElementsInstance } from '../form-elements/sidebar-form-values/form-elemts-type'
 import { CustomInstance } from './form-fields/text-field/text-field'
@@ -12,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Checkbox } from '../ui/checkbox'
+import { IKImage } from 'imagekitio-next'
 
 
 export const DesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
@@ -267,15 +269,26 @@ export const ParagraphDesignerComponent = ({elementInstance}:{elementInstance:Fo
 export const ImageDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
   const element = elementInstance as CustomInstance
 
-  const {helperText, label,src} = element.extraAttributes
+  const {helperText, label,src,width,height} = element.extraAttributes
+  const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 
 return (
-  <div className='flex flex-col gap-2 w-full'>
+  <div className='flex flex-col gap-2 w-full my-4'>
       <Label className='font-semibold'>
       {label}
       </Label>
-      
-      imagekit image upload area and upload image space here.
+
+<div className="flex justify-center items-center w-[95px]">
+
+      <IKImage
+    alt='image'
+    path={src}
+    urlEndpoint={urlEndpoint}
+    className='object-contain'
+    width='94'
+    height='82'
+    />
+    </div>
 
 
       <div className="flex justify-between">
