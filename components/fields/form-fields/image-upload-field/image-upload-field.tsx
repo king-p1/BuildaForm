@@ -15,6 +15,13 @@ const type: ElementsType = "ImageUploadField";
 const extraAttributes = {
   label: "Image Upload field",
   helperText: "Helper text",
+  imageTypes:[],
+  src:[],
+  placeholder:'Click here to upload an image',
+  isMultiple:false,
+  required:false,
+  minimage:1,
+  maximage:1,
 }
 
 export const ImageUploadFieldFormElement: FormElement = {
@@ -32,14 +39,31 @@ export const ImageUploadFieldFormElement: FormElement = {
   designerComponent:  ImageUploadDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: ImageUploadPropertiesComponent,
-  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
-    const element = formElement as CustomInstance
-    if(element.extraAttributes.required){
-      return currentValue.length > 0
+  validate: (formElement: FormElementsInstance, currentValue: string | string[]): boolean => {
+    const element = formElement as CustomInstance;
+    const { isMultiple, required, minImages, maxImages } = element.extraAttributes;
+
+    // Convert currentValue to an array if it's a string
+    const valuesArray = Array.isArray(currentValue) ? currentValue : [currentValue];
+
+    if (required && valuesArray.length === 0) {
+        return false; // If required and no images uploaded
     }
 
-    return true
-  }
+    if (isMultiple) {
+        if (minImages !== undefined && valuesArray.length < minImages) {
+            return false; // Not enough images uploaded
+        }
+        if (maxImages !== undefined && valuesArray.length > maxImages) {
+            return false; // Too many images uploaded
+        }
+    } else {
+        // If not multiple, ensure exactly one image is uploaded
+        return valuesArray.length === 1;
+    }
+
+    return true; // Validation passes
+}
 
 };
 

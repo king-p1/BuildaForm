@@ -25,14 +25,17 @@ const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
   return (<>
 <div className="w-full py-10 border-t border-b border-muted">
 
-<div className="p-4 -mt-8 flex justify-between container">
+<div className="p-4 -mt-8 flex justify-between ">
   <h1 className="text-3xl font-bold truncate capitalize">
     {name}
   </h1>
+  
   <div className="flex items-center gap-3" >
   <VisitBtn shareURL={shareURL}/>
     <FormLinkShare shareURL={shareURL}/>
+    Edit form
   </div>
+
 </div>
  
  <div className="p-3">

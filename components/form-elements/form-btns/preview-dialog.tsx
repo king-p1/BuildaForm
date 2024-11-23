@@ -22,8 +22,6 @@ import { VscPreview } from "react-icons/vsc";
 export const PreviewDialogBtn = () => {
 const {elements} = useDesigner()
 
-  // todo remeber to add icons
-  console.log('Elements:', elements);
 
   return (
     <div className="">
@@ -38,7 +36,7 @@ const {elements} = useDesigner()
       <DialogHeader >
         <DialogTitle>Form Preview</DialogTitle>
         <DialogDescription>
-          This is a preview of your form and how it will appeat to your visitors.
+          This is a preview of your form and how it will appear to your visitors.
         </DialogDescription>
       </DialogHeader>
     <div className="h-[95%] w-full dark:bg-black bg-white  dark:bg-grid-white/[0.2] bg-grid-black/[0.2] relative flex flex-grow items-center justify-center border-2 dark:border-white border-neutral-700 rounded-lg mt-5 overflow-y-auto custom-scrollbar-2 ">

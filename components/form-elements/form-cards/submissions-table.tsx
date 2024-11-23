@@ -55,7 +55,7 @@ title:'Error',description:'Form data not found.'
   })
 }
 
-const formElements = JSON.parse(formData?.content) as FormElementsInstance[]
+const formElements = formData?.content ? JSON.parse(formData.content) as FormElementsInstance[] : []
 
 const columns :{
   id:string 
@@ -86,12 +86,12 @@ type:element.type
 
 const rows:Row[] = []
 
-formData?.FormSubmissions.forEach((submission: { content: string; createdAt: string,email:string })=>{
+formData?.FormSubmissions.forEach((submission: { content: string; createdAt: Date; email:string })=>{
   const content = JSON.parse(submission.content)
   rows.push({
     ...content,
     submittedAt: submission.createdAt,
-    email: submission.email, // Add the email to the row data
+    email: submission.email,  
 });
 })
 
@@ -101,10 +101,10 @@ formData?.FormSubmissions.forEach((submission: { content: string; createdAt: str
       Submissions Table
       </h1>
 
-      <Table className="mt-6 border-2  r">
+      <Table className="mt-6 border-2  ">
       <TableCaption>All Form Submissions</TableCaption>
-      <TableHeader>
-        <TableRow>
+      <TableHeader className="">
+        <TableRow className="">
           {columns. map(({label,id})=>(
             <TableHead className="" key={id}>{label}</TableHead>
           ))}
@@ -134,6 +134,8 @@ formData?.FormSubmissions.forEach((submission: { content: string; createdAt: str
 
  
     </Table>
+
+
       </div>
   )
 }

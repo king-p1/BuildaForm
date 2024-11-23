@@ -26,7 +26,18 @@ export const imageSchema = z.object({
     helperText:z.string().min(4).max(180),
     width: z.number().min(80).max(600).default(100),
     height: z.number().min(80).max(600).default(100)
+})
 
+export const imageUploadSchema = z.object({
+    src: z.array(z.string()), 
+    imageTypes: z.array(z.string()),  
+    label: z.string().min(4).max(40),
+    isMultiple: z.boolean().default(false),
+    required:z.boolean().default(false),
+    placeholder: z.string().min(4).max(40),
+    helperText: z.string().min(4).max(180),
+    minImages: z.number().min(1),  
+    maxImages: z.number().min(1).max(5),
 })
 
 export const selectPropertiesSchema = z.object({

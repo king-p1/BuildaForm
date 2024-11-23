@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select"
 import { Checkbox } from '../ui/checkbox'
 import { IKImage } from 'imagekitio-next'
+import { LuImagePlus } from "react-icons/lu";
 
 
 export const DesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
@@ -43,25 +44,47 @@ export const DesignerComponent = ({elementInstance}:{elementInstance:FormElement
 export const ImageUploadDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as CustomInstance
 
-    const {helperText,label,placeholder,required,limit} = element.extraAttributes
+    const {helperText, label,imageTypes,placeholder,required} = element.extraAttributes
+  const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 
-  return (
-    <div className='flex flex-col gap-2 w-full'>
-        <Label className='font-semibold'>
-        {label}
-        {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
-        </Label>
+return (
+  <div className='flex flex-col gap-2 w-full my-4'>
+      <Label className='font-semibold'>
+      {label}
+      {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
+      </Label>
 
-        <Input readOnly disabled placeholder={placeholder} className='border-2 dark:border-white border-neutral-700'/>
+<div className="flex justify-center items-center w-full border-2 border-dashed h-[79px] rounded-md text-muted-foreground">
 
-        <div className="flex justify-between">
 
-        {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
-        
-        {limit && <p className='text-muted-foreground text-xs'>{`0/${limit} characters`}</p>}
-        </div>
-        </div>
-  )
+<div className="flex items-center justify-center h-full flex-col gap-2">
+<LuImagePlus className='h-5 w-5'/>
+<span className="text-sm">{placeholder}</span>
+{imageTypes.length > 0 && (
+                <div className="mt-2 flex gap-2">
+                    <Label className='font-semibold'>Accepted File Types:</Label>
+                    <ul className='list-disc list-inside text-xs text-muted-foreground'>
+                        {imageTypes.map((type, index) => (
+                            <li key={index}>{type}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+</div>
+
+
+      
+    </div>
+
+
+      <div className="flex justify-between">
+
+      {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
+      
+     
+      </div>
+      </div>
+)
 }
 
 export const FileUploadDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {

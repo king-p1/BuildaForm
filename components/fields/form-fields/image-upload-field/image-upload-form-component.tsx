@@ -4,7 +4,8 @@ import { CustomInstance, ImageUploadFieldFormElement } from './image-upload-fiel
 import { Label } from '../../../ui/label'
 import { Input } from '../../../ui/input'
 import { cn } from '@/lib/utils'
- 
+import { IKImage } from 'imagekitio-next'
+
 
 export const FormComponent =  ({elementInstance,submitValue,isInvalid,defaultValues}:{elementInstance:FormElementsInstance,submitValue?:SubmitFunction,isInvalid?:boolean,defaultValues?:string}) => {
     const element = elementInstance as CustomInstance
@@ -15,13 +16,11 @@ useEffect(()=>{
   setError(isInvalid === true)
 },[isInvalid])
 
-    const {helperText, label, placeholder, required, limit} = element.extraAttributes
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.value
-      if (limit && newValue.length > limit) return
-      setValue(newValue)
-    }
+    const {helperText, label,src,width,height,placeholder} = element.extraAttributes
+    const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
+
+ 
 
     const handleBlur = (e) => {
       if (!submitValue) return;
@@ -40,44 +39,40 @@ useEffect(()=>{
       setValue(trimmedValue);
       submitValue(element.id, trimmedValue);
     };
-
-  return (
-    <div className='flex flex-col gap-2 w-full p-2.5  '>
-    <Label className={cn(error && 'text-red-500', 'font-semibold')}>
-      {label}
-      {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
-    </Label>
-
-    <Input 
-      placeholder={placeholder} 
-      className={cn(
-        error && 'border-red-500',
-        value.length === limit && 'border-yellow-500',
-        'border-2 dark:border-white border-neutral-700'
-      )}
-      value={value}
-      onChange={handleChange}
-      onBlur={handleBlur}
-    />
-    
-    <div className="flex justify-between">
-      {helperText && (
-        <p className={cn(error && 'text-red-500', 'text-muted-foreground text-xs')}>
-          {helperText}
-        </p>
-      )}
-      {limit && (
-        <p className={cn(
-          value.length === limit && 'text-yellow-500',
-          'text-muted-foreground text-xs'
-        )}>
-          {`${value.length}/${limit} characters`}
-        </p>
-      )}
-    </div>
-</div>
-  )
-}
+       
+  
+       
+  
+    return (
+      <div className='flex flex-col gap-2 w-full p-2.5 '>
+      <Label className={cn(error && 'text-red-500', 'font-semibold')}>
+        {label}
+      </Label>
+  
+      <div className="flex justify-center items-center ">
+  
+  <IKImage
+  alt='image'
+  path={src}
+  urlEndpoint={urlEndpoint}
+  className=''
+  width={width}
+  height={height} 
+  />
+  </div>
+  
+      <div className="flex justify-between">
+        {helperText && (
+          <p className={cn(error && 'text-red-500', 'text-muted-foreground text-xs')}>
+            {helperText}
+          </p>
+        )}
+         
+      </div>
+  </div>
+    )
+  }
+  
 
  
  

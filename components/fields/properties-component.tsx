@@ -2,9 +2,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FormElementsInstance } from '../form-elements/sidebar-form-values/form-elemts-type'
 import { CustomInstance } from './form-fields/text-field/text-field'
-import { propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema, datePropertiesSchema,selectPropertiesSchema, imageSchema } from '@/lib/form-schema'
+import { propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema, datePropertiesSchema,selectPropertiesSchema, imageSchema, imageUploadSchema } from '@/lib/form-schema'
 import { useForm } from 'react-hook-form'
-import { dateSchemaType, paragraphSchemaType, propertiesSchemaType, propertiesTitleSchemaType,textAreaSchemaType,selectSchemaType, imageSchemaType } from '@/lib/types'
+import { dateSchemaType, paragraphSchemaType, propertiesSchemaType, propertiesTitleSchemaType,textAreaSchemaType,selectSchemaType, imageSchemaType, imageUploadSchemaType } from '@/lib/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useDesigner } from '@/hooks/use-designer'
 import {
@@ -28,6 +28,7 @@ import { CloudUpload, Trash } from 'lucide-react'
 import { TbLoader3 } from 'react-icons/tb'
 import { toast } from '@/hooks/use-toast'
 import { Label } from '../ui/label'
+import { Checkbox } from '../ui/checkbox'
 
 export const PropertiesComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
 
@@ -201,25 +202,39 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
 
     const element = elementInstance as CustomInstance
 
-    const {helperText,label,placeholder,required,limit} = element.extraAttributes
+    const {helperText,label,placeholder,required,imageTypes,minImages,maxImages,isMultiple} = element.extraAttributes
 
-    const form = useForm<propertiesSchemaType>({
-        resolver:zodResolver(propertiesSchema),
+    
+    const form = useForm<imageUploadSchemaType>({
+        resolver:zodResolver(imageUploadSchema),
         mode:'onBlur',
         defaultValues:{
             label,
             helperText,
             placeholder,
             required,
-            limit
+             imageTypes,
+             isMultiple,
+             maxImages,
+             minImages 
         }
     })
+    
+    const [isMultipleChecked, setIsMultipleChecked] = useState(isMultiple);
+
+    // Update the element's isMultiple property when the checkbox state changes
+    const handleCheckboxChange = () => {
+        setIsMultipleChecked(prev => !prev);
+        element.extraAttributes.isMultiple = !isMultipleChecked; // Update the isMultiple property
+    };
+
+    console.log(isMultiple)
 
     useEffect(()=>{
         form.reset(element.extraAttributes)
     },[form,element])
 
-    const applyFormChanges = (values:propertiesSchemaType) =>{
+    const applyFormChanges = (values:imageUploadSchemaType) =>{
         updateElement(element.id,{
             ...element,
             extraAttributes:{
@@ -256,6 +271,18 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         )}
       />
 
+{/* <IKUpload
+  fileName="upload.png"
+  onError={onError}
+  onSuccess={onSuccess}
+  onUploadProgress={onUploadProgress}
+  onUploadStart={onUploadStart}
+  className="hidden"
+  id="uploadInput"
+  ref={ikUploadRef}
+  accept={imageTypes.join(',')} // Accept file types from the array
+/> */}
+
       <FormField
         control={form.control}
         name="placeholder"
@@ -280,21 +307,32 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         )}
       />
       
+
+<div className="flex w-full justify-between items-center">
+  <p>Toggle to enable more than one image  </p>
+
+   <Switch checked={isMultipleChecked}
+  onCheckedChange={handleCheckboxChange}             
+              />
+
+</div>
+
+
       <FormField
         control={form.control}
-        name="limit"
+        name="minImages"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Character Limit - {field.value}</FormLabel>
+            <FormLabel>Minimum Image - {field.value}</FormLabel>
             <FormDescription >
-              Set a character limit on this field
+              Set a  limit on the minimum number of images
             </FormDescription>
             <FormControl>
               <Slider
-                defaultValue={[limit]}
+                defaultValue={[minImages]}
                 value={[field.value]}
                 min={1}
-                max={200}
+                max={5}
                 step={1}
           onValueChange={(value) => {
             field.onChange(value[0])
@@ -302,12 +340,51 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         />
             </FormControl>
             <FormDescription >
-                The character limit value  
+                The minimum number of images that can be uploaded  
             </FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
+     
+
+     {isMultiple &&
+     (
+       <FormField
+         control={form.control}
+         name="maxImages"
+         render={({ field }) => (
+           <FormItem>
+             <FormLabel>Maximum Images - {field.value}</FormLabel>
+             <FormDescription >
+             Set a  limit on the maximum number of images
+             </FormDescription>
+             <FormControl>
+               <Slider
+                 defaultValue={[maxImages]}
+                 value={[field.value]}
+                 min={1}
+                 max={5}
+                 step={1}
+           onValueChange={(value) => {
+             field.onChange(value[0])
+           }}
+         />
+             </FormControl>
+             <FormDescription >
+                 The maximum number of images that can be uploaded  
+             </FormDescription>
+             <FormMessage />
+           </FormItem>
+         )}
+       />
+     )
+     }
+     
+
+
+
+
 
       <FormField
         control={form.control}
@@ -1621,6 +1698,7 @@ readOnly
                 // disabled={image}
                 ref={ikUploadRef}
                 accept="image/png,image/jpeg,image/jpg"
+                 
                 />
 
 
