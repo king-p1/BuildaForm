@@ -28,7 +28,6 @@ import { CloudUpload, Trash } from 'lucide-react'
 import { TbLoader3 } from 'react-icons/tb'
 import { toast } from '@/hooks/use-toast'
 import { Label } from '../ui/label'
-import { Checkbox } from '../ui/checkbox'
 
 export const PropertiesComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
 
@@ -220,15 +219,6 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         }
     })
     
-    const [isMultipleChecked, setIsMultipleChecked] = useState(isMultiple);
-
-    // Update the element's isMultiple property when the checkbox state changes
-    const handleCheckboxChange = () => {
-        setIsMultipleChecked(prev => !prev);
-        element.extraAttributes.isMultiple = !isMultipleChecked; // Update the isMultiple property
-    };
-
-    console.log(isMultiple)
 
     useEffect(()=>{
         form.reset(element.extraAttributes)
@@ -242,6 +232,7 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
             }
         })
     }
+    const isMultipleValue = form.watch('isMultiple');
 
   return (
     <Form {...form}>
@@ -308,81 +299,90 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
       />
       
 
-<div className="flex w-full justify-between items-center">
-  <p>Toggle to enable more than one image  </p>
-
-   <Switch checked={isMultipleChecked}
-  onCheckedChange={handleCheckboxChange}             
-              />
-
-</div>
-
 
       <FormField
-        control={form.control}
-        name="minImages"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Minimum Image - {field.value}</FormLabel>
-            <FormDescription >
-              Set a  limit on the minimum number of images
-            </FormDescription>
-            <FormControl>
-              <Slider
-                defaultValue={[minImages]}
-                value={[field.value]}
-                min={1}
-                max={5}
-                step={1}
-          onValueChange={(value) => {
-            field.onChange(value[0])
-          }}
+          control={form.control}
+          name="isMultiple"
+          render={({ field }) => (
+            <FormItem className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <FormLabel>Multiple images</FormLabel>
+                <FormMessage />
+                <FormDescription>
+                  Toggle to enable multiple images
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch 
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
         />
-            </FormControl>
-            <FormDescription >
-                The minimum number of images that can be uploaded  
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-     
 
-     {isMultiple &&
-     (
-       <FormField
-         control={form.control}
-         name="maxImages"
-         render={({ field }) => (
-           <FormItem>
-             <FormLabel>Maximum Images - {field.value}</FormLabel>
-             <FormDescription >
-             Set a  limit on the maximum number of images
-             </FormDescription>
-             <FormControl>
-               <Slider
-                 defaultValue={[maxImages]}
-                 value={[field.value]}
-                 min={1}
-                 max={5}
-                 step={1}
-           onValueChange={(value) => {
-             field.onChange(value[0])
-           }}
-         />
-             </FormControl>
-             <FormDescription >
-                 The maximum number of images that can be uploaded  
-             </FormDescription>
-             <FormMessage />
-           </FormItem>
-         )}
-       />
-     )
-     }
-     
+ 
+
+{isMultipleValue && (<FormField
+          control={form.control}
+          name="minImages"
+          render={({ field }) => (
+            <FormItem>
+                <FormLabel>Minimum Images - {isMultipleValue ? field.value : 1}</FormLabel>
+                <FormDescription>
+                Set a limit on the minimum number of images
+              </FormDescription>
+              <FormControl>
+                <Slider
+                  defaultValue={[field.value]}
+                  value={isMultipleValue ? [field.value] : [1]}
+                  min={1}
+                  max={5}
+                  step={1}
+                  onValueChange={(value) => {
+                    field.onChange(value[0]);
+                  }}
+                />
+              </FormControl>
+              <FormDescription>
+                The minimum number of images that can be uploaded
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />)}
 
 
+
+  {isMultipleValue && (      <FormField
+          control={form.control}
+          name="maxImages"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Maximum Images - {isMultipleValue ? field.value : 1}</FormLabel>
+                <FormDescription>
+                  Set a limit on the maximum number of images
+                </FormDescription>
+                <FormControl>
+                  <Slider
+                    defaultValue={[field.value]}
+                    value={isMultipleValue ? [field.value] : [1]}
+                    min={1}
+                    max={5}
+                    step={1}
+                    onValueChange={(value) => {
+                      field.onChange(value[0]);
+                    }}
+                  />
+              </FormControl>
+              <FormDescription>
+                The maximum number of images that can be uploaded
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />)}
 
 
 
@@ -409,6 +409,7 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
           </FormItem>
         )}
       />
+
 
       <FormField
         control={form.control}
