@@ -58,6 +58,9 @@ useEffect(()=>{
   className=''
   width={width}
   height={height} 
+
+                  accept="image/*" to allow all image types
+
   /> */}
   </div>
   

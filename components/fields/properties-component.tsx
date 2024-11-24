@@ -29,6 +29,16 @@ import { CloudUpload, Trash } from 'lucide-react'
 import { TbLoader3 } from 'react-icons/tb'
 import { toast } from '@/hooks/use-toast'
 import { Label } from '../ui/label'
+import {
+  MultiSelector,
+  MultiSelectorContent,
+  MultiSelectorInput,
+  MultiSelectorItem,
+  MultiSelectorList,
+  MultiSelectorTrigger,
+} from "@/components/ui/multi-select";
+
+import { cn } from '@/lib/utils'
 
 export const PropertiesComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
 
@@ -220,6 +230,37 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         }
     })
     
+    const [multiValue , setMultiValue] = useState([])
+
+    const imageTypeOptions = [
+      {
+  placeholder:'PNG',
+  imgValue:'image/png'
+      },
+      {
+  placeholder:'JPEG',
+  imgValue:'image/jpeg'
+      },
+      {
+  placeholder:'JPG',
+  imgValue:'image/jpg'
+      },
+      {
+  placeholder:'GIF',
+  imgValue:'image/gif'
+      },
+      {
+  placeholder:'WEBP',
+  imgValue:'image/webp'
+      },
+      {
+  placeholder:'SVG',
+  imgValue:'image/svg'
+      },
+    ]
+
+    // accept="image/png,image/jpeg,image/jpg"
+
 
     useEffect(()=>{
         form.reset(element.extraAttributes)
@@ -390,6 +431,48 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         )}
 
 
+
+
+
+
+
+
+      <FormField
+        control={form.control}
+        name="imageTypes"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Image Type</FormLabel>
+            
+
+            {/* we will add a checkbox saying allow all image types and the value will be image/* and when its checked, the multi select will be disabled */}
+            <FormControl>
+            <MultiSelector
+  values={multiValue}
+  onValuesChange={setMultiValue}
+  loop
+  className="max-w-xs"
+>
+  <MultiSelectorTrigger>
+    <MultiSelectorInput placeholder="Select image type" />
+  </MultiSelectorTrigger>
+  <MultiSelectorContent>
+    <MultiSelectorList>
+    {imageTypeOptions.map(({imgValue,placeholder})=>(
+      <MultiSelectorItem value={imgValue}>{placeholder}</MultiSelectorItem>
+    ))}
+    </MultiSelectorList>
+  </MultiSelectorContent>
+</MultiSelector>
+
+            </FormControl>
+            <FormDescription >
+Select your prefererred image type 
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={form.control}
@@ -1595,7 +1678,12 @@ export const ImagePropertiesComponent = ({elementInstance}:{elementInstance:Form
   
   
       const onUploadProgress = () => setIsUploading(true);
-      const onUploadStart = () => {};
+      const onUploadStart = () => {
+        toast({
+          title:'Success',
+          description:'Image upload started'
+        })
+      };
       
       const ikUploadRef = useRef(null);
       
@@ -1701,9 +1789,9 @@ readOnly
                 onUploadStart={onUploadStart}
                 className="hidden"
                 id="uploadInput"
-                // disabled={image}
+                disabled={image}
                 ref={ikUploadRef}
-                // accept="image/png,image/jpeg,image/jpg"
+                accept="image/*"
                  
                 />
 
