@@ -324,7 +324,10 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
 
  
 
-{isMultipleValue && (<FormField
+{isMultipleValue && (
+        <>
+  
+  <FormField
           control={form.control}
           name="minImages"
           render={({ field }) => (
@@ -351,11 +354,9 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
               <FormMessage />
             </FormItem>
           )}
-        />)}
-
-
-
-  {isMultipleValue && (      <FormField
+        /> 
+        
+        <FormField
           control={form.control}
           name="maxImages"
           render={({ field }) => (
@@ -382,7 +383,10 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
               <FormMessage />
             </FormItem>
           )}
-        />)}
+        />
+        
+        </>
+        )}
 
 
 
