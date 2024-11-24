@@ -17,7 +17,7 @@ useEffect(()=>{
 },[isInvalid])
 
 
-    const {helperText, label,src,width,height,placeholder} = element.extraAttributes
+    const {helperText, label,src,placeholder,imageTypes,isMultiple,maxImages,minImages,required} = element.extraAttributes
     const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 
  
@@ -51,14 +51,14 @@ useEffect(()=>{
   
       <div className="flex justify-center items-center ">
   
-  <IKImage
+  {/* <IKImage
   alt='image'
   path={src}
   urlEndpoint={urlEndpoint}
   className=''
   width={width}
   height={height} 
-  />
+  /> */}
   </div>
   
       <div className="flex justify-between">

@@ -20,8 +20,8 @@ const extraAttributes = {
   placeholder:'Click here to upload an image',
   isMultiple:false,
   required:false,
-  minimage:1,
-  maximage:1,
+  minImages:1,
+  maxImages:1,
 }
 
 export const ImageUploadFieldFormElement: FormElement = {

@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { FormElementsInstance } from '../form-elements/sidebar-form-values/form-elemts-type'
 import { CustomInstance } from './form-fields/text-field/text-field'
+import { CustomInstance as ImageUploadCustomInstance} from './form-fields/image-upload-field/image-upload-field'
 import { propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema, datePropertiesSchema,selectPropertiesSchema, imageSchema, imageUploadSchema } from '@/lib/form-schema'
 import { useForm } from 'react-hook-form'
 import { dateSchemaType, paragraphSchemaType, propertiesSchemaType, propertiesTitleSchemaType,textAreaSchemaType,selectSchemaType, imageSchemaType, imageUploadSchemaType } from '@/lib/types'
@@ -171,7 +172,7 @@ export const PropertiesComponent = ({elementInstance}:{elementInstance:FormEleme
         control={form.control}
         name="required"
         render={({ field }) => (
-          <FormItem className='flex items-center justify-between rounded-lg border-2 p-3 shadow-md '>
+          <FormItem className='flex items-center justify-between rounded-lg border-2 p-2 shadow-md '>
 
             <div className="space-y-0 5">
 
@@ -199,9 +200,9 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
 
     const {updateElement} = useDesigner()
 
-    const element = elementInstance as CustomInstance
+    const element = elementInstance as ImageUploadCustomInstance
 
-    const {helperText,label,placeholder,required,imageTypes,minImages,maxImages,isMultiple} = element.extraAttributes
+    const {helperText,imageTypes,isMultiple,label,maxImages,minImages,placeholder,required,src} = element.extraAttributes
 
     
     const form = useForm<imageUploadSchemaType>({
@@ -211,11 +212,11 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
             label,
             helperText,
             placeholder,
-            required,
-             imageTypes,
-             isMultiple,
-             maxImages,
-             minImages 
+          required,
+            imageTypes,
+            isMultiple,
+            maxImages,
+            minImages 
         }
     })
     
@@ -304,11 +305,11 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
           control={form.control}
           name="isMultiple"
           render={({ field }) => (
-            <FormItem className="flex items-center justify-between">
+            <FormItem className="flex items-center justify-evenly gap-2 w-full">
               <div className="space-y-0.5">
                 <FormLabel>Multiple images</FormLabel>
                 <FormMessage />
-                <FormDescription>
+                <FormDescription className=''>
                   Toggle to enable multiple images
                 </FormDescription>
               </div>
@@ -419,7 +420,7 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         control={form.control}
         name="required"
         render={({ field }) => (
-          <FormItem className='flex items-center justify-between rounded-lg border-2 p-3 shadow-md '>
+          <FormItem className='flex items-center justify-between rounded-lg border-2 p-2 shadow-md '>
 
             <div className="space-y-0 5">
 
@@ -555,7 +556,7 @@ export const NumberPropertiesComponent = ({elementInstance}:{elementInstance:For
         control={form.control}
         name="required"
         render={({ field }) => (
-          <FormItem className='flex items-center justify-between rounded-lg border-2 p-3 shadow-md '>
+          <FormItem className='flex items-center justify-between rounded-lg border-2 p-2 shadow-md '>
 
             <div className="space-y-0 5">
 
@@ -750,7 +751,7 @@ export const TextAreaPropertiesComponent = ({elementInstance}:{elementInstance:F
         control={form.control}
         name="required"
         render={({ field }) => (
-          <FormItem className='flex items-center justify-between rounded-lg border-2 p-3 shadow-md '>
+          <FormItem className='flex items-center justify-between rounded-lg border-2 p-2 shadow-md '>
 
             <div className="space-y-0 5">
 
@@ -864,7 +865,7 @@ export const DateFieldPropertiesComponent = ({elementInstance}:{elementInstance:
         control={form.control}
         name="required"
         render={({ field }) => (
-          <FormItem className='flex items-center justify-between rounded-lg border-2 p-3 shadow-md '>
+          <FormItem className='flex items-center justify-between rounded-lg border-2 p-2 shadow-md '>
 
             <div className="space-y-0 5">
 
@@ -1246,7 +1247,7 @@ field.onChange(newOptions)
         control={form.control}
         name="required"
         render={({ field }) => (
-          <FormItem className='flex items-center justify-between rounded-lg border-2 p-3 shadow-md '>
+          <FormItem className='flex items-center justify-between rounded-lg border-2 p-2 shadow-md '>
 
             <div className="space-y-0 5">
 
@@ -1383,7 +1384,7 @@ export const CheckboxFieldPropertiesComponent = ({elementInstance}:{elementInsta
         control={form.control}
         name="required"
         render={({ field }) => (
-          <FormItem className='flex items-center justify-between rounded-lg border-2 p-3 shadow-md '>
+          <FormItem className='flex items-center justify-between rounded-lg border-2 p-2 shadow-md '>
 
             <div className="space-y-0 5">
 
@@ -1702,7 +1703,7 @@ readOnly
                 id="uploadInput"
                 // disabled={image}
                 ref={ikUploadRef}
-                accept="image/png,image/jpeg,image/jpg"
+                // accept="image/png,image/jpeg,image/jpg"
                  
                 />
 

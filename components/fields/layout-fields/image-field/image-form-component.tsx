@@ -28,17 +28,18 @@ const {helperText, label,src,width,height} = element.extraAttributes
       {label}
     </Label>
 
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center w-full">
 
 <IKImage
 alt='image'
 path={src}
 urlEndpoint={urlEndpoint}
-className=''
-width={width}
-height={height} 
-
+  width={width}
+  height={height} 
+className='object-contain'
 />
+
+ 
 </div>
 
     <div className="flex justify-between">

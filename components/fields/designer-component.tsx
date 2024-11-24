@@ -15,6 +15,7 @@ import {
 import { Checkbox } from '../ui/checkbox'
 import { IKImage } from 'imagekitio-next'
 import { LuImagePlus } from "react-icons/lu";
+import { CustomInstance as ImageUploadCustomInstance} from './form-fields/image-upload-field/image-upload-field'
 
 
 export const DesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
@@ -42,10 +43,9 @@ export const DesignerComponent = ({elementInstance}:{elementInstance:FormElement
 }
 
 export const ImageUploadDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
-    const element = elementInstance as CustomInstance
+    const element = elementInstance as ImageUploadCustomInstance
 
-    const {helperText, label,imageTypes,placeholder,required} = element.extraAttributes
-  const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
+    const {helperText, label,imageTypes,placeholder,required,isMultiple,maxImages,minImages,src} = element.extraAttributes
 
 return (
   <div className='flex flex-col gap-2 w-full my-4'>
@@ -54,7 +54,7 @@ return (
       {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
       </Label>
 
-<div className="flex justify-center items-center w-full border-2 border-dashed h-[79px] rounded-md text-muted-foreground">
+<div className="flex justify-center items-center w-full border-2 border-dashed h-[76px] rounded-md text-muted-foreground">
 
 
 <div className="flex items-center justify-center h-full flex-col gap-2">
@@ -79,7 +79,7 @@ return (
 
       <div className="flex justify-between">
 
-      {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
+      {helperText && (<p className='text-muted-foreground text-xs -mt-1.5'>{helperText}</p>)}
       
      
       </div>
