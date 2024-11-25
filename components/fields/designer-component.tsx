@@ -57,17 +57,16 @@ return (
 <div className="flex justify-center items-center w-full border-2 border-dashed h-[76px] rounded-md text-muted-foreground">
 
 
-<div className="flex items-center justify-center h-full flex-col gap-2">
-<LuImagePlus className='h-5 w-5'/>
-<span className="text-sm">{placeholder}</span>
+<div className="flex items-center justify-center h-full flex-col gap-1 p-1">
+<LuImagePlus className='h-5 w-5 mb-0.5'/>
+<span className="text-xs">{placeholder}</span>
 {imageTypes.length > 0 && (
-                <div className="mt-2 flex gap-2">
-                    <Label className='font-semibold'>Accepted File Types:</Label>
-                    <ul className='list-disc list-inside text-xs text-muted-foreground'>
+                <div className="flex justify-center items-center text-center  text-xs w-full p-1 -mt-0.5">
+                    <div className=' text-xs text-muted-foreground '>
                         {imageTypes.map((type, index) => (
-                            <li key={index}>{type}</li>
+                            <span key={index}>{type},</span>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             )}
 </div>
@@ -79,7 +78,7 @@ return (
 
       <div className="flex justify-between">
 
-      {helperText && (<p className='text-muted-foreground text-xs -mt-1.5'>{helperText}</p>)}
+      {helperText && (<p className='text-muted-foreground text-xs -mt-2'>{helperText}</p>)}
       
      
       </div>

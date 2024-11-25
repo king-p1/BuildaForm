@@ -37,8 +37,8 @@ import {
   MultiSelectorList,
   MultiSelectorTrigger,
 } from "@/components/ui/multi-select";
-
 import { cn } from '@/lib/utils'
+import { Checkbox } from '../ui/checkbox'
 
 export const PropertiesComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
 
@@ -212,7 +212,7 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
 
     const element = elementInstance as ImageUploadCustomInstance
 
-    const {helperText,imageTypes,isMultiple,label,maxImages,minImages,placeholder,required,src} = element.extraAttributes
+    const {helperText,imageTypes,isMultiple,label,maxImages,minImages,placeholder,required} = element.extraAttributes
 
     
     const form = useForm<imageUploadSchemaType>({
@@ -230,7 +230,6 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         }
     })
     
-    const [multiValue , setMultiValue] = useState([])
 
     const imageTypeOptions = [
       {
@@ -259,8 +258,6 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
       },
     ]
 
-    // accept="image/png,image/jpeg,image/jpg"
-
 
     useEffect(()=>{
         form.reset(element.extraAttributes)
@@ -275,11 +272,16 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         })
     }
     const isMultipleValue = form.watch('isMultiple');
+    const imageTypeValue = form.watch('imageTypes');
+
+
+console.log(imageTypeValue)
 
   return (
     <Form {...form}>
     <form onBlur={form.handleSubmit(applyFormChanges)} onSubmit={(e)=>{e.preventDefault()}} className="space-y-3">
-        {/* helper text max is 180 */}
+
+
       <FormField
         control={form.control}
         name="label"
@@ -303,6 +305,7 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
           </FormItem>
         )}
       />
+
 
 {/* <IKUpload
   fileName="upload.png"
@@ -340,6 +343,72 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         )}
       />
       
+
+      <FormField
+        control={form.control}
+        name="imageTypes"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Image Type</FormLabel>
+            
+
+            {/* we will add a checkbox saying allow all image types and the value will be image/* and when its checked, the multi select will be disabled */}
+
+            <FormControl className='felx flex-col gap-2'>
+
+<>
+
+
+
+<div className="flex w-full gap-2">
+  <Label>Accept all types</Label>
+
+
+{/* maybe create a state to track the truthy value of allimage types accepted and a watch on the form to ensure its correct  */}
+
+            <Checkbox 
+                  checked={true}
+                  onCheckedChange={()=>{
+                    const allImg= ['image/*']
+                    form.setValue('imageTypes', allImg)
+              applyFormChanges({ ...form.getValues(), imageTypes: allImg });
+                  }}
+                />
+</div>
+
+
+
+         {/* {!imageTypeValue && (    */}
+          <MultiSelector
+  values={field.value}
+  onValuesChange={field.onChange}
+  loop
+  
+  className="max-w-xs"
+>
+  <MultiSelectorTrigger>
+    <MultiSelectorInput placeholder="Select image type" />
+  </MultiSelectorTrigger>
+  <MultiSelectorContent>
+    <MultiSelectorList>
+    {imageTypeOptions.map(({imgValue,placeholder})=>(
+      <MultiSelectorItem value={imgValue}>{placeholder}</MultiSelectorItem>
+    ))}
+    </MultiSelectorList>
+  </MultiSelectorContent>
+</MultiSelector>
+{/*  )} */}
+</>
+
+            </FormControl>
+            <FormDescription >
+Select your prefererred image type 
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
 
 
       <FormField
@@ -437,42 +506,12 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
 
 
 
-      <FormField
-        control={form.control}
-        name="imageTypes"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Image Type</FormLabel>
-            
+      
 
-            {/* we will add a checkbox saying allow all image types and the value will be image/* and when its checked, the multi select will be disabled */}
-            <FormControl>
-            <MultiSelector
-  values={multiValue}
-  onValuesChange={setMultiValue}
-  loop
-  className="max-w-xs"
->
-  <MultiSelectorTrigger>
-    <MultiSelectorInput placeholder="Select image type" />
-  </MultiSelectorTrigger>
-  <MultiSelectorContent>
-    <MultiSelectorList>
-    {imageTypeOptions.map(({imgValue,placeholder})=>(
-      <MultiSelectorItem value={imgValue}>{placeholder}</MultiSelectorItem>
-    ))}
-    </MultiSelectorList>
-  </MultiSelectorContent>
-</MultiSelector>
 
-            </FormControl>
-            <FormDescription >
-Select your prefererred image type 
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+
+
+
 
       <FormField
         control={form.control}
