@@ -345,69 +345,55 @@ console.log(imageTypeValue)
       
 
       <FormField
-        control={form.control}
-        name="imageTypes"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Image Type</FormLabel>
-            
+  control={form.control}
+  name="imageTypes"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Image Type</FormLabel>
+      <FormControl className='flex flex-col gap-2'>
+        <>
+          <div className="flex w-full gap-4  items-center p-1">
+            <Checkbox
+              checked={field.value.includes('image/*')}
+              onCheckedChange={(checked) => {
+                const newValue = checked ? ['image/*'] : [];
+                field.onChange(newValue);
+                applyFormChanges({ ...form.getValues(), imageTypes: newValue });
+              }}
+            />
+            <Label>Accept all types</Label>
+          </div>
 
-            {/* we will add a checkbox saying allow all image types and the value will be image/* and when its checked, the multi select will be disabled */}
-
-            <FormControl className='felx flex-col gap-2'>
-
-<>
-
-
-
-<div className="flex w-full gap-2">
-  <Label>Accept all types</Label>
-
-
-{/* maybe create a state to track the truthy value of allimage types accepted and a watch on the form to ensure its correct  */}
-
-            <Checkbox 
-                  checked={true}
-                  onCheckedChange={()=>{
-                    const allImg= ['image/*']
-                    form.setValue('imageTypes', allImg)
-              applyFormChanges({ ...form.getValues(), imageTypes: allImg });
-                  }}
-                />
-</div>
-
-
-
-         {/* {!imageTypeValue && (    */}
-          <MultiSelector
-  values={field.value}
-  onValuesChange={field.onChange}
-  loop
-  
-  className="max-w-xs"
->
-  <MultiSelectorTrigger>
-    <MultiSelectorInput placeholder="Select image type" />
-  </MultiSelectorTrigger>
-  <MultiSelectorContent>
-    <MultiSelectorList>
-    {imageTypeOptions.map(({imgValue,placeholder})=>(
-      <MultiSelectorItem value={imgValue}>{placeholder}</MultiSelectorItem>
-    ))}
-    </MultiSelectorList>
-  </MultiSelectorContent>
-</MultiSelector>
-{/*  )} */}
-</>
-
-            </FormControl>
-            <FormDescription >
-Select your prefererred image type 
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+          {!field.value.includes('image/*') && (
+            <MultiSelector
+              values={field.value}
+              onValuesChange={field.onChange}
+              loop
+              className="max-w-xs"
+            >
+              <MultiSelectorTrigger>
+                <MultiSelectorInput placeholder="Select image type" />
+              </MultiSelectorTrigger>
+              <MultiSelectorContent>
+                <MultiSelectorList>
+                  {imageTypeOptions.map(({imgValue, placeholder}) => (
+                    <MultiSelectorItem key={imgValue} value={imgValue}>
+                      {placeholder}
+                    </MultiSelectorItem>
+                  ))}
+                </MultiSelectorList>
+              </MultiSelectorContent>
+            </MultiSelector>
+          )}
+        </>
+      </FormControl>
+      <FormDescription>
+        Select your preferred image type
+      </FormDescription>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
 
 
