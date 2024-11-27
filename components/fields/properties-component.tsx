@@ -272,10 +272,7 @@ export const ImageUploadPropertiesComponent = ({elementInstance}:{elementInstanc
         })
     }
     const isMultipleValue = form.watch('isMultiple');
-    const imageTypeValue = form.watch('imageTypes');
-
-
-console.log(imageTypeValue)
+     
 
   return (
     <Form {...form}>
@@ -307,17 +304,7 @@ console.log(imageTypeValue)
       />
 
 
-{/* <IKUpload
-  fileName="upload.png"
-  onError={onError}
-  onSuccess={onSuccess}
-  onUploadProgress={onUploadProgress}
-  onUploadStart={onUploadStart}
-  className="hidden"
-  id="uploadInput"
-  ref={ikUploadRef}
-  accept={imageTypes.join(',')} // Accept file types from the array
-/> */}
+
 
       <FormField
         control={form.control}
@@ -352,7 +339,7 @@ console.log(imageTypeValue)
       <FormLabel>Image Type</FormLabel>
       <FormControl className='flex flex-col gap-2'>
         <>
-          <div className="flex w-full gap-4  items-center p-1">
+          <div className="flex w-full gap-3 text-muted-foreground  items-center p-1">
             <Checkbox
               checked={field.value.includes('image/*')}
               onCheckedChange={(checked) => {
@@ -360,8 +347,8 @@ console.log(imageTypeValue)
                 field.onChange(newValue);
                 applyFormChanges({ ...form.getValues(), imageTypes: newValue });
               }}
-            />
-            <Label>Accept all types</Label>
+              className={cn(!field.value.length && 'border-red-700 border','text-muted-foreground')}            />
+            <Label className={cn(!field.value.length && 'text-red-700')} >Accept all image types</Label>
           </div>
 
           {!field.value.includes('image/*') && (
@@ -371,7 +358,7 @@ console.log(imageTypeValue)
               loop
               className="max-w-xs"
             >
-              <MultiSelectorTrigger>
+              <MultiSelectorTrigger className={cn(!field.value.length && 'border-red-700 border')}>
                 <MultiSelectorInput placeholder="Select image type" />
               </MultiSelectorTrigger>
               <MultiSelectorContent>
@@ -388,8 +375,15 @@ console.log(imageTypeValue)
         </>
       </FormControl>
       <FormDescription>
-        Select your preferred image type
-      </FormDescription>
+      {!field.value.length && (
+            <div className="text-red-700">
+              At least one image type should be selected or check the box to accept all types.
+            </div>
+          )}
+{!field.value.includes('image/*') ? 'Select your preferred image type'
+:'You have selceted all image types'
+}  
+    </FormDescription>
       <FormMessage />
     </FormItem>
   )}
