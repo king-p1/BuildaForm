@@ -236,7 +236,7 @@ export const FormComponent = ({
                     >
                       <CirclePlus className='h-8 w-8' />
                       <span className="text-sm">
-                        {!isMultiple ? 'Replace image' : `Add ${images.length > 0 ? 'another' : 'an'} image`}
+                        {!isMultiple &&  images.length === 1 ? 'Replace image' : `Add ${images.length > 0 ? 'another' : 'an'} image`}
                       </span>
                     </label>
                   )}
