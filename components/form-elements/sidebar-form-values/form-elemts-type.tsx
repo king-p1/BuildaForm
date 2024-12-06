@@ -15,7 +15,9 @@ import { FileUploadFieldFormElement } from "@/components/fields/form-fields/file
 
 export type ElementsType = "TextField" | "TitleField" | "SubTitleField" |"ParagraphField"  |  "NumberField" | "TextAreaField" | "DateField" | "SelectField" | "CheckboxField"  | "ImageUploadField" | "FileUploadField" | "ImageField" 
 
-export type SubmitFunction = (key:string,value:string)=>void
+export type SubmitFunction = (key:string,value:string|string[])=>void
+
+export type StringValue = string | string[]
 
 export type FormElement = {
 type:ElementsType
@@ -41,7 +43,7 @@ propertiesComponent: React.FC<{
     elementInstance : FormElementsInstance
 }>,
 
-validate:(formElement:FormElementsInstance,currentValue:string) => boolean
+validate:(formElement:FormElementsInstance,currentValue:StringValue) => boolean
 }
 
 export type FormElementsInstance = {

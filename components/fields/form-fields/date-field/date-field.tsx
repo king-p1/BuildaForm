@@ -5,6 +5,7 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
+  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { DateFieldDesignerComponent } from "../../designer-component";
 import { DateFieldPropertiesComponent } from "../../properties-component";
@@ -33,7 +34,7 @@ export const DateFieldFormElement: FormElement = {
   designerComponent:  DateFieldDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: DateFieldPropertiesComponent,
-  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
+  validate:(formElement:FormElementsInstance,currentValue:StringValue):boolean => {
     const element = formElement as CustomInstance
     if(element.extraAttributes.required){
       return currentValue.length > 0

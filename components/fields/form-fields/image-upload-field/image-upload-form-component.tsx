@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FormElementsInstance, SubmitFunction } from '../../../form-elements/sidebar-form-values/form-elemts-type';
-import { CustomInstance, ImageUploadFieldFormElement } from './image-upload-field';
+import { CustomInstance } from './image-upload-field';
 import { Label } from '../../../ui/label';
 import {
   Dialog,
@@ -16,7 +16,13 @@ import { LuImagePlus } from 'react-icons/lu';
 import { toast } from '@/hooks/use-toast';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
-import { CirclePlus, ChevronLeft, ChevronRight, Trash } from 'lucide-react';
+import {  ChevronLeft, ChevronRight, Trash, Replace,   ImageUp } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export const FormComponent = ({
   elementInstance,
@@ -34,19 +40,72 @@ export const FormComponent = ({
   const [error, setError] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [images, setImages] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
+  const [images, setImages] = useState<string[]>(() => {
+    if (defaultValues) {
+      return defaultValues.split(',').filter(Boolean);
+    }
+    return [];
+  });
+    const [isUploading, setIsUploading] = useState(false);
+    const hasSubmitted = useRef(false);
+    
+      const { helperText, label, placeholder, imageTypes, isMultiple, maxImages, minImages, required } = element.extraAttributes;
 
-  useEffect(() => {
-    setError(isInvalid === true);
-  }, [isInvalid]);
-
-  const { helperText, label, placeholder, imageTypes, isMultiple, maxImages, minImages, required } = element.extraAttributes;
-
-  const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
-  const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
-
-  const authenticator = async () => {
+      
+      
+      
+      
+      const validateImages = () => {
+        // If not required and no images, it's valid
+      if (!required && images.length === 0) {
+        return true;
+      }
+      
+      // If required and no images, it's invalid
+      if (required && images.length === 0) {
+        return false;
+      }
+  
+      // For multiple images
+      if (isMultiple) {
+        // Check minimum images requirement
+        if (minImages && images.length < minImages) {
+          return false;
+        }
+        // Check maximum images requirement
+        if (maxImages && images.length > maxImages) {
+          return false;
+        }
+        // If we have images and they're within min/max bounds, it's valid
+        return true;
+      } 
+      
+      // For single image
+      return images.length === 1;
+    };
+    
+    const handleSubmission = () => {
+        hasSubmitted.current = true;
+      const valid = validateImages();
+      console.log("Validating with:", {
+        imagesLength: images.length,
+        minImages,
+        maxImages,
+        isMultiple,
+        required,
+        validationResult: validateImages()
+      });
+      setError(!valid);
+    
+      if (valid && submitValue) {
+          submitValue(element.id, images);
+        }
+      };
+      
+      const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
+      const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
+      
+      const authenticator = async () => {
     try {
       const { data } = await axios.get("/api/image-upload");
       const { token, expire, signature } = data;
@@ -72,68 +131,188 @@ export const FormComponent = ({
   };
 
   const ikUploadRef = useRef(null);
+  
+   
 
   const onSuccess = (res) => {
     const uploadedImageUrl = res?.filePath;
-    // If not multiple, replace the existing image
-    if (!isMultiple) {
-      setImages([uploadedImageUrl]);
-      setCurrentImageIndex(0);
-    } else {
-      setImages(prev => [...prev, uploadedImageUrl]);
-    }
-    toast({ title: 'Success', description: "Image uploaded successfully." });
+    setImages(prev => {
+      const newImages = isMultiple ? [...prev, uploadedImageUrl] : [uploadedImageUrl];
+      
+      // Trigger submission with the new images
+      setTimeout(() => {
+        hasSubmitted.current = true;
+        if (submitValue) {
+          submitValue(element.id, newImages);
+        }
+        const valid = validateImages();
+        setError(!valid);
+      }, 0);
+      
+      return newImages;
+    });
+    setCurrentImageIndex(isMultiple ? images.length : 0);
     setIsUploading(false);
-  };
-
-  const handleBlur = (e) => {
-    if (!submitValue) return;
-    
-    const valid = ImageUploadFieldFormElement.validate(element, e.target.value);
-    setError(!valid);
-    
-    const trimmedValue = e.target.value.trim();
-    if (trimmedValue.length === 0) {
-      setError(true);
-      return;
-    }
-    if (!valid) return;
-
-    setValue(trimmedValue);
-    submitValue(element.id, trimmedValue);
+    toast({ title: 'Success', description: "Image uploaded successfully." });
   };
 
   const nextImage = () => {
     setCurrentImageIndex(prev => (prev + 1) % images.length);
   };
-
   const previousImage = () => {
     setCurrentImageIndex(prev => (prev - 1 + images.length) % images.length);
   };
 
+  
   const removeCurrentImage = () => {
-    const newImages = images.filter((_, index) => index !== currentImageIndex);
-    setImages(newImages);
-    if (currentImageIndex >= newImages.length) {
-      setCurrentImageIndex(Math.max(0, newImages.length - 1));
-    }
+    setImages(prevImages => {
+      const newImages = prevImages.filter((_, index) => index !== currentImageIndex);
+      
+      // Adjust current index if necessary
+      if (currentImageIndex >= newImages.length) {
+        setCurrentImageIndex(Math.max(0, newImages.length - 1));
+      }
+      
+      // Immediately trigger submission with the updated images
+      setTimeout(() => {
+        hasSubmitted.current = true;
+        if (submitValue) {
+          submitValue(element.id, newImages);
+        }
+        const valid = newImages.length === 0 ? !required : validateImages();
+        setError(!valid);
+      }, 0);
+      
+      return newImages;
+    });
   };
+  
+  useEffect(() => {
+    if (isInvalid === true) {
+      setError(true);
+    }
+  }, [isInvalid]);
+  
+  
+  useEffect(() => {
+    if (hasSubmitted.current) {
+      const valid = validateImages();
+      console.log("Validating with:", {
+        imagesLength: images.length,
+        minImages,
+        maxImages,
+        isMultiple,
+        required,
+        validationResult: validateImages()
+      });
+      setError(!valid);
+      if (valid && submitValue) {
+        submitValue(element.id, images);
+      }
+    }
+  }, [images, submitValue, element.id]);
 
+  console.log("images",images)
+  console.log("error",error)
+  
   return (
     <div className='flex flex-col gap-2 w-full p-2.5'>
       <Label className={cn(error && 'text-red-500', 'font-semibold')}>
         {label}
+        {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
+
       </Label>
 
       <div className="flex items-center justify-center dark:border-neutral-200 border-neutral-800 border-2 border-dashed rounded-md text-muted-foreground h-full flex-col gap-1 p-1">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger>
+         {images.length < 1 ? 
+          (<DialogTrigger>
             <Button className='font-semibold flex items-center gap-2 mt-3 mb-3'>
               <LuImagePlus size={40} className="h-6 w-6" />
               Open upload Dialog
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl">
+          </DialogTrigger>)
+            : (
+              
+              <div className="relative w-full flex items-center justify-center">
+                    
+                      {isMultiple && images.length > 1 && (
+                        <Button 
+                          variant="outline" 
+                          className="absolute -left-4 z-10"
+                          onClick={previousImage}
+                          size="icon"
+
+                        >
+                          <ChevronLeft className="h-6 w-6" />
+                        </Button>
+                      )}
+                      
+                      <div className="relative">
+                        <IKImage
+                          alt='uploaded image'
+                          path={images[currentImageIndex]}
+                          urlEndpoint={urlEndpoint}
+                          className='border-none'
+                          width={400}
+                          height={300}
+                        />
+                        
+
+                        <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        
+                        <div className="absolute bottom-[41%] right-[45%] flex gap-2 opacity-0 hover:opacity-100 ">
+                          <Button 
+                            size="icon"
+                            onClick={()=>{
+                              setIsDialogOpen(true)
+                            }}
+                            className='rounded-full'
+                            variant='secondary'
+                          >
+              <ImageUp className='h-6 w-6' />
+              </Button>
+                        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>
+         Open upload dialog
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+
+
+                        <div className="absolute bottom-2 right-2 flex gap-2">
+                          <Button 
+                            variant="destructive" 
+                            size="icon"
+                            onClick={removeCurrentImage}
+                          >
+                            <Trash className='w-8 h-8'/>
+                          </Button>
+                        </div>
+                      </div>
+
+                      {isMultiple && images.length > 1 && (
+                        <Button 
+                          variant="outline" 
+                          className="absolute -right-4 z-10"
+                          onClick={nextImage}
+                          size="icon"
+                        >
+                          <ChevronRight className="h-6 w-6" />
+                        </Button>
+                      )}
+                    </div>
+            )}
+
+
+
+
+          <DialogContent className="w-[85%]">
             <DialogHeader>
               <DialogTitle>
                 <div className="flex flex-col gap-2">
@@ -166,7 +345,7 @@ export const FormComponent = ({
                     <IKUpload
                       fileName="upload.png"
                       onError={onError}
-                      onSuccess={onSuccess}
+                      onSuccess={ onSuccess }
                       onUploadProgress={onUploadProgress}
                       onUploadStart={onUploadStart}
                       className="hidden"
@@ -176,20 +355,22 @@ export const FormComponent = ({
                       multiple={isMultiple}
                       max={maxImages}
                       min={minImages}
-                    />
+                      />
                   </ImageKitProvider>
 
                   {/* Image Gallery */}
                   {images.length > 0 && (
                     <div className="relative w-full flex items-center justify-center">
-                      {/* Only show navigation arrows if multiple images are allowed and there are multiple images */}
+                    
                       {isMultiple && images.length > 1 && (
                         <Button 
                           variant="outline" 
-                          className="absolute left-0 z-10"
+                          className="absolute -left-4 z-10"
                           onClick={previousImage}
+                          size="icon"
+
                         >
-                          <ChevronLeft className="h-4 w-4" />
+                          <ChevronLeft className="h-6 w-6" />
                         </Button>
                       )}
                       
@@ -202,6 +383,7 @@ export const FormComponent = ({
                           width={400}
                           height={300}
                         />
+
                         
                         <div className="absolute bottom-2 right-2 flex gap-2">
                           <Button 
@@ -217,10 +399,11 @@ export const FormComponent = ({
                       {isMultiple && images.length > 1 && (
                         <Button 
                           variant="outline" 
-                          className="absolute right-0 z-10"
+                          className="absolute -right-4 z-10"
                           onClick={nextImage}
+                          size="icon"
                         >
-                          <ChevronRight className="h-4 w-4" />
+                          <ChevronRight className="h-6 w-6" />
                         </Button>
                       )}
                     </div>
@@ -229,25 +412,48 @@ export const FormComponent = ({
 
 {/* rewrite this code and reposition it conditionally */}
 
-                  {(!maxImages || images.length < maxImages) && (
-                    <label
-                      htmlFor="uploadInput"
-                      className="cursor-pointer text-center flex flex-col gap-2 justify-center items-center z-50"
-                    >
-                      <CirclePlus className='h-8 w-8' />
-                      <span className="text-sm">
-                        {!isMultiple &&  images.length === 1 ? 'Replace image' : `Add ${images.length > 0 ? 'another' : 'an'} image`}
-                      </span>
-                    </label>
-                  )}
+{(!maxImages || images.length < maxImages) && (
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div 
+          className="cursor-pointer text-center flex flex-col gap-2 justify-center items-center z-50"
+          onClick={() => {
+            const uploadInput = document.getElementById('uploadInput');
+            if (uploadInput) {
+              uploadInput.click();
+            }
+          }}
+        >
+          {!isMultiple && images.length === 1 ? (
+            <div className='p-3 border-2 text-muted-foreground hover:text-white rounded-full'>
+              <Replace className='h-6 w-6'/> 
+            </div>
+          ) : (
+            <div className={cn('p-2 border-2 text-muted-foreground hover:text-neutral-800 dark:hover:text-white rounded-full hover:border-neutral-800 dark:hover:border-white', isMultiple && images.length > 1 && 'absolute right-5 top-[11%] p-1.5')}>
+              <ImageUp className={cn('h-5 w-5',isMultiple && images.length > 1 && 'h-4 w-4')} />
+            </div>
+          )}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>
+          {!isMultiple && images.length === 1 
+            ? 'Click to replace image' 
+            : 'Click to upload image'
+          }
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
+)}
 
 
 
-
-                  {isMultiple && images.length > 1 && (
+                  {isMultiple   && (
                     <div className="text-sm text-muted-foreground">
-                      Image {currentImageIndex + 1} of {images.length}
-                      {maxImages && ` (Max: ${maxImages})`}
+                      Image {images.length >= 1 ? currentImageIndex + 1 : 0} of {images.length}
+                      {maxImages && ` (Min: ${minImages}, Max: ${maxImages})`}
                     </div>
                   )}
                 </div>

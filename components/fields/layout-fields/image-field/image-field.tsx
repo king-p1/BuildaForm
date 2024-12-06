@@ -3,6 +3,7 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
+  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { ImageDesignerComponent } from "../../designer-component";
 import { ImagePropertiesComponent } from "../../properties-component";
@@ -34,14 +35,8 @@ export const ImageFieldFormElement: FormElement = {
   designerComponent:  ImageDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: ImagePropertiesComponent,
-  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
-    const element = formElement as CustomInstance
-    if(element.extraAttributes.required){
-      return currentValue.length > 0
-    }
+  validate:() => true
 
-    return true
-  }
 };
 
 export type CustomInstance = FormElementsInstance & {

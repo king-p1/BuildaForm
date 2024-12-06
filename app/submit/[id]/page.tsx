@@ -16,6 +16,7 @@ const SubmitPage = async({params:{id}}:{params:{id:string}}) => {
   }
 
   const formContent = JSON.parse(formData.content) as FormElementsInstance[]
+ 
 
   return <FormSubmitComponent content={formContent} url={id}/>
   

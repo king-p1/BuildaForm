@@ -46,7 +46,7 @@ const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
 
 <div className='w-full border-t-2 mt-9'/>
 
-<div className="container pt-10">
+<div className=" pt-10">
   <SubmissionsTable id={formID}/>
 </div>
 

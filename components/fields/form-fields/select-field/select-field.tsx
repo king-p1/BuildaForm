@@ -5,6 +5,7 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
+  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import {  SelectFieldDesignerComponent } from "../../designer-component";
 import { SelectFieldPropertiesComponent } from "../../properties-component";
@@ -35,7 +36,7 @@ export const SelectFieldFormElement: FormElement = {
   designerComponent:  SelectFieldDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: SelectFieldPropertiesComponent,
-  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
+  validate:(formElement:FormElementsInstance,currentValue:StringValue):boolean => {
     const element = formElement as CustomInstance
     if(element.extraAttributes.required){
       return currentValue.length > 0

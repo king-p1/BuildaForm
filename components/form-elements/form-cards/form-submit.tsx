@@ -40,19 +40,24 @@ return true
 
 },[content])
 
-const submitValue = useCallback((key:string,value:string)=>{
-    formValues.current[key]=value
-},[])
+const submitValue = useCallback((key: string, value: string | string[]) => {
+    if (Array.isArray(value)) {
+        // Handle array case if necessary
+        formValues.current[key] = value.join(','); // Example: join array into a string
+    } else {
+        formValues.current[key] = value;
+    }
+}, []);
 
     const submitForm = async() =>{
         formErrors.current = {}
-const validForm = validateForm()
-
+        const validForm = validateForm()
+        
 if(!validForm){
     setRenderKey(new Date().getTime())
     toast({
-    title:'Error',
-    description:'Some errors are in your field, please correct them.'
+        title:'Error',
+        description:'Some errors have been detected in your response.'
     }
 )
 return
@@ -61,15 +66,15 @@ return
 try {
 
     const JsonContent = JSON.stringify(formValues.current)
-
-  const {error} =  await SubmitFormAction(url,JsonContent)
-
-   if(error === false){
+    
+    const {error} =  await SubmitFormAction(url,JsonContent)
+    
+    if(error === false){
      setSubmitted(true)
      toast({
          title:'Success',
          description:'Form submitted successfully.'
-         })
+        })
     
     }
     
@@ -78,11 +83,11 @@ try {
     toast({
         title:'Error',
         description:'An error occurred.'
-        })
+    })
 }
 
 // console.log(formValues.current)
-    }
+}
 
 
 

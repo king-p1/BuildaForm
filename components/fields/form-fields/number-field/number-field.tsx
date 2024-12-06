@@ -4,6 +4,7 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
+  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { NumberDesignerComponent } from "../../designer-component";
 import { NumberPropertiesComponent } from "../../properties-component";
@@ -33,7 +34,7 @@ export const NumberFieldFormElement: FormElement = {
   designerComponent:  NumberDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: NumberPropertiesComponent,
-  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
+  validate:(formElement:FormElementsInstance,currentValue:StringValue):boolean => {
     const element = formElement as CustomInstance
     if(element.extraAttributes.required){
       return currentValue.length > 0

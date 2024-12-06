@@ -4,6 +4,7 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
+  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { TextAreaDesignerComponent } from "../../designer-component";
 import { TextAreaPropertiesComponent } from "../../properties-component";
@@ -35,7 +36,7 @@ export const TextAreaFieldFormElement: FormElement = {
   designerComponent:  TextAreaDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: TextAreaPropertiesComponent,
-  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
+  validate:(formElement:FormElementsInstance,currentValue:StringValue):boolean => {
     const element = formElement as CustomInstance
     if(element.extraAttributes.required){
       return currentValue.length > 0

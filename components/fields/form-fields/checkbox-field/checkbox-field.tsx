@@ -5,6 +5,7 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
+  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { CheckboxFieldDesignerComponent } from "../../designer-component";
 import { CheckboxFieldPropertiesComponent } from "../../properties-component";
@@ -33,7 +34,7 @@ export const CheckboxFieldFormElement: FormElement = {
   designerComponent:  CheckboxFieldDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: CheckboxFieldPropertiesComponent,
-  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
+  validate:(formElement:FormElementsInstance,currentValue:StringValue):boolean => {
     const element = formElement as CustomInstance
     if(element.extraAttributes.required){
       return currentValue === 'true'

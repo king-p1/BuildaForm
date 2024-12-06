@@ -7,7 +7,7 @@ import React, { Suspense } from 'react'
 
 const DashboardPage = () => {
   return (
-    <div className='p-5 w-full flex flex-col gap-4 container'>
+    <div className='p-5 w-full flex flex-col gap-4 '>
        <Suspense fallback={<StatCards loading={true}/>}>
 <StatCardWrapper/>
        </Suspense>

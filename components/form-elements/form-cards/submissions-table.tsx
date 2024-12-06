@@ -12,36 +12,11 @@ import { toast } from "@/hooks/use-toast"
 import { ElementsType, FormElementsInstance } from "../sidebar-form-values/form-elemts-type"
 import {Row} from '@/lib/types'
 import { format, formatDistance } from "date-fns"
-import { ReactNode } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
+import { RowCell } from "./row-cell"
 
 
 
-const RowCell = ({type,value}:{type:ElementsType ; value:string})=>{
- let node:ReactNode = value
 
-switch (type) {
-  case "DateField":
-    if(!value) break
-    const date = new Date(value)
-    node = <Badge>{format(date,"dd/MM/yyyy")}</Badge>
-    break;
-  
-    case "CheckboxField":
-    if(!value) break
-    const checked = value === 'true' ? true : false
-    node = <Checkbox checked={checked} disabled />
-    break;
-
-  default:
-    break;
-}
-
-  return(
-<TableCell>{node}</TableCell>
-  )
-}
 
 
 
@@ -71,6 +46,9 @@ formElements.forEach(element => {
     case"TextAreaField":
     case"DateField":
     case"CheckboxField":
+    case"SelectField":
+    case"ImageUploadField":
+    case"FileUploadField":
     columns.push({
 id:element.id,
 label:element.extraAttributes?.label,

@@ -5,6 +5,7 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
+  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { FileUploadDesignerComponent } from "../../designer-component";
 import { FileUploadPropertiesComponent } from "../../properties-component";
@@ -32,7 +33,7 @@ export const FileUploadFieldFormElement: FormElement = {
   designerComponent:  FileUploadDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: FileUploadPropertiesComponent,
-  validate:(formElement:FormElementsInstance,currentValue:string):boolean => {
+  validate:(formElement:FormElementsInstance,currentValue:StringValue):boolean => {
     const element = formElement as CustomInstance
     if(element.extraAttributes.required){
       return currentValue.length > 0

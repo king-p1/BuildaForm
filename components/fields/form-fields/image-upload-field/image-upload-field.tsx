@@ -5,6 +5,7 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
+  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { ImageUploadDesignerComponent } from "../../designer-component";
 import { ImageUploadPropertiesComponent } from "../../properties-component";
@@ -24,6 +25,8 @@ const extraAttributes = {
   maxImages:1,
 }
 
+ 
+
 export const ImageUploadFieldFormElement: FormElement = {
   type,
   construct: (id:string) => ({
@@ -39,32 +42,42 @@ export const ImageUploadFieldFormElement: FormElement = {
   designerComponent:  ImageUploadDesignerComponent ,
   formComponent: FormComponent,
   propertiesComponent: ImageUploadPropertiesComponent,
-  validate: (formElement: FormElementsInstance, currentValue: string | string[]): boolean => {
+  validate: (formElement: FormElementsInstance, currentValue:StringValue ): boolean => {
     const element = formElement as CustomInstance;
     const { isMultiple, required, minImages, maxImages } = element.extraAttributes;
-
-    // Convert currentValue to an array if it's a string
-    const valuesArray = Array.isArray(currentValue) ? currentValue : [currentValue];
-
+    
+    // Convert currentValue to an array, handling undefined/null cases
+    const valuesArray = Array.isArray(currentValue) 
+      ? currentValue 
+      : currentValue 
+        ? [currentValue] 
+        : [];
+    
+    // Required field validation
     if (required && valuesArray.length === 0) {
-        return false; // If required and no images uploaded
+      return false;
     }
-
+    
+    // Multiple images validation
     if (isMultiple) {
-        if (minImages !== undefined && valuesArray.length < minImages) {
-            return false; // Not enough images uploaded
-        }
-        if (maxImages !== undefined && valuesArray.length > maxImages) {
-            return false; // Too many images uploaded
-        }
+      // Check minimum images requirement
+      if (minImages && valuesArray.length < minImages) {
+        return false;
+      }
+      
+      // Check maximum images requirement
+      if (maxImages && valuesArray.length > maxImages) {
+        return false;
+      }
     } else {
-        // If not multiple, ensure exactly one image is uploaded
-        return valuesArray.length === 1;
+      // Single image validation - must have exactly one image
+      if (valuesArray.length !== 1) {
+        return false;
+      }
     }
-
-    return true; // Validation passes
-}
-
+    
+    return true;
+  }
 };
 
 export type CustomInstance = FormElementsInstance & {
