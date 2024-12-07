@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FormElementsInstance, SubmitFunction } from '../../../form-elements/sidebar-form-values/form-elemts-type';
-import { CustomInstance } from './image-upload-field';
+import { CustomInstance, ImageUploadFieldFormElement } from './image-upload-field';
 import { Label } from '../../../ui/label';
 import {
   Dialog,
@@ -23,6 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { TbLoader3 } from 'react-icons/tb';
 
 export const FormComponent = ({
   elementInstance,
@@ -36,89 +37,50 @@ export const FormComponent = ({
   defaultValues?: string
 }) => {
   const element = elementInstance as CustomInstance;
-  const [value, setValue] = useState(defaultValues || '');
-  const [error, setError] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [images, setImages] = useState<string[]>(() => {
     if (defaultValues) {
       return defaultValues.split(',').filter(Boolean);
     }
     return [];
   });
-    const [isUploading, setIsUploading] = useState(false);
-    const hasSubmitted = useRef(false);
-    
-      const { helperText, label, placeholder, imageTypes, isMultiple, maxImages, minImages, required } = element.extraAttributes;
+  const [error, setError] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const ikUploadRef = useRef(null);
+  const { helperText, label, placeholder, imageTypes, isMultiple, maxImages, minImages, required } = element.extraAttributes;
 
-      
-      
-      
-      
-      const validateImages = () => {
-        // If not required and no images, it's valid
-      if (!required && images.length === 0) {
-        return true;
-      }
-      
-      // If required and no images, it's invalid
-      if (required && images.length === 0) {
-        return false;
-      }
-  
-      // For multiple images
-      if (isMultiple) {
-        // Check minimum images requirement
-        if (minImages && images.length < minImages) {
-          return false;
-        }
-        // Check maximum images requirement
-        if (maxImages && images.length > maxImages) {
-          return false;
-        }
-        // If we have images and they're within min/max bounds, it's valid
-        return true;
-      } 
-      
-      // For single image
-      return images.length === 1;
-    };
+  useEffect(() => {
+    if (isInvalid === true) {
+      setError(true);
+    }
+  }, [isInvalid]);
+
+  useEffect(() => {
+    const valid = ImageUploadFieldFormElement.validate(element, images);
+    setError(!valid);
     
-    const handleSubmission = () => {
-        hasSubmitted.current = true;
-      const valid = validateImages();
-      console.log("Validating with:", {
-        imagesLength: images.length,
-        minImages,
-        maxImages,
-        isMultiple,
-        required,
-        validationResult: validateImages()
-      });
-      setError(!valid);
-    
-      if (valid && submitValue) {
-          submitValue(element.id, images);
-        }
-      };
-      
-      const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
-      const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
-      
-      const authenticator = async () => {
+    if (valid && submitValue) {
+      submitValue(element.id, images);
+    }
+  }, [images, element, submitValue]);
+
+  const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
+  const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
+
+  const authenticator = async () => {
     try {
       const { data } = await axios.get("/api/image-upload");
-      const { token, expire, signature } = data;
-      return { token, expire, signature };
+      return data;
     } catch (error) {
-      toast({ title: 'Error', description: "Failed to authenticate. Please try again." });
+      toast({ title: 'Error', description: "Failed to authenticate" });
       throw error;
     }
   };
 
   const onError = (err) => {
-    console.log(err);
-    toast({ title: 'Error', description: "Image upload failed." });
+    console.error(err);
+    toast({ title: 'Error', description: "Upload failed" });
     setIsUploading(false);
   };
 
@@ -130,87 +92,30 @@ export const FormComponent = ({
     });
   };
 
-  const ikUploadRef = useRef(null);
-  
-   
 
   const onSuccess = (res) => {
     const uploadedImageUrl = res?.filePath;
     setImages(prev => {
       const newImages = isMultiple ? [...prev, uploadedImageUrl] : [uploadedImageUrl];
-      
-      // Trigger submission with the new images
-      setTimeout(() => {
-        hasSubmitted.current = true;
-        if (submitValue) {
-          submitValue(element.id, newImages);
-        }
-        const valid = validateImages();
-        setError(!valid);
-      }, 0);
-      
       return newImages;
     });
     setCurrentImageIndex(isMultiple ? images.length : 0);
     setIsUploading(false);
-    toast({ title: 'Success', description: "Image uploaded successfully." });
+    toast({ title: 'Success', description: "Upload successful" });
+  };
+
+  const removeCurrentImage = () => {
+    setImages(prev => prev.filter((_, index) => index !== currentImageIndex));
+    setCurrentImageIndex(prev => Math.max(0, prev - 1));
   };
 
   const nextImage = () => {
     setCurrentImageIndex(prev => (prev + 1) % images.length);
   };
+
   const previousImage = () => {
     setCurrentImageIndex(prev => (prev - 1 + images.length) % images.length);
   };
-
-  
-  const removeCurrentImage = () => {
-    setImages(prevImages => {
-      const newImages = prevImages.filter((_, index) => index !== currentImageIndex);
-      
-      // Adjust current index if necessary
-      if (currentImageIndex >= newImages.length) {
-        setCurrentImageIndex(Math.max(0, newImages.length - 1));
-      }
-      
-      // Immediately trigger submission with the updated images
-      setTimeout(() => {
-        hasSubmitted.current = true;
-        if (submitValue) {
-          submitValue(element.id, newImages);
-        }
-        const valid = newImages.length === 0 ? !required : validateImages();
-        setError(!valid);
-      }, 0);
-      
-      return newImages;
-    });
-  };
-  
-  useEffect(() => {
-    if (isInvalid === true) {
-      setError(true);
-    }
-  }, [isInvalid]);
-  
-  
-  useEffect(() => {
-    if (hasSubmitted.current) {
-      const valid = validateImages();
-      console.log("Validating with:", {
-        imagesLength: images.length,
-        minImages,
-        maxImages,
-        isMultiple,
-        required,
-        validationResult: validateImages()
-      });
-      setError(!valid);
-      if (valid && submitValue) {
-        submitValue(element.id, images);
-      }
-    }
-  }, [images, submitValue, element.id]);
 
   console.log("images",images)
   console.log("error",error)
@@ -431,7 +336,12 @@ export const FormComponent = ({
             </div>
           ) : (
             <div className={cn('p-2 border-2 text-muted-foreground hover:text-neutral-800 dark:hover:text-white rounded-full hover:border-neutral-800 dark:hover:border-white', isMultiple && images.length > 1 && 'absolute right-5 top-[11%] p-1.5')}>
-              <ImageUp className={cn('h-5 w-5',isMultiple && images.length > 1 && 'h-4 w-4')} />
+              {isUploading ?(
+                <TbLoader3 className='animate-spin h-5 w-5' />
+              ):(
+
+                <ImageUp className={cn('h-5 w-5',isMultiple && images.length > 1 && 'h-4 w-4')} />
+              )}
             </div>
           )}
         </div>

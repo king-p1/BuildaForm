@@ -40,18 +40,26 @@ return true
 
 },[content])
 
+// const submitValue = useCallback((key: string, value: string | string[]) => {
+//     if (Array.isArray(value)) {
+//         // Handle array case if necessary
+//         formValues.current[key] = value.join(','); // Example: join array into a string
+//     } else {
+//         formValues.current[key] = value;
+//     }
+// }, []);
+
+
 const submitValue = useCallback((key: string, value: string | string[]) => {
-    if (Array.isArray(value)) {
-        // Handle array case if necessary
-        formValues.current[key] = value.join(','); // Example: join array into a string
-    } else {
-        formValues.current[key] = value;
-    }
-}, []);
+    // Store arrays directly without joining
+    formValues.current[key] = value;
+  }, []);
 
     const submitForm = async() =>{
         formErrors.current = {}
         const validForm = validateForm()
+
+        console.log('validform',validForm)
         
 if(!validForm){
     setRenderKey(new Date().getTime())
@@ -64,29 +72,31 @@ return
 }
 
 try {
+    // Create a copy of form values and process arrays
+    const processedValues = Object.entries(formValues.current).reduce((acc, [key, value]) => {
+      // If the value is an array, join it with commas for JSON storage
+      acc[key] = Array.isArray(value) ? value.join(',') : value;
+      return acc;
+    }, {} as Record<string, string>);
 
-    const JsonContent = JSON.stringify(formValues.current)
+    const JsonContent = JSON.stringify(processedValues)
     
-    const {error} =  await SubmitFormAction(url,JsonContent)
+    const {error} = await SubmitFormAction(url, JsonContent)
     
-    if(error === false){
-     setSubmitted(true)
-     toast({
-         title:'Success',
-         description:'Form submitted successfully.'
-        })
-    
+    if(error === false) {
+      setSubmitted(true)
+      toast({
+        title: 'Success',
+        description: 'Form submitted successfully.'
+      })
     }
-    
-} catch (error) {
+  } catch (error) {
     console.log(error)
     toast({
-        title:'Error',
-        description:'An error occurred.'
+      title: 'Error',
+      description: 'An error occurred.'
     })
-}
-
-// console.log(formValues.current)
+  }
 }
 
 
