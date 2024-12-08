@@ -11,7 +11,7 @@ const ErrorPage = ({error}:{error:Error}) => {
         console.error(error)
     },[error])
   return (
-    <div className="w-full h-full flex flex-col gap-2 justify-center items-center">
+    <div className="w-full h-[85vh] flex flex-col gap-2 justify-center items-center">
 
 <Image
 src={errorImg}

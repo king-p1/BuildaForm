@@ -47,39 +47,46 @@ export const ImageUploadFieldFormElement: FormElement = {
     const { isMultiple, required, minImages, maxImages } = element.extraAttributes;
 
     // Convert value to array regardless of input type
-    const valuesArray = Array.isArray(currentValue) 
-      ? currentValue 
-      : typeof currentValue === 'string'
-        ? currentValue.split(',').filter(Boolean)
-        : [];
+    const valuesArray = Array.isArray(currentValue)
+    ? currentValue
+    : typeof currentValue === 'string'
+    ? currentValue.split(',').filter(Boolean)
+    : [];
 
-    // Required field validation
-    if (required && valuesArray.length === 0) {
-      console.log('Required field validation failed');
-      return false;
+    if (!required && valuesArray.length === 0) {
+      return true;
     }
 
-    // Multiple images validation
     if (isMultiple) {
-      // Check minimum images requirement
-      if (minImages && valuesArray.length < minImages) {
-        console.log('Minimum images validation failed');
+      // If required, must meet minimum images requirement
+      if (required && minImages && valuesArray.length < minImages) {
+        console.log(`Validation failed: Required field needs minimum ${minImages} images`);
         return false;
       }
-
-      // Check maximum images requirement
+  
+      // If not required but some images uploaded, must still meet minimum if specified
+      if (!required && valuesArray.length > 0 && minImages && valuesArray.length < minImages) {
+        console.log(`Validation failed: When uploading, minimum ${minImages} images required`);
+        return false;
+      }
+  
       if (maxImages && valuesArray.length > maxImages) {
-        console.log('Maximum images validation failed');
+        console.log(`Validation failed: Maximum ${maxImages} images allowed`);
         return false;
       }
     } else {
-      // Single image validation - must have exactly one image if required
+
       if (required && valuesArray.length !== 1) {
-        console.log('Single image validation failed');
+        console.log('Validation failed: Exactly one image required');
+        return false;
+      }
+  
+      if (!required && valuesArray.length > 1) {
+        console.log('Validation failed: Cannot upload multiple images in single mode');
         return false;
       }
     }
-
+  
     return true;
   }
 };

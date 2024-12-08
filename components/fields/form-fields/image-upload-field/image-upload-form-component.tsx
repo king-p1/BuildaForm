@@ -37,12 +37,8 @@ export const FormComponent = ({
   defaultValues?: string
 }) => {
   const element = elementInstance as CustomInstance;
-  const [images, setImages] = useState<string[]>(() => {
-    if (defaultValues) {
-      return defaultValues.split(',').filter(Boolean);
-    }
-    return [];
-  });
+  const [images, setImages] = useState<string[]>([]);
+  console.log(defaultValues)
   const [error, setError] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
