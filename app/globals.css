@@ -110,14 +110,18 @@ body {
   display: none;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb   {
+  background: #888;
+  border-radius: 0px;
+}
 .custom-scrollbar-2::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 4px;
+  padding: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #f50e0e;
+  background: #454343;
 }
 
 .custom-scrollbar-2::-webkit-scrollbar-thumb:hover {

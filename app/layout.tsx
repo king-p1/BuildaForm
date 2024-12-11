@@ -20,13 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
        <head>
   <link rel="icon" href="/buildaform-1.png" type="image/svg+xml" />
         </head>
 
       <body
-        className={` font-mono antialiased`}
+        className={` font-mono antialiased custom-scrollbar `}
       >
         <NextTopLoader/>
         <DesignerContextProvider>

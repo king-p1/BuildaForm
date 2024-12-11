@@ -20,6 +20,17 @@ export const propertiesSchema = z.object({
     limit: z.number().min(1).max(200).default(50)
 })
 
+export const linkPropertiesSchema = z.object({
+    label:z.string().min(4).max(40),
+    helperText:z.string().min(4).max(180),
+    href:z.string().max(150),
+    text:z.string().min(4).max(100),
+    color:z.string().max(80),
+    bgColor:z.string().max(80),
+    size:z.string().max(80),
+    padding:z.string().max(80),
+})
+
 export const imageSchema = z.object({
     src:z.string(),
     label:z.string().min(4).max(40),

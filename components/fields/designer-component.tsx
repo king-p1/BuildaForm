@@ -2,6 +2,7 @@
 import React from 'react'
 import { FormElementsInstance } from '../form-elements/sidebar-form-values/form-elemts-type'
 import { CustomInstance } from './form-fields/text-field/text-field'
+import { CustomInstance as LinkCustomInstance} from './layout-fields/link-field/link-field'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
@@ -16,6 +17,7 @@ import { Checkbox } from '../ui/checkbox'
 import { IKImage } from 'imagekitio-next'
 import { LuImagePlus } from "react-icons/lu";
 import { CustomInstance as ImageUploadCustomInstance} from './form-fields/image-upload-field/image-upload-field'
+import Link from 'next/link'
 
 
 export const DesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
@@ -37,6 +39,32 @@ export const DesignerComponent = ({elementInstance}:{elementInstance:FormElement
         {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
         
         {limit && <p className='text-muted-foreground text-xs'>{`0/${limit} characters`}</p>}
+        </div>
+        </div>
+  )
+}
+
+export const LinkDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
+    const element = elementInstance as LinkCustomInstance
+
+    const {helperText,label,color,bgColor,href,padding,size,text } = element.extraAttributes
+
+  return (
+    <div className='flex flex-col gap-2 w-full'>
+        <Label className='font-semibold'>
+        {label}
+        </Label>
+        <Link href={href} 
+        style={{
+          color:color
+        }}
+        className={` text-neutral-900 text-[${size}px] `}>{text}</Link>
+
+
+        <div className="flex justify-between">
+
+        {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
+        
         </div>
         </div>
   )
@@ -76,7 +104,7 @@ return (
     </div>
 
 
-      <div className="flex justify-between">
+      <div className="flex justify-between p-[5px]">
 
       {helperText && (<p className='text-muted-foreground text-xs -mt-2'>{helperText}</p>)}
       

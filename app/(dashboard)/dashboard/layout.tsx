@@ -11,7 +11,7 @@ const DashboardLayout = async({children}:{
   if (!clerkUser) redirect('/sign-in')
     
   return (
-    <section className='flex flex-col min-h-screen min-w-full max-h-screen'>
+    <section className='flex flex-col  h-screen min-w-full '>
 <Navbar/>
 <main className='w-full'>
 

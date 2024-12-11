@@ -37,6 +37,7 @@ export const SubtitleFormComponent =  ({elementInstance}:{elementInstance:FormEl
   )
 }
 
+
 export const ParagraphFormComponent =  ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as CustomInstance
  

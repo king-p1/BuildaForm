@@ -12,6 +12,8 @@ export const FormElementSidebar = () => {
       <SidebarBtnElement formElement={FormElements.TitleField}/>
       <SidebarBtnElement formElement={FormElements.SubTitleField}/>
       <SidebarBtnElement formElement={FormElements.ParagraphField}/>
+      <SidebarBtnElement formElement={FormElements.LinkField}/>
+      {/* <SidebarBtnElement formElement={FormElements.TableField}/> */}
       <SidebarBtnElement formElement={FormElements.ImageField}/>
 
       </div>

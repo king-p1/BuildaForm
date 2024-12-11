@@ -132,7 +132,7 @@ onClick={()=>{
 
     <div 
     ref={droppable.setNodeRef}
-    className={cn("dark:bg-neutral-950 bg-white border-2 max-w-[920px] m-auto rounded-xl flex flex-col flex-grow justify-start items-center flex-1 overflow-y-auto h-full",
+    className={cn("dark:bg-neutral-950 bg-white border-2 max-w-[920px] m-auto rounded-xl flex flex-col flex-grow justify-start items-center flex-1 overflow-y-auto custom-scrollbar-2 h-full",
         droppable.isOver && 'border-4 dark:border-neutral-800 border-neutral-500'
     )}>
 

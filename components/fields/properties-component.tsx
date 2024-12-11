@@ -3,9 +3,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import { FormElementsInstance } from '../form-elements/sidebar-form-values/form-elemts-type'
 import { CustomInstance } from './form-fields/text-field/text-field'
 import { CustomInstance as ImageUploadCustomInstance} from './form-fields/image-upload-field/image-upload-field'
-import { propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema, datePropertiesSchema,selectPropertiesSchema, imageSchema, imageUploadSchema } from '@/lib/form-schema'
+import { CustomInstance as LinkCustomInstance} from './layout-fields/link-field/link-field'
+import { propertiesSchema,propertiesTitleSchema,propertiesParagraphSchema,textAreaPropertiesSchema, datePropertiesSchema,selectPropertiesSchema, imageSchema, imageUploadSchema, linkPropertiesSchema } from '@/lib/form-schema'
 import { useForm } from 'react-hook-form'
-import { dateSchemaType, paragraphSchemaType, propertiesSchemaType, propertiesTitleSchemaType,textAreaSchemaType,selectSchemaType, imageSchemaType, imageUploadSchemaType } from '@/lib/types'
+import { dateSchemaType, paragraphSchemaType, propertiesSchemaType, propertiesTitleSchemaType,textAreaSchemaType,selectSchemaType, imageSchemaType, imageUploadSchemaType, linkSchemaType } from '@/lib/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useDesigner } from '@/hooks/use-designer'
 import {
@@ -2014,6 +2015,111 @@ export const ParagraphPropertiesComponent = ({elementInstance}:{elementInstance:
       />
 
   
+      </form>
+      </Form>
+  )
+}
+
+
+
+
+export const LinkPropertiesComponent = ({ elementInstance }: { elementInstance: FormElementsInstance }) => {
+  const { updateElement } = useDesigner();
+  const element = elementInstance as LinkCustomInstance;
+
+  const { label, helperText, href, text,bgColor,color,padding,size   } = element.extraAttributes;
+
+  const form = useForm<linkSchemaType>({
+      resolver: zodResolver(linkPropertiesSchema),
+      mode: 'onBlur',
+      defaultValues: {
+        label, helperText, href, text,bgColor,color,padding,size 
+      }
+  });
+
+  useEffect(() => {
+      form.reset(element.extraAttributes); // Ensure this is called correctly
+  }, [form, element]);
+
+  const applyFormChanges = (values: linkSchemaType) => {
+      updateElement(element.id, {
+          ...element,
+          extraAttributes: {
+              ...values
+          }
+      });
+  };
+
+
+// todo finish the form and use react color to set the color and bg color and use buttons with inputs to set the padding and size(text size)
+
+
+  return (
+      <Form {...form}>
+          <form onBlur={form.handleSubmit(applyFormChanges)} onSubmit={(e) => { e.preventDefault(); }} className="space-y-3">
+          <FormField
+        control={form.control}
+        name="label"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Label</FormLabel>
+            <FormDescription >
+              Character count: {field.value?.length || 0}/40
+            </FormDescription>
+            <FormControl>
+              <Input {...field}
+              onKeyDown={(e)=>{
+                if(e.key === 'Enter') e.currentTarget.blur() //saves the info 
+              }}
+              />
+            </FormControl>
+            <FormDescription >
+                The label of the field this will be displayed on the field above
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+              <FormField
+                  control={form.control}
+                  name="href"
+                  render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>URL</FormLabel>
+                          <FormControl>
+                              <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
+              <FormField
+                  control={form.control}
+                  name="text"
+                  render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>Link Text</FormLabel>
+                          <FormControl>
+                              <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
+              <FormField
+                  control={form.control}
+                  name="helperText"
+                  render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>Helper Text</FormLabel>
+                          <FormControl>
+                              <Textarea {...field} />
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+              />
       </form>
       </Form>
   )

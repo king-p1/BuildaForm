@@ -12,8 +12,9 @@ import { CheckboxFieldFormElement } from "@/components/fields/form-fields/checkb
 import { ImageUploadFieldFormElement } from "@/components/fields/form-fields/image-upload-field/image-upload-field"
 import { ImageFieldFormElement } from "@/components/fields/layout-fields/image-field/image-field"
 import { FileUploadFieldFormElement } from "@/components/fields/form-fields/file-upload-field/file-upload-field"
+import { LinkFieldFormLayoutElement } from "@/components/fields/layout-fields/link-field/link-field"
 
-export type ElementsType = "TextField" | "TitleField" | "SubTitleField" |"ParagraphField"  |  "NumberField" | "TextAreaField" | "DateField" | "SelectField" | "CheckboxField"  | "ImageUploadField" | "FileUploadField" | "ImageField" 
+export type ElementsType = "TextField" | "TitleField" | "SubTitleField" |"ParagraphField"  |  "NumberField" | "TextAreaField" | "DateField" | "SelectField" | "CheckboxField"  | "ImageUploadField" | "FileUploadField" | "ImageField" | "LinkField" | "ImageUploadField" | "TableField" 
 
 export type SubmitFunction = (key:string,value:string|string[])=>void
 
@@ -59,14 +60,15 @@ type FormElementsType = {
 export const FormElements:FormElementsType = {
     TextField:TextFieldFormElement,
     TitleField:TitleFieldFormLayoutElement,
+    LinkField:LinkFieldFormLayoutElement,
     SubTitleField:SubTitleFieldFormLayoutElement,
     ParagraphField:ParagraphFieldFormLayoutElement,
+    ImageField:ImageFieldFormElement,
     NumberField:NumberFieldFormElement,
     TextAreaField:TextAreaFieldFormElement,
     DateField:DateFieldFormElement,
     SelectField:SelectFieldFormElement,
     CheckboxField:CheckboxFieldFormElement,
     ImageUploadField:ImageUploadFieldFormElement,
-    ImageField:ImageFieldFormElement,
     FileUploadField:FileUploadFieldFormElement,
 }
