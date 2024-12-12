@@ -5,6 +5,34 @@ import prisma from "@/lib/prisma"
 import { formSchemaType } from "@/lib/types"
 import { currentUser } from "@clerk/nextjs/server"
 
+
+export const handleUserSignIn = async () => {
+    const user = await currentUser();
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+
+    // Check if the user already exists in the database
+    const existingUser = await prisma.user.findUnique({
+        where: { email: user.emailAddresses[0].emailAddress },
+    });
+
+    // If the user does not exist, create a new user
+    if (!existingUser) {
+        await prisma.user.create({
+            data: {
+                email: user.emailAddresses[0].emailAddress,
+                name: user.fullName || "", // Adjust based on your user object structure
+                username: user.username || user.emailAddresses[0].emailAddress.split('@')[0],   
+            },
+        });
+    }
+}; 
+
+
+
 export const getFormStats = async () => {
     const user = await currentUser()
 
@@ -166,6 +194,8 @@ export const getFormContentById = async (id: string) => {
                 expiresAt: true,
                 submissions: true,
                 maxSubmissions: true,
+                isArchived: true,
+                isDeactivated: true,
                 allowMultipleSubmissions: true,
                 id: true
             },
@@ -179,11 +209,23 @@ export const getFormContentById = async (id: string) => {
             },
         })
 
+
+
+        if (formData.isArchived) {
+            return { error: true, message: 'This form has been ARCHIVED and is no longer accepting submissions. Check back later or reach out to the author.' };
+        }
+    
+        
+        if (formData.isDeactivated) {
+            return { error: true, message: 'This form has been DEACTIVATED and is no longer accepting submissions. Check back later or reach out to the author.' };
+        }
+    
+
         // Check if form has expired
         if (formData.expiresAt && formData.expiresAt < new Date()) {
             return {
                 error: true,
-                message: 'This form has expired and is no longer accepting submissions.',
+                message: 'Oops! This form has expired and is no longer accepting submissions.',
                 formData: null
             }
         }
@@ -215,7 +257,7 @@ export const getFormContentById = async (id: string) => {
             }
         }
 
-        return { error: false, message: null, formData }
+        return { error: false, message: 'Form retrieved successfully.', formData }
 
     } catch (error) {
         console.log(error)

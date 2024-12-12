@@ -1,3 +1,4 @@
+import { handleUserSignIn } from '@/actions/form'
 import { Navbar } from '@/components/navigations/navbar'
 import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
@@ -9,6 +10,8 @@ const DashboardLayout = async({children}:{
   const clerkUser = await currentUser()
 
   if (!clerkUser) redirect('/sign-in')
+
+    if(clerkUser) await handleUserSignIn()
     
   return (
     <section className='flex flex-col  h-screen min-w-full '>

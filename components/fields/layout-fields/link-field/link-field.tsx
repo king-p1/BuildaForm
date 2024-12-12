@@ -19,6 +19,7 @@ const extraAttributes = {
   color:'#ffff', //text-[#ffff]
   bgColor:'#ccc', //bg-[#ffff]
   size:'20',
+  width:'20',
   padding:'4px',
 }
 

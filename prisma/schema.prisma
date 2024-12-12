@@ -8,25 +8,45 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-model Form {
-  id            Int      @id @default(autoincrement())
-  userId        String
-  createdBy     String
-  createdAt     DateTime @default(now())
-  published     Boolean  @default(false)
-  isDeactivated Boolean  @default(false)
-  name          String
-  description   String   @default("")
-  content       String   @default("[]")
+model User {
+  id                String     @id @default(uuid())
+  email             String     @unique
+  name              String
+  username          String     @unique
+  submittedResponses Response[]
+}
 
-  visits                   Int               @default(0)
-  submissions              Int               @default(0)
-  maxSubmissions           Int               @default(0)
-  shareURL                 String            @unique @default(uuid())
-  FormSubmissions          FormSubmissions[]
-  allowMultipleSubmissions Boolean           @default(false)
-  expiresAt                DateTime?
-  lastUpdatedAt            DateTime          @updatedAt
+model Response {
+  id        String   @id @default(uuid())
+  userId    String
+  formId    Int
+  content   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  form      Form     @relation(fields: [formId], references: [id])
+}
+
+model Form {
+  id                      Int              @id @default(autoincrement())
+  userId                  String
+  createdBy              String
+  createdAt              DateTime         @default(now())
+  published              Boolean          @default(false)
+  isDeactivated          Boolean          @default(false)
+  isArchived             Boolean          @default(false)
+  isFavorite             Boolean          @default(false)
+  name                   String
+  description            String           @default("")
+  content                String           @default("[]")
+  visits                 Int              @default(0)
+  submissions            Int              @default(0)
+  maxSubmissions         Int              @default(0)
+  shareURL               String           @unique @default(uuid())
+  FormSubmissions        FormSubmissions[]
+  responses              Response[]        // Added this relation
+  allowMultipleSubmissions Boolean         @default(false)
+  expiresAt              DateTime?
+  lastUpdatedAt          DateTime         @updatedAt
 
   @@unique([name, userId])
 }

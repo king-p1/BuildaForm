@@ -26,6 +26,7 @@ export const linkPropertiesSchema = z.object({
     href:z.string().max(150),
     text:z.string().min(4).max(100),
     color:z.string().max(80),
+    width:z.string().max(80),
     bgColor:z.string().max(80),
     size:z.string().max(80),
     padding:z.string().max(80),

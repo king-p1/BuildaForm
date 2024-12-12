@@ -28,7 +28,7 @@ export const FormComponent = ({
     setError(isInvalid === true);
   }, [isInvalid]);
 
-  const { text,bgColor,color,helperText,href,label,padding,size} = element.extraAttributes;
+  const { text,bgColor,color,helperText,href,label,padding,size,width} = element.extraAttributes;
 
   
   
@@ -37,7 +37,12 @@ export const FormComponent = ({
     <Label className='font-semibold'>
     {label}
     </Label>
-    <Link href={href} className={`text-[${color}] text-[${size}px] `}>{text}</Link>
+    <Link href={href} 
+   style={{
+    color:color,
+    backgroundColor:bgColor
+  }}
+    className={` text-neutral-900 text-[${size}px] w-[${width}px] `}>{text}</Link>
 
 
     <div className="flex justify-between">

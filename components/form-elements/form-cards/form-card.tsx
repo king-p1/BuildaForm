@@ -27,7 +27,11 @@ export const FormCard = ({ form }: { form: Form }) => {
     published,
     submissions,
     visits,
+    isDeactivated,
+    isArchived,expiresAt
   } = form;
+
+  //todo when you have enacted total ui revamp use lastupdated and expiresat 
   return (
     <Card className="my-2 p-1 flex flex-col gap-2 justify-between border-2">
       <CardHeader>
@@ -38,6 +42,14 @@ export const FormCard = ({ form }: { form: Form }) => {
           ) : (
             <Badge variant="destructive">Draft</Badge>
           )}
+         
+          {isDeactivated && (
+            <Badge variant="destructive">Deactivated</Badge>
+          )  }
+         
+          {isArchived && (
+            <Badge variant="destructive">Archived</Badge>
+          )  }
         </CardTitle>
 
         <CardDescription className="flex flex-col gap-2 text-muted-foreground text-sm">

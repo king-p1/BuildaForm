@@ -127,3 +127,8 @@ body {
 .custom-scrollbar-2::-webkit-scrollbar-thumb:hover {
   background: #797878;
 }
+
+/* .custom-border{
+  border: 4px;
+  border-radius: 0px 5px 0px 5px;
+} */

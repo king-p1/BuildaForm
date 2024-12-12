@@ -47,7 +47,7 @@ export const DesignerComponent = ({elementInstance}:{elementInstance:FormElement
 export const LinkDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as LinkCustomInstance
 
-    const {helperText,label,color,bgColor,href,padding,size,text } = element.extraAttributes
+    const {helperText,label,color,bgColor,href,padding,size,text,width } = element.extraAttributes
 
   return (
     <div className='flex flex-col gap-2 w-full'>
@@ -56,9 +56,10 @@ export const LinkDesignerComponent = ({elementInstance}:{elementInstance:FormEle
         </Label>
         <Link href={href} 
         style={{
-          color:color
+          color:color,
+          backgroundColor:bgColor
         }}
-        className={` text-neutral-900 text-[${size}px] `}>{text}</Link>
+        className={` text-neutral-900 text-[${size}px]  w-[${width}px]`}>{text}</Link>
 
 
         <div className="flex justify-between">
