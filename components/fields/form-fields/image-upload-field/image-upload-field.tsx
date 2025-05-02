@@ -11,7 +11,7 @@ import { FormComponent } from "./image-upload-form-component";
 const type: ElementsType = "ImageUploadField";
 
 const extraAttributes = {
-  label: "Image Upload field",
+  label: "Image Upload",
   helperText: "Helper text",
   imageTypes: [],
   src: [],

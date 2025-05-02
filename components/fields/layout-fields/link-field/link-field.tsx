@@ -18,9 +18,9 @@ const extraAttributes = {
   text:'Enter Link here',
   color:'#ffff', //text-[#ffff]
   bgColor:'#ccc', //bg-[#ffff]
-  size:'20',
-  width:'20',
-  padding:'4px',
+  size:20,
+  width:200,
+  padding:4,
 }
 
 export const LinkFieldFormLayoutElement: FormElement = {

@@ -18,6 +18,7 @@ import { IKImage } from 'imagekitio-next'
 import { LuImagePlus } from "react-icons/lu";
 import { CustomInstance as ImageUploadCustomInstance} from './form-fields/image-upload-field/image-upload-field'
 import Link from 'next/link'
+import { Link2, Link as LinkIcon } from 'lucide-react'
 
 
 export const DesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
@@ -47,19 +48,29 @@ export const DesignerComponent = ({elementInstance}:{elementInstance:FormElement
 export const LinkDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as LinkCustomInstance
 
-    const {helperText,label,color,bgColor,href,padding,size,text,width } = element.extraAttributes
+    const {helperText,label,color,href,padding,size,text,width } = element.extraAttributes
 
   return (
     <div className='flex flex-col gap-2 w-full'>
         <Label className='font-semibold'>
         {label}
         </Label>
+
+        <div className="flex items-center justify-center gap-2" >
+          <LinkIcon className='size-6'/>
         <Link href={href} 
+        className='-ml-4 mt-1' 
         style={{
           color:color,
-          backgroundColor:bgColor
+          fontSize:`${size}px`,
+          width:`${width}px`,
+          padding:`${padding}px`,
+          textAlign:'center'
         }}
-        className={` text-neutral-900 text-[${size}px]  w-[${width}px]`}>{text}</Link>
+        >{text}
+
+        </Link>
+</div>
 
 
         <div className="flex justify-between">

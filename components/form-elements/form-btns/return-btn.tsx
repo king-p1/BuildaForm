@@ -28,7 +28,7 @@ export const ReturnBtn = () => {
     </Button>
     </TooltipTrigger>
     <TooltipContent>
-      <p>Click this button to return to your dashboard</p>
+      <p>Click to return to your dashboard</p>
     </TooltipContent>
   </Tooltip>
     

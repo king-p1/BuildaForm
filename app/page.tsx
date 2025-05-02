@@ -1,9 +1,21 @@
-import React from 'react'
+// import { Navbar } from "@/components/navigation/navbar";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+const Home = async() => {
 
-const Home = () => {
+  const user = await currentUser()
+
+  if (user) redirect('/dashboard')
+    
   return (
-    <div>Home</div>
-  )
-}
+    <div>
+{/* <Navbar/> */}
 
-export default Home
+     this is the home page
+
+      
+    </div>
+  );
+};
+
+export default Home;

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { FormElementsInstance } from "../form-elements/sidebar-form-values/form-elemts-type";
 import { CustomInstance } from "./form-fields/text-field/text-field";
 import { CustomInstance as ImageUploadCustomInstance } from "./form-fields/image-upload-field/image-upload-field";
-import { CustomInstance as LinkCustomInstance } from "./layout-fields/link-field/link-field";
+// import { CustomInstance as LinkCustomInstance } from "./layout-fields/link-field/link-field";
 import {
   propertiesSchema,
   propertiesTitleSchema,
@@ -46,12 +46,10 @@ import { Button } from "../ui/button";
 import { PiStackPlusLight, PiTrashDuotone } from "react-icons/pi";
 import { ImageKitProvider, IKUpload } from "imagekitio-next";
 import axios from "axios";
-import { CircleX, CloudUpload, MinusIcon, PlusIcon, Trash } from "lucide-react";
+import {  CloudUpload, PaintBucket, Trash } from "lucide-react";
 import { TbLoader3 } from "react-icons/tb";
 import { toast } from "@/hooks/use-toast";
 import { Label } from "../ui/label";
-import { BiSolidColorFill } from "react-icons/bi";
-import { MdFormatColorFill } from "react-icons/md";
 import {
   MultiSelector,
   MultiSelectorContent,
@@ -63,7 +61,12 @@ import {
 import { cn } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { CirclePicker } from "react-color";
- 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
 
 export const PropertiesComponent = ({
   elementInstance,
@@ -1538,9 +1541,6 @@ export const CheckboxFieldPropertiesComponent = ({
   );
 };
 
-
-
-
 export const TitlePropertiesComponent = ({
   elementInstance,
 }: {
@@ -2033,10 +2033,9 @@ export const LinkPropertiesComponent = ({
   elementInstance: FormElementsInstance;
 }) => {
   const { updateElement } = useDesigner();
-  const element = elementInstance as LinkCustomInstance;
+  const element = elementInstance as CustomInstance;
 
-  const { label, helperText, href, text, bgColor, color, padding, size,width } =
-    element.extraAttributes;
+  const { text, color, bgColor, helperText, href, label, padding, size, width } = element.extraAttributes;
 
   const form = useForm<linkSchemaType>({
     resolver: zodResolver(linkPropertiesSchema),
@@ -2046,32 +2045,26 @@ export const LinkPropertiesComponent = ({
       helperText,
       href,
       text,
-      bgColor,
       color,
+      bgColor,
+      size,
+      width,
       padding,
-      size,width
     },
   });
 
-  const [openDialog, setOpenDialog] = useState(false); 
-  const [selectedColor, setSelectedColor] = useState(color);
-  const [openDialogBG, setOpenDialogBG] = useState(false); 
-  const [selectedColorBG, setSelectedColorBG] = useState(color);
-
   useEffect(() => {
-    form.reset(element.extraAttributes); // Ensure this is called correctly
+    form.reset(element.extraAttributes);
   }, [form, element]);
 
   const applyFormChanges = (values: linkSchemaType) => {
     updateElement(element.id, {
       ...element,
       extraAttributes: {
-        ...values,    color: selectedColor, bgColor:selectedColorBG
+        ...values,
       },
     });
   };
-
-  // todo finish the form and use react color to set the color and bg color and use buttons with inputs to set the padding and size(text size)
 
   return (
     <Form {...form}>
@@ -2095,11 +2088,10 @@ export const LinkPropertiesComponent = ({
                 <Input
                   {...field}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur(); //saves the info
+                    if (e.key === "Enter") e.currentTarget.blur();
                   }}
                 />
               </FormControl>
-              <FormDescription>The label of the lnk field</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -2115,20 +2107,19 @@ export const LinkPropertiesComponent = ({
                 Character count: {field.value?.length || 0}/150
               </FormDescription>
               <FormControl>
-                <div className="flex items-center  ">
-                  <p className="p-1 border-2 rounded-sm h-9 dark:bg-neutral-800/95 bg-neutral-300 text-neutral-700 font-semibold rounded-tr-[0px] rounded-br-[0px] ">
-                    https
+                <div className="flex items-center">
+                  <p className="p-1 border-2 rounded-sm h-9 dark:bg-neutral-800/95 bg-neutral-300 text-neutral-700 font-semibold rounded-tr-[0px] rounded-br-[0px]">
+                    www
                   </p>
                   <Input
                     {...field}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") e.currentTarget.blur(); //saves the info
-                    }}
                     className="border-l-0 rounded-tl-[0px] rounded-bl-[0px] -ml-1 border-t-2 border-b-2 border-r-2 outline-none focus:ring-0 ring-0"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.currentTarget.blur();
+                    }}
                   />
                 </div>
               </FormControl>
-              <FormDescription>The url field</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -2147,47 +2138,64 @@ export const LinkPropertiesComponent = ({
                 <Input
                   {...field}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur(); //saves the info
+                    if (e.key === "Enter") e.currentTarget.blur();
                   }}
                 />
               </FormControl>
-              <FormDescription>The link value field</FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
-       
+
+<FormField
+          control={form.control}
+          name="size"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Font Size - {field.value}px</FormLabel>
+              <FormControl>
+                <Slider
+                  defaultValue={[field.value]}
+                  value={[field.value]}
+                  min={1}
+                  max={110}
+                  step={1}
+                  onValueChange={(value) => {
+                    field.onChange(value[0]);
+                    form.handleSubmit(applyFormChanges)();
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="width"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Background Width</FormLabel>
-               
+              <FormLabel>Width - {field.value}px</FormLabel>
               <FormControl>
-                <div className="flex items-center gap-2 w-full justify-center">
-<Button size='icon'>
-  <PlusIcon className="size-4"/>
-</Button>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur(); //saves the info
+                <Slider
+                  defaultValue={[field.value]}
+                  value={[field.value]}
+                  min={1}
+                  max={500}
+                  step={1}
+                  onValueChange={(value) => {
+                    field.onChange(value[0]);
+                    form.handleSubmit(applyFormChanges)();
                   }}
-                  className="w-14"
-                  />
-<Button size='icon'>
-  <MinusIcon className="size-4"/>
-</Button>
-                  </div>
+                />
               </FormControl>
-              <FormDescription>The background width</FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
-        
 
-
-
+    
         <FormField
           control={form.control}
           name="color"
@@ -2195,98 +2203,63 @@ export const LinkPropertiesComponent = ({
             <FormItem>
               <FormLabel>Text Color</FormLabel>
               <FormControl>
-<div className="flex flex-col gap-3">
-
- {!openDialog && (
-                <Button
-                 className="flex items-center gap-2 font-semibold justify-center"
-                 size='sm'
-onClick={() => setOpenDialog(true)}
-                >
-                  <BiSolidColorFill className="size-4" />
-Set text color
-                </Button>)}
-
- 
-{openDialog && (
-  <div className='flex gap-2 items-start justify-center transition-all w-full bg-neutral-100 dark:bg-neutral-600 p-3 rounded-lg '>
-    
-  <CirclePicker
-              color={selectedColor}
-              onChange={(color) => setSelectedColor(color.hex)} // Update color state
-            />
-
-            <Button
-            size='icon'
-            onClick={() => setOpenDialog(false) }
-            >
-<CircleX className='size-4 font-bold'/>
-            </Button>
-
-  </div>
-)}
-</div>
-
- 
-
-               </FormControl>
-              <FormDescription>The link text color</FormDescription>
+            <Popover>
+              <PopoverTrigger className="w-full ">
+                <Button className="w-full flex items-center gap-2">
+                <PaintBucket className="size-4" />
+                  <span>
+                  Change Text Clolor
+                  </span>
+                  </Button>
+              </PopoverTrigger>
+                <div className="flex flex-col gap-3">
+                    <PopoverContent className="bg-neutral-100 dark:bg-neutral-800 w-[90%]">
+                  <div className="flex gap-2 items-start justify-center transition-all w-full  p-3 rounded-lg">
+                    <CirclePicker
+                      color={field.value}
+                      onChange={(color) => {
+                        field.onChange(color.hex);
+                        form.handleSubmit(applyFormChanges)();
+                      }}
+                    />
+                  </div>
+  </PopoverContent>
+                </div>
+              </Popover>
+              </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
-      
+
+
+
+ 
+   
+
         <FormField
           control={form.control}
-          name="bgColor"
+          name="padding"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Text background Color</FormLabel>
+              <FormLabel>Padding - {field.value}px</FormLabel>
               <FormControl>
-<div className="flex flex-col gap-3">
-
- {!openDialogBG && (
-                <Button
-                 className="flex items-center gap-2 font-semibold justify-center"
-                 size='sm'
-onClick={() => setOpenDialogBG(true)}
-                >
-                  <MdFormatColorFill className="size-4" />
-Set text background color
-                </Button>)}
-
- 
-{openDialogBG && (
-  <div className='flex gap-2 items-start justify-center transition-all w-full bg-neutral-100 dark:bg-neutral-600 p-3 rounded-lg '>
-    
-  <CirclePicker
-              color={selectedColorBG}
-              onChange={(color) => setSelectedColorBG(color.hex)} // Update color state
-            />
-
-            <Button
-            size='icon'
-            onClick={() => setOpenDialogBG(false) }
-            >
-<CircleX className='size-4 font-bold'/>
-            </Button>
-
-  </div>
-)}
-</div>
-
- 
-
-               </FormControl>
-              <FormDescription>The link text color</FormDescription>
+                <Slider
+                  defaultValue={[field.value]}
+                  value={[field.value]}
+                  min={1}
+                  max={80}
+                  step={1}
+                  onValueChange={(value) => {
+                    field.onChange(value[0]);
+                    form.handleSubmit(applyFormChanges)();
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
-
-
-
-
-
-
 
         <FormField
           control={form.control}
@@ -2301,11 +2274,11 @@ Set text background color
                 <Textarea
                   {...field}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur(); //saves the info
+                    if (e.key === "Enter") e.currentTarget.blur();
                   }}
                 />
               </FormControl>
-              <FormDescription>The helper text field</FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />

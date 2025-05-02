@@ -8,22 +8,44 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+enum FormRoonType {
+  PUBLIC
+  PRIVATE
+}
+
+enum SubmissionStatus {
+  DRAFT
+  COMPLETED
+}
+
 model User {
-  id                String     @id @default(uuid())
-  email             String     @unique
+  id                String       @id @default(uuid())  
+  email             String       @unique
   name              String
-  username          String     @unique
-  submittedResponses Response[]
+  username          String       @unique
+  submittedResponses Response[]    
+  notifications     Notification[] // Relation to the Notification model
+}
+
+model Notification {
+  id        String   @id @default(uuid()) // UUID for notification ID
+  userId    String   // Foreign key to User
+  formId    Int      // ID of the form related to the notification
+  content   String   // Content of the notification
+  createdAt DateTime @default(now()) // Timestamp for when the notification was created
+
+  user      User     @relation(fields: [userId], references: [id]) // Relation to User
+  form      Form     @relation(fields: [formId], references: [id]) // Relation to Form
 }
 
 model Response {
-  id        String   @id @default(uuid())
-  userId    String
-  formId    Int
+  id        Int      @id @default(autoincrement())
+  userId    String   // UUID for user ID
+  formId    Int      // ID of the form the user responded to
   content   String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  form      Form     @relation(fields: [formId], references: [id])
+  user      User     @relation(fields: [userId], references: [id]) // Relation to User
+  form      Form     @relation(fields: [formId], references: [id]) // Relation to Form
 }
 
 model Form {
@@ -38,12 +60,15 @@ model Form {
   name                   String
   description            String           @default("")
   content                String           @default("[]")
+  roomType               FormRoonType     @default(PUBLIC)
+  roomCode               String? 
   visits                 Int              @default(0)
   submissions            Int              @default(0)
   maxSubmissions         Int              @default(0)
   shareURL               String           @unique @default(uuid())
   FormSubmissions        FormSubmissions[]
-  responses              Response[]        // Added this relation
+  responses              Response[]         
+  notifications              Notification[]         
   allowMultipleSubmissions Boolean         @default(false)
   expiresAt              DateTime?
   lastUpdatedAt          DateTime         @updatedAt
@@ -56,7 +81,7 @@ model FormSubmissions {
   email         String
   createdAt     DateTime @default(now())
   lastUpdatedAt DateTime @updatedAt
-  status        String   @default("draft")
+  status        SubmissionStatus @default(DRAFT)
   formId        Int
   form          Form     @relation(fields: [formId], references: [id])
   content       String

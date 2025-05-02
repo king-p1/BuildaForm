@@ -3,7 +3,6 @@ import {
   ElementsType,
   FormElement,
   FormElementsInstance,
-  StringValue,
 } from "../../../form-elements/sidebar-form-values/form-elemts-type";
 import { ImageDesignerComponent } from "../../designer-component";
 import { ImagePropertiesComponent } from "../../properties-component";
@@ -13,7 +12,7 @@ import { ImagePlus } from "lucide-react";
 const type: ElementsType = "ImageField";
 
 const extraAttributes = {
-  label: "Image field",
+  label: "Image",
   helperText: "Helper text",
   src:"",
   width:100,
