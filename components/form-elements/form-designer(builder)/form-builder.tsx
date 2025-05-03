@@ -88,7 +88,7 @@ if(published){
     <main  className='flex flex-col w-full'
     >
 
-<nav className="flex justify-between border-b-2 p-4 gap-3 items-center">
+<nav className="flex justify-between border-b-2 p-4 gap-3 items-center ">
 
   <div className="flex items-center gap-3">
 <ReturnBtn/>
@@ -111,7 +111,7 @@ if(published){
 </nav>
 
 
-<div className="h-full w-full dark:bg-black bg-white  dark:bg-grid-white/[0.2] bg-grid-black/[0.2] relative flex items-center justify-center">
+<div className="h-full w-full dark:bg-black bg-white  dark:bg-grid-white/[0.2] bg-grid-black/[0.2] relative flex items-center justify-center border-l-2">
       <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_95%,black)]"></div>
      
 

@@ -28,7 +28,6 @@ export default function RootLayout({
       <body
         className={` font-mono antialiased custom-scrollbar `}
       >
-        <NextTopLoader />
         <DesignerContextProvider>
 
         <ClerkProvider

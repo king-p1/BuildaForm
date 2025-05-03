@@ -42,7 +42,9 @@ type ResponseTypes ={
     formID?:string | number | undefined
 }
 
-export const CreateFormButton = () => {
+export const CreateFormButton = ({isOpen}:{
+  isOpen?:boolean
+}) => {
 
     const router = useRouter()
 
@@ -101,8 +103,14 @@ description:'An error has occurred, please try again.'
 <Dialog>
 <DialogTrigger asChild>
 <Button variant="secondary" className="flex items-center gap-3">
-<LuFileEdit className="dark:text-white" />
-Create a new form
+  {isOpen ? (
+  <>
+    <LuFileEdit className="dark:text-white" />
+    Create a new form
+  </>
+  ) : (
+    <LuFileEdit className="dark:text-white" />
+  )}
 </Button>
 </DialogTrigger>
 <DialogContent className="sm:max-w-[425px]">
