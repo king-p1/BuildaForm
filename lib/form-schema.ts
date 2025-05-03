@@ -52,6 +52,17 @@ export const imageUploadSchema = z.object({
     maxImages: z.number().min(1).max(5),
 })
 
+export const fileUploadSchema = z.object({
+    label: z.string().min(4).max(40),
+    helperText: z.string().min(4).max(180),
+    placeholder: z.string().min(4).max(40),
+    required: z.boolean().default(false),
+    fileTypes: z.array(z.string()),
+    isMultiple: z.boolean().default(false),
+    minFiles: z.number().min(1).max(5).default(1),
+    maxFiles: z.number().min(1).max(5).default(1)
+})
+
 export const selectPropertiesSchema = z.object({
     label:z.string().min(4).max(40),
     helperText:z.string().min(4).max(180),

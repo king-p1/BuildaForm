@@ -16,6 +16,7 @@ const DashboardLayout = async({children}:{
   return (
     <section className='flex flex-col  h-screen min-w-full '>
 <Navbar/>
+
 <main className='w-full'>
 
         {children}

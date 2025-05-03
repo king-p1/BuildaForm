@@ -247,7 +247,7 @@ type="submit"
 {!form.formState.isSubmitting && (
     <p className="font-semibold text-base flex items-center gap-2">
       <HiOutlineSaveAs size={33}/>
-       Save</p>
+       Create</p>
 )}
 </Button>
 </DialogFooter>

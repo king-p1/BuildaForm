@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { SubTitleFieldFormLayoutElement } from "@/components/fields/layout-fields/subtitle-field"
 import { ParagraphFieldFormLayoutElement } from "@/components/fields/layout-fields/paragraph-field"
 import { TextFieldFormElement } from "@/components/fields/form-fields/text-field/text-field"
@@ -11,11 +12,9 @@ import { SelectFieldFormElement } from "@/components/fields/form-fields/select-f
 import { CheckboxFieldFormElement } from "@/components/fields/form-fields/checkbox-field/checkbox-field"
 import { ImageUploadFieldFormElement } from "@/components/fields/form-fields/image-upload-field/image-upload-field"
 import { ImageFieldFormElement } from "@/components/fields/layout-fields/image-field/image-field"
-import { FileUploadFieldFormElement } from "@/components/fields/form-fields/file-upload-field/file-upload-field"
 import { LinkFieldFormLayoutElement } from "@/components/fields/layout-fields/link-field/link-field"
 
-export type ElementsType = "TextField" | "TitleField" | "SubTitleField" |"ParagraphField"  |  "NumberField" | "TextAreaField" | "DateField" | "SelectField" | "CheckboxField"  | "ImageUploadField" | "FileUploadField" | "ImageField" | "LinkField" | "ImageUploadField" | "TableField" 
-
+export type ElementsType = "TextField" | "TitleField" | "SubTitleField" |"ParagraphField"  |  "NumberField" | "TextAreaField" | "DateField" | "SelectField" | "CheckboxField"  | "ImageUploadField"  | "ImageField" | "LinkField" | "ImageUploadField"
 export type SubmitFunction = (key:string,value:string|string[])=>void
 
 export type StringValue = string | string[]
@@ -70,5 +69,4 @@ export const FormElements:FormElementsType = {
     SelectField:SelectFieldFormElement,
     CheckboxField:CheckboxFieldFormElement,
     ImageUploadField:ImageUploadFieldFormElement,
-    FileUploadField:FileUploadFieldFormElement,
 }

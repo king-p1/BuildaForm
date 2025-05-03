@@ -28,7 +28,6 @@ export const FormElementSidebar = () => {
       <SidebarBtnElement formElement={FormElements.SelectField}/>
       <SidebarBtnElement formElement={FormElements.CheckboxField}/>
       <SidebarBtnElement formElement={FormElements.ImageUploadField}/>
-      <SidebarBtnElement formElement={FormElements.FileUploadField}/>
       </div>
       
         

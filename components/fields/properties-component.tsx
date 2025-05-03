@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { FormElementsInstance } from "../form-elements/sidebar-form-values/form-elemts-type";
 import { CustomInstance } from "./form-fields/text-field/text-field";
 import { CustomInstance as ImageUploadCustomInstance } from "./form-fields/image-upload-field/image-upload-field";
-// import { CustomInstance as LinkCustomInstance } from "./layout-fields/link-field/link-field";
 import {
   propertiesSchema,
   propertiesTitleSchema,
@@ -1048,178 +1047,7 @@ export const DateFieldPropertiesComponent = ({
   );
 };
 
-export const FileUploadPropertiesComponent = ({
-  elementInstance,
-}: {
-  elementInstance: FormElementsInstance;
-}) => {
-  const { updateElement } = useDesigner();
-
-  const element = elementInstance as CustomInstance;
-
-  const { helperText, label, placeholder, required, limit } =
-    element.extraAttributes;
-
-  const form = useForm<propertiesSchemaType>({
-    resolver: zodResolver(propertiesSchema),
-    mode: "onBlur",
-    defaultValues: {
-      label,
-      helperText,
-      placeholder,
-      required,
-      limit,
-    },
-  });
-
-  useEffect(() => {
-    form.reset(element.extraAttributes);
-  }, [form, element]);
-
-  const applyFormChanges = (values: propertiesSchemaType) => {
-    updateElement(element.id, {
-      ...element,
-      extraAttributes: {
-        ...values,
-      },
-    });
-  };
-
-  return (
-    <Form {...form}>
-      <form
-        onBlur={form.handleSubmit(applyFormChanges)}
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-        className="space-y-3"
-      >
-        {/* helper text max is 180 */}
-        <FormField
-          control={form.control}
-          name="label"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Label</FormLabel>
-              <FormDescription>
-                Character count: {field.value?.length || 0}/40
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur(); //saves the info
-                  }}
-                />
-              </FormControl>
-              <FormDescription>
-                The label of the field this will be displayed on the field above
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="placeholder"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Placeholder</FormLabel>
-              <FormDescription>
-                Character count: {field.value?.length || 0}/40
-              </FormDescription>
-              <FormControl>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur(); //saves the info
-                  }}
-                />
-              </FormControl>
-              <FormDescription>The placeholder value</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="limit"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Character Limit - {field.value}</FormLabel>
-              <FormDescription>
-                Set a character limit on this field
-              </FormDescription>
-              <FormControl>
-                <Slider
-                  defaultValue={[limit]}
-                  value={[field.value]}
-                  min={1}
-                  max={200}
-                  step={1}
-                  onValueChange={(value) => {
-                    field.onChange(value[0]);
-                  }}
-                />
-              </FormControl>
-              <FormDescription>The character limit value</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="helperText"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Helper Text</FormLabel>
-              <FormDescription>
-                Character count: {field.value?.length || 0}/180
-              </FormDescription>
-              <FormControl>
-                <Textarea
-                  rows={3}
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur(); //saves the info
-                  }}
-                />
-              </FormControl>
-              <FormDescription>The helper text value</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="required"
-          render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border-2 p-3 shadow-md ">
-              <div className="space-y-0 5">
-                <FormLabel>Required</FormLabel>
-                <FormMessage />
-                <FormDescription>
-                  Toggle switch to make this field required.
-                </FormDescription>
-              </div>
-
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </form>
-    </Form>
-  );
-};
+ 
 
 export const SelectFieldPropertiesComponent = ({
   elementInstance,
@@ -1560,9 +1388,7 @@ export const TitlePropertiesComponent = ({
     },
   });
 
-  useEffect(() => {
-    form.reset(element.extraAttributes);
-  }, [form, element]);
+  useEffect(() => form.reset(element.extraAttributes), [form, element]);
 
   const applyFormChanges = (values: propertiesTitleSchemaType) => {
     const { title } = values;
@@ -1630,9 +1456,7 @@ export const SubtitlePropertiesComponent = ({
     },
   });
 
-  useEffect(() => {
-    form.reset(element.extraAttributes);
-  }, [form, element]);
+  useEffect(() => form.reset(element.extraAttributes), [form, element]);
 
   const applyFormChanges = (values: propertiesTitleSchemaType) => {
     const { title } = values;
@@ -1976,9 +1800,7 @@ export const ParagraphPropertiesComponent = ({
     },
   });
 
-  useEffect(() => {
-    form.reset(element.extraAttributes);
-  }, [form, element]);
+  useEffect(() => form.reset(element.extraAttributes), [form, element]);
 
   const applyFormChanges = (values: paragraphSchemaType) => {
     const { text } = values;
@@ -2213,8 +2035,8 @@ export const LinkPropertiesComponent = ({
                   </Button>
               </PopoverTrigger>
                 <div className="flex flex-col gap-3">
-                    <PopoverContent className="bg-neutral-100 dark:bg-neutral-800 w-[90%]">
-                  <div className="flex gap-2 items-start justify-center transition-all w-full  p-3 rounded-lg">
+                    <PopoverContent className="bg-neutral-100 dark:bg-neutral-800 w-[90%] mt-2 -mr-1">
+                  <div className="flex gap-2 items-start justify-center transition-all w-full  p-1 rounded-lg">
                     <CirclePicker
                       color={field.value}
                       onChange={(color) => {
@@ -2276,6 +2098,7 @@ export const LinkPropertiesComponent = ({
                   onKeyDown={(e) => {
                     if (e.key === "Enter") e.currentTarget.blur();
                   }}
+                  rows={5}
                 />
               </FormControl>
               <FormMessage />

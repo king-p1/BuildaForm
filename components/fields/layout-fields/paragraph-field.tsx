@@ -1,6 +1,4 @@
 "use client";
-import { PiArticleMediumBold } from "react-icons/pi";
-
 import {
   ElementsType,
   FormElement,
@@ -9,6 +7,7 @@ import {
 import { ParagraphDesignerComponent } from "../designer-component";
 import { ParagraphFormComponent } from "../form-component";
 import { ParagraphPropertiesComponent } from "../properties-component";
+import { PiParagraphBold } from "react-icons/pi";
 
 const type: ElementsType = "ParagraphField";
 
@@ -25,8 +24,8 @@ export const ParagraphFieldFormLayoutElement: FormElement = {
   }),
   
   designerBtnElement:{
-    icon: PiArticleMediumBold ,
-    label:'Article Field'
+    icon: PiParagraphBold,
+    label: "Paragraph\nField"
   },
   designerComponent:  ParagraphDesignerComponent ,
   formComponent: ParagraphFormComponent,

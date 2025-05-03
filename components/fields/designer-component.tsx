@@ -57,7 +57,9 @@ export const LinkDesignerComponent = ({elementInstance}:{elementInstance:FormEle
         </Label>
 
         <div className="flex items-center justify-center gap-2" >
-          <LinkIcon className='size-6'/>
+          <LinkIcon className='size-6' style={{
+        color:color,
+          }}/>
         <Link href={href} 
         className='-ml-4 mt-1' 
         style={{
@@ -126,29 +128,6 @@ return (
 )
 }
 
-export const FileUploadDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
-    const element = elementInstance as CustomInstance
-
-    const {helperText,label,placeholder,required,limit} = element.extraAttributes
-
-  return (
-    <div className='flex flex-col gap-2 w-full'>
-        <Label className='font-semibold'>
-        {label}
-        {required && (<span className='text-lg text-red-500 ml-1'>*</span>)}
-        </Label>
-
-        <Input readOnly disabled placeholder={placeholder} className='border-2 dark:border-white border-neutral-700'/>
-
-        <div className="flex justify-between">
-
-        {helperText && (<p className='text-muted-foreground text-xs'>{helperText}</p>)}
-        
-        {limit && <p className='text-muted-foreground text-xs'>{`0/${limit} characters`}</p>}
-        </div>
-        </div>
-  )
-}
 
 export const NumberDesignerComponent = ({elementInstance}:{elementInstance:FormElementsInstance}) => {
     const element = elementInstance as CustomInstance

@@ -49,10 +49,14 @@ export const FormComponent = ({
 
       <div className="flex gap-2 items-center">
 
-      <LinkIcon className='size-6'/>
+      <LinkIcon className='size-6'
+      style={{
+        color: color,
+      }}
+      />
 
       <a
-        href={`www.${href}`}
+        href={`https://www.${href}`}
         target="_blank"
         rel="noopener noreferrer"
         style={{

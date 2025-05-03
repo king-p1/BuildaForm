@@ -16,7 +16,7 @@ const extraAttributes = {
   helperText:"Your link field",
   href:`#`,
   text:'Enter Link here',
-  color:'#ffff', //text-[#ffff]
+  color:'#ccc', //text-[#ffff]
   bgColor:'#ccc', //bg-[#ffff]
   size:20,
   width:200,
