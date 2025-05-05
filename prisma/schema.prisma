@@ -72,6 +72,8 @@ model Form {
   allowMultipleSubmissions Boolean         @default(false)
   expiresAt              DateTime?
   lastUpdatedAt          DateTime         @updatedAt
+  activities             Activity[]
+  metrics                FormMetrics?
 
   @@unique([name, userId])
 }
@@ -81,9 +83,30 @@ model FormSubmissions {
   email         String
   createdAt     DateTime @default(now())
   lastUpdatedAt DateTime @updatedAt
+  isAnonymous   Boolean  
   status        SubmissionStatus @default(DRAFT)
   formId        Int
   form          Form     @relation(fields: [formId], references: [id])
   content       String
   feedback      String   @default("")
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  type      String   // 'submission' | 'comment' | 'visit'
+  formId    Int      // Changed from String to Int to match Form.id
+  form      Form     @relation(fields: [formId], references: [id])
+  userId    String?
+  userName  String?
+  createdAt DateTime @default(now())
+}
+
+model FormMetrics {
+  id            String @id @default(cuid())
+  formId        Int    @unique // Changed from String to Int to match Form.id
+  form          Form   @relation(fields: [formId], references: [id])
+  avgResponseTime Float
+  completionRate Float
+  bounceRate     Float
+  updatedAt      DateTime @default(now())
 }

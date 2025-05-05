@@ -32,7 +32,6 @@ export const handleUserSignIn = async () => {
 }; 
 
 
-
 export const getFormStats = async () => {
     const user = await currentUser()
 
@@ -40,6 +39,7 @@ export const getFormStats = async () => {
         return { message: 'User not found!', error: true }
     }
 
+    // Get overall form statistics
     const stats = await prisma.form.aggregate({
         where: {
             userId: user.id
@@ -47,23 +47,69 @@ export const getFormStats = async () => {
         _sum: {
             visits: true,
             submissions: true
+        },
+        _count: {
+            id: true
         }
     })
 
+    // Get form status counts
+    const statusCounts = await prisma.form.groupBy({
+        by: ['published'],
+        where: {
+            userId: user.id
+        },
+        _count: {
+            id: true
+        }
+    })
+
+    // Get recent submission trends
+    const recentSubmissions = await prisma.formSubmissions.groupBy({
+        by: ['createdAt'],
+        where: {
+            form: {
+                userId: user.id
+            }
+        },
+        _count: {
+            id: true
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
+        take: 7 // Last 7 days
+    })
 
     const visits = stats._sum.visits || 0
     const submissions = stats._sum.submissions || 0
+    const totalForms = stats._count.id || 0
+    const publishedForms = statusCounts.find(s => s.published)?._count.id || 0
+    const draftForms = statusCounts.find(s => !s.published)?._count.id || 0
 
     let submissionRate = 0
-
     if (visits > 0) {
-        submissionRate = (submissions / visits) / 100
+        submissionRate = (submissions / visits) * 100 // Convert to percentage
     }
 
     const bounceRate = 100 - submissionRate
 
+    // Format recent submissions data for charts
+    const submissionTrends = recentSubmissions.map(sub => ({
+        date: sub.createdAt,
+        count: sub._count.id
+    }))
+
     return {
-        visits, bounceRate, submissionRate, submissions
+        visits,
+        submissions,
+        totalForms,
+        publishedForms,
+        draftForms,
+        submissionRate,
+        bounceRate,
+        submissionTrends,
+        error: false
     }
 }
 
@@ -354,5 +400,84 @@ export const deleteForm = async (id: number) => {
 };
 
 //todo add an edit published form function
+//todo a function to send in form feedback from the user and the options to be anonymous or not and the option for the author to see/bypass that 
 
+// export async function getFormActivities(formId: string) {
+//   try {
+//     const activities = await prisma.activity.findMany({
+//       where: { formId },
+//       orderBy: { createdAt: 'desc' },
+//       take: 5
+//     });
+//     return { activities };
+//   } catch (error) {
+//     throw new Error('Failed to fetch activities');
+//   }
+// }
 
+// export async function getFormMetrics(formId: string) {
+//   try {
+//     const metrics = await prisma.formMetrics.findUnique({
+//       where: { formId }
+//     });
+//     return { metrics };
+//   } catch (error) {
+//     throw new Error('Failed to fetch metrics');
+//   }
+// }
+
+// export async function createActivity(formId: string, type: string, userId?: string, userName?: string) {
+//   try {
+//     const activity = await prisma.activity.create({
+//       data: {
+//         formId,
+//         type,
+//         userId,
+//         userName
+//       }
+//     });
+//     return { activity };
+//   } catch (error) {
+//     throw new Error('Failed to create activity');
+//   }
+// }
+
+export async function getFormActivities(formId: string) {
+    try {
+      const activities = await prisma.activity.findMany({
+        where: { formId: parseInt(formId) }, // Convert string to number
+        orderBy: { createdAt: 'desc' },
+        take: 5
+      });
+      return { activities };
+    } catch (error) {
+      throw new Error('Failed to fetch activities');
+    }
+  }
+  
+  export async function getFormMetrics(formId: string) {
+    try {
+      const metrics = await prisma.formMetrics.findUnique({
+        where: { formId: parseInt(formId) } // Convert string to number
+      });
+      return { metrics };
+    } catch (error) {
+      throw new Error('Failed to fetch metrics');
+    }
+  }
+  
+  export async function createActivity(formId: string, type: string, userId?: string, userName?: string) {
+    try {
+      const activity = await prisma.activity.create({
+        data: {
+          formId: parseInt(formId), // Convert string to number
+          type,
+          userId,
+          userName
+        }
+      });
+      return { activity };
+    } catch (error) {
+      throw new Error('Failed to create activity');
+    }
+  }

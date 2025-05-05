@@ -1,34 +1,58 @@
-"use client"
-import { CreateFormButton } from '@/components/form-elements/form-btns/create-form-btn'
-import { FormCards } from '@/components/form-elements/form-cards/form-cards'
-import { FormCardSkeleton } from '@/components/form-elements/form-cards/form-card-skeleton'
-import { StatCardWrapper } from '@/components/stats-card/card-wrapper'
-import { StatCards } from '@/components/stats-card/stats-cards'
-import React, { Suspense } from 'react'
-import { useUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
+import { UserWelcomeClient } from "./_components/user-welcome";
+import { DashboardFormClient } from "./_components/form-dash";
+import { getUserForms } from "@/actions/form";
+import { StatsDashboard } from "./_components/stats-dash";
+import { SubmissionTrendsChart } from "./_components/submission-trends-chart";
+import { QuickActions } from "./_components/quick-actions";
+import { ActivityFeed } from "./_components/activity-feed";
+import { PerformanceMetrics } from "./_components/performance-metrics";
 
-const DashboardPage = () => {
-  const {user} = useUser()
+async function DashboardPage() {
+  const user = await currentUser();
+  const {formData} = await getUserForms()
+
+  // Convert single form to array if needed
+  const forms = Array.isArray(formData) ? formData : [formData]
+  
+  const userData = user ? {
+    firstName: user.firstName,
+    fullName: `${user.firstName} ${user.lastName}`,
+    imageUrl: user.imageUrl,
+  } : null;
 
   return (
-    <div className='p-2 w-full flex flex-col gap-4 '>
-       {/* <Suspense fallback={<StatCards loading={true}/>}>
-<StatCardWrapper/>
-       </Suspense>
- 
+    <div className="p-2 w-full flex flex-col gap-6">
+      <UserWelcomeClient userData={userData} />
+      <QuickActions forms={forms} />
+      
+      <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="w-full h-full">
+            <DashboardFormClient forms={forms} />
+          </div>
+          <div className="w-full h-full">
+            <div className="grid grid-cols-2 gap-4 h-full">
+              <StatsDashboard />
+            </div>
+          </div>
+        </div>
 
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-  <Suspense fallback={[1,2,3,4].map((el) => (<FormCardSkeleton key={el}/>))}>
-  <FormCards />
-  </Suspense>
-</div> */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-full">
+            <PerformanceMetrics formId={forms[0]?.id} />
+          </div>
+          <div className="h-full">
+            <ActivityFeed formId={forms[0]?.id} />
+          </div>
+        </div>
 
-<h1 className='font-bold text-4xl'>Welcome {user?.firstName},</h1>
-
-{/* Recent forms */}
-
-       </div>
-  )
+        <div className="w-full">
+          <SubmissionTrendsChart />
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default DashboardPage
+export default DashboardPage;

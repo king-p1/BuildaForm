@@ -41,7 +41,7 @@ width='480'
 height='430'
 />
                 <p className='text-3xl text-center'>
-                    Invalid form content. Please contact the form administrator.
+                    Invalid form content. Please contact the form author.
                 </p>
             </div>
         )
