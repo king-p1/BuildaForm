@@ -1,10 +1,10 @@
 "use client"
-import React, { useCallback, useRef, useState, useTransition } from 'react'
+import React, { useCallback, useRef, useState, useTransition, useEffect } from 'react'
 import { FormElements, FormElementsInstance } from '../sidebar-form-values/form-elemts-type'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/use-toast'
 import { TbLoader3 } from 'react-icons/tb'
-import { SubmitFormAction } from '@/actions/form'
+import { getUserForms, SubmitFormAction } from '@/actions/form'
 import {
     Card,
     CardContent,
@@ -12,6 +12,10 @@ import {
     CardTitle,
   } from "@/components/ui/card"
   import { FiSave } from "react-icons/fi";
+import Image from 'next/image'
+import draftError from '@/public/draft-form-error.png'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 
 export const FormSubmitComponent = ({content,url}:{
     url:string,
@@ -22,7 +26,19 @@ const formValues = useRef<{[key:string]:string}>({})
 const formErrors = useRef<{[key:string]:boolean}>({})
 const [renderKey, setRenderKey] = useState(new Date().getTime())
 const [submitted, setSubmitted] = useState(false)
+const [isPublished, setIsPublished] = useState<boolean>()
 const [loading,startTransition] =useTransition()
+
+useEffect(() => {
+  const fetchStats = async () => {
+      const {formData} = await getUserForms()
+
+      setIsPublished(formData?.published);
+  };
+  fetchStats();
+}, []);
+
+
 
 const validateForm:() => boolean = useCallback(()=>{
 for(const field of content){
@@ -40,14 +56,7 @@ return true
 
 },[content])
 
-// const submitValue = useCallback((key: string, value: string | string[]) => {
-//     if (Array.isArray(value)) {
-//         // Handle array case if necessary
-//         formValues.current[key] = value.join(','); // Example: join array into a string
-//     } else {
-//         formValues.current[key] = value;
-//     }
-// }, []);
+ 
 
 
 const submitValue = useCallback((key: string, value: string | string[]) => {
@@ -99,7 +108,29 @@ try {
   }
 }
 
+if(!isPublished){
+  return(
+    <div className='h-[65vh] w-full flex flex-col items-center justify-center gap-5'>
+<Image
+src={draftError}
+alt="Draft Error"
+width={500}
+height={500}
+className='-mt-24'
+/>
 
+<h2 className='text-3xl'>This form is not live, please check back later.</h2>
+
+<Button asChild variant={'link'} className='text-2xl group'>
+  <Link href={'/'} className='text-2xl flex items-center gap-3'>
+    <ArrowLeft className='size-8 transform transition-transform duration-300 group-hover:-translate-x-1'/>
+    Return Home
+  </Link>
+</Button>
+
+    </div>
+  )
+}
 
 
 if(submitted){

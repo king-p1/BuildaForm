@@ -7,7 +7,6 @@ import Link from "next/link";
 
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Settings,
   FileText,
   BarChart2,
   ArrowLeft,
@@ -15,7 +14,7 @@ import {
   LogOut,
   ClipboardList,
   Trash2,
-  Star
+  Star,User
 } from "lucide-react";
 import { TbWorldCancel } from "react-icons/tb";
 import { TbLoader3 } from "react-icons/tb"; // Add import for TbLoader3
@@ -82,9 +81,9 @@ export const DashboardSidebar = () => {
       href: "/dashboard/analytics",
     },
     {
-      icon: <Settings size={20} />,
-      label: "Settings",
-      href: "/dashboard/settings",
+      icon: <User size={20} />,
+      label: "User",
+      href: "/dashboard/user",
     },
   ];
 

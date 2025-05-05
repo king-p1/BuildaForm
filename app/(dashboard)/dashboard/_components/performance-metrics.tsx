@@ -42,7 +42,7 @@ export async function PerformanceMetrics({ formId }: PerformanceMetricsProps) {
             <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-center gap-2 justify-center">
               <div className="text-2xl font-bold">{metric.value}</div>
               <div className={`flex items-center gap-1 text-sm ${
                 metric.trend === 'up' ? 'text-emerald-500' : 'text-red-500'
