@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use server"
 
 import { formSchema } from "@/lib/form-schema"
@@ -243,7 +244,8 @@ export const getFormContentById = async (id: string) => {
                 isArchived: true,
                 isDeactivated: true,
                 allowMultipleSubmissions: true,
-                id: true
+                id: true,
+                published:true,
             },
             data: {
                 visits: {
@@ -311,34 +313,298 @@ export const getFormContentById = async (id: string) => {
     }
 }
 
-// todo change to camelCase
-export const SubmitFormAction = async (url: string, JsonContent: string) => {
+export async function calculateFormMetrics(formId: string) {
+    try {
+        // Get all submissions for this form
+        const submissions = await prisma.formSubmissions.findMany({
+            where: { formId: parseInt(formId) }
+        });
+
+        // Calculate average response time
+        const avgResponseTime = submissions.reduce((acc, submission) => {
+            return acc + (Number(submission.lastUpdatedAt) - Number(submission.createdAt));
+        }, 0) / submissions.length;
+
+        // Calculate completion rate
+        const totalVisits = await prisma.activity.count({
+            where: { 
+                formId: parseInt(formId),
+                type: 'visit'
+            }
+        });
+        const completionRate = (submissions.length / totalVisits) * 100;
+
+        // Calculate bounce rate (visits with no interaction)
+        const bounceRate = 100 - completionRate;
+
+        // Update metrics
+        await prisma.formMetrics.upsert({
+            where: { formId: parseInt(formId) },
+            update: {
+                avgResponseTime,
+                completionRate,
+                bounceRate,
+                updatedAt: new Date()
+            },
+            create: {
+                formId: parseInt(formId),
+                avgResponseTime,
+                completionRate,
+                bounceRate
+            }
+        });
+
+        return { success: true };
+    } catch (error) {
+        throw new Error('Failed to calculate metrics');
+    }
+}
+
+ 
+ 
+export const SubmitFormAction = async (
+    url: string, 
+    JsonContent: string,
+    isAnonymous: boolean,
+    feedback: string 
+) => {
     const user = await currentUser();
 
     if (!user) {
         return { message: 'User not found!', error: true };
     }
 
-    const formData = await prisma.form.update({
-        data: {
-            submissions: {
-                increment: 1
-            },
-            FormSubmissions: {
-                create: {
-                    content: JsonContent,
+    try {
+        // First, find the form by URL to ensure it exists
+        const form = await prisma.form.findUnique({
+            where: {
+                shareURL: url,
+                published: true
+            }
+        });
+
+        if (!form) {
+            return { error: true, message: 'Form not found or not published' };
+        }
+
+        // Check if form allows multiple submissions from the same user
+        if (!form.allowMultipleSubmissions) {
+            const existingSubmission = await prisma.formSubmissions.findFirst({
+                where: {
+                    formId: form.id,
                     email: user.emailAddresses[0].emailAddress,
+                    status: 'COMPLETED'
+                }
+            });
+
+            if (existingSubmission) {
+                return { error: true, message: 'You have already submitted this form' };
+            }
+        }
+
+        // Check if form has a max submissions limit
+        if (form.maxSubmissions > 0 && form.submissions >= form.maxSubmissions) {
+            return { error: true, message: 'This form has reached its maximum submission limit' };
+        }
+
+        // Check for existing draft
+        const existingDraft = await prisma.formSubmissions.findFirst({
+            where: {
+                formId: form.id,
+                email: user.emailAddresses[0].emailAddress,
+                status: 'DRAFT'
+            }
+        });
+
+        // Prepare updated form data with atomic operations
+        const formData = await prisma.form.update({
+            where: {
+                id: form.id
+            },
+            data: {
+                submissions: {
+                    increment: 1
                 }
             }
-        },
-        where: {
-            shareURL: url,
-            published: true
-        },
-    });
+        });
 
-    return { error: false, formData };
+        // Handle submission (update draft or create new)
+        if (existingDraft) {
+            await prisma.formSubmissions.update({
+                where: { 
+                    id: existingDraft.id 
+                },
+                data: {
+                    content: JsonContent,
+                    email: isAnonymous ? 'anonymous@temp.com' : user.emailAddresses[0].emailAddress,
+                    isAnonymous: isAnonymous,
+                    feedback: feedback,
+                    status: 'COMPLETED',
+                    lastUpdatedAt: new Date()
+                }
+            });
+        } else {
+            await prisma.formSubmissions.create({
+                data: {
+                    formId: form.id,
+                    content: JsonContent,
+                    email: isAnonymous ? 'anonymous@temp.com' : user.emailAddresses[0].emailAddress,
+                    isAnonymous: isAnonymous,
+                    feedback: feedback,
+                    status: 'COMPLETED'
+                }
+            });
+        }
+
+        // Calculate metrics in a separate operation to avoid transaction issues
+        await calculateFormMetrics(String(form.id));
+
+
+
+        // Create notification for form owner
+        // if (form.userId) {
+            // await prisma.notification.create({
+            //     data: {
+            //         userId: user.id,
+            //         formId: form.id,
+            //         content: `New submission received for form "${form.name}"`,
+            //     }
+            // });
+        // }
+
+        return { error: false, formData };
+    } catch (error) {
+        console.error('Form submission error:', error);
+        return { error: true, message: 'Failed to submit form' };
+    }
 };
+
+export const saveDraft = async (
+    url: string,
+    content: string,
+    isAnonymous: boolean,
+    feedback: string 
+) => {
+    const user = await currentUser();
+
+    if (!user) {
+        return { error: true, message: 'User not found!' };
+    }
+
+    try {
+        // First find the form to get its ID
+        const form = await prisma.form.findUnique({
+            where: {
+                shareURL: url
+            },
+            select: {
+                id: true,
+                published: true
+            }
+        });
+
+        if (!form) {
+            return { error: true, message: 'Form not found' };
+        }
+
+        // Check if draft already exists
+        const existingDraft = await prisma.formSubmissions.findFirst({
+            where: {
+                formId: form.id,
+                email: user.emailAddresses[0].emailAddress,
+                status: 'DRAFT'
+            }
+        });
+
+        if (existingDraft) {
+            // Update existing draft
+            await prisma.formSubmissions.update({
+                where: { 
+                    id: existingDraft.id 
+                },
+                data: {
+                    content,
+                    email: isAnonymous ? 'anonymous@temp.com' : user.emailAddresses[0].emailAddress,
+                    isAnonymous,
+                    feedback,
+                    lastUpdatedAt: new Date()
+                }
+            });
+        } else {
+            // Create new draft
+            await prisma.formSubmissions.create({
+                data: {
+                    formId: form.id,
+                    content,
+                    email: user.emailAddresses[0].emailAddress,
+                    isAnonymous,
+                    feedback,
+                    status: 'DRAFT'
+                }
+            });
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error('Draft save error:', error);
+        return { error: true, message: 'Failed to save draft' };
+    }
+};
+
+export async function loadDraft(formUrl: string) {
+    try {
+      // Get the current authenticated user
+      const user = await currentUser();
+      
+      if (!user) {
+        return { error: true, message: "Authentication required", draft: null };
+      }
+      
+      // Use the user's primary email address
+      const userEmail = user.emailAddresses[0]?.emailAddress;
+      
+      if (!userEmail) {
+        return { error: true, message: "User email not found", draft: null };
+      }
+  
+      // Find the form by URL
+      const form = await prisma.form.findUnique({
+        where: { shareURL: formUrl }
+      });
+  
+      if (!form) {
+        return { error: true, message: "Form not found", draft: null };
+      }
+  
+      // Find the draft for this form and user
+      const draft = await prisma.formSubmissions.findFirst({
+        where: {
+          formId: form.id,
+          email: userEmail,
+          status: 'DRAFT'
+        }
+      });
+  
+      return { 
+        error: false, 
+        draft,
+        message: draft ? "Draft loaded successfully" : "No draft found"
+      };
+    } catch (error) {
+      console.error("Error loading draft:", error);
+      return { 
+        error: true, 
+        message: "Failed to load draft", 
+        draft: null 
+      };
+    }
+  }
+
+
+
+
+
+
 
 export const getFormTableData = async (id: number) => {
     const user = await currentUser();
@@ -398,6 +664,12 @@ export const deleteForm = async (id: number) => {
 
     return { message: 'Form deleted successfully!', error: false };
 };
+
+
+
+// add just before the end of submitformaction
+// const formId = String(formData.id)
+// await calculateFormMetrics(formId);
 
 //todo add an edit published form function
 //todo a function to send in form feedback from the user and the options to be anonymous or not and the option for the author to see/bypass that 
@@ -462,6 +734,7 @@ export async function getFormActivities(formId: string) {
       });
       return { metrics };
     } catch (error) {
+        console.log(error)
       throw new Error('Failed to fetch metrics');
     }
   }
@@ -481,3 +754,8 @@ export async function getFormActivities(formId: string) {
       throw new Error('Failed to create activity');
     }
   }
+
+
+
+// Add this to your existing SubmitFormAction
+ 

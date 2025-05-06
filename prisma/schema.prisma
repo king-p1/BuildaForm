@@ -91,6 +91,8 @@ model FormSubmissions {
   feedback      String   @default("")
 }
 
+// have a your responses tab and conditionally show based of the ones that are submitted (COMPLETED) and the ones that aren't DRAFT
+
 model Activity {
   id        String   @id @default(cuid())
   type      String   // 'submission' | 'comment' | 'visit'

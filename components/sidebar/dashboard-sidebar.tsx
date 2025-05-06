@@ -14,7 +14,8 @@ import {
   LogOut,
   ClipboardList,
   Trash2,
-  Star,User
+  Star,User,
+  FolderOpen
 } from "lucide-react";
 import { TbWorldCancel } from "react-icons/tb";
 import { TbLoader3 } from "react-icons/tb"; // Add import for TbLoader3
@@ -88,6 +89,11 @@ export const DashboardSidebar = () => {
   ];
 
   const subFormItems: SubForm[] = [
+    {
+      icon: <FolderOpen />,
+      toolText: "All forms",
+      link: "/dashboard/documents",
+    },
     {
       icon: <Star fill="yellow" className="text-yellow-300" />,
       toolText: "Favourite forms",

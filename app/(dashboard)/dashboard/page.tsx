@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server"; 
 import { UserWelcomeClient } from "./_components/user-welcome";
 import { DashboardFormClient } from "./_components/form-dash";
 import { getUserForms } from "@/actions/form";
@@ -10,10 +10,13 @@ import { PerformanceMetrics } from "./_components/performance-metrics";
 
 async function DashboardPage() {
   const user = await currentUser();
-  const {formData} = await getUserForms()
+  const {formData} = await getUserForms();
 
   // Convert single form to array if needed
-  const forms = Array.isArray(formData) ? formData : [formData]
+  const forms = Array.isArray(formData) ? formData : [formData];
+  
+  // Extract form IDs from forms array
+  const formIds = forms?.map(form => form?.id) || [];
   
   const userData = user ? {
     firstName: user.firstName,
@@ -40,10 +43,10 @@ async function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="h-full">
-            <PerformanceMetrics formId={forms[0]?.id} />
+            <PerformanceMetrics formIds={formIds} />
           </div>
           <div className="h-full">
-            <ActivityFeed formId={forms[0]?.id} />
+            <ActivityFeed formIds={formIds} />
           </div>
         </div>
 

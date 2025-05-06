@@ -23,7 +23,7 @@ const ClientNavbarContent = dynamic(() => Promise.resolve(NavbarContent), {
 
 export const Navbar = () => {
   return (
-    <nav className='w-full  flex items-center justify-between'>
+    <nav className='w-full  flex items-center justify-between bg-transparent'>
       <Link href={'/'} className='-ml-[7px] border-r'>
         <Image alt='logo' src={logo} width={70} height={70}/>
       </Link>

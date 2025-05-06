@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFormStats } from "@/actions/form";
 
@@ -25,54 +25,67 @@ export function StatsDashboard() {
 
     return (
         <>
-            <Card className="h-full">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-semibold">Total Forms</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalForms}</div>
-                    <p className="text-xs text-muted-foreground">
-                        {stats.publishedForms} published, {stats.draftForms} drafts
-                    </p>
-                </CardContent>
-            </Card>
-
-            <Card className="h-full">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-semibold">Total Visits</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.visits}</div>
-                    <p className="text-xs text-muted-foreground">
-                        +20.1% from last month
-                    </p>
-                </CardContent>
-            </Card>
-
-            <Card className="h-full">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-semibold">Submissions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.submissions}</div>
-                    <p className="text-xs text-muted-foreground">
-                        {stats.submissionRate.toFixed(1)}% submission rate
-                    </p>
-                </CardContent>
-            </Card>
-
-            <Card className="h-full">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-semibold">Bounce Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.bounceRate.toFixed(1)}%</div>
-                    <p className="text-xs text-muted-foreground">
-                        -12% from last month
-                    </p>
-                </CardContent>
-            </Card>
-        </>
+        <Card className="h-full flex flex-col justify-between">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold">Total Forms</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalForms}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.publishedForms} published, {stats.draftForms} drafts
+            </p>
+          </CardContent>
+          <CardFooter className="text-xs text-primary cursor-pointer hover:underline">
+            View all forms
+          </CardFooter>
+        </Card>
+      
+        <Card className="h-full">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold">Total Visits</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.visits}</div>
+            <p className="text-xs text-muted-foreground">
+              +20.1% from last month
+            </p>
+          </CardContent>
+          <CardFooter className="text-xs text-primary cursor-pointer hover:underline">
+            Analyze traffic
+          </CardFooter>
+        </Card>
+      
+        <Card className="h-full">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold">Submissions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.submissions}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.submissionRate.toFixed(1)}% submission rate
+            </p>
+          </CardContent>
+          <CardFooter className="text-xs text-primary cursor-pointer hover:underline">
+            View submissions
+          </CardFooter>
+        </Card>
+      
+        <Card className="h-full">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold">Bounce Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.bounceRate.toFixed(1)}%</div>
+            <p className="text-xs text-muted-foreground">
+              -12% from last month
+            </p>
+          </CardContent>
+          <CardFooter className="text-xs text-primary cursor-pointer hover:underline">
+            Improve engagement
+          </CardFooter>
+        </Card>
+      </>
+      
     );
 }
 

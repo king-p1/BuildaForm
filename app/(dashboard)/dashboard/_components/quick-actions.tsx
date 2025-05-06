@@ -2,8 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, Settings, Share2, BarChart2, Clipboard, CircleCheckBig } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Settings, Share2, Clipboard, CircleCheckBig } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -24,7 +23,6 @@ interface QuickActionsProps {
 }
 
 export function QuickActions({ forms }: QuickActionsProps) {
-  const router = useRouter();
   const [copiedForms, setCopiedForms] = useState<Set<string>>(new Set());
 
   return (

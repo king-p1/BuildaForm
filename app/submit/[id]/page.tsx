@@ -29,7 +29,7 @@ height='430'
 
     try {
         const formContent = JSON.parse(formData.content) as FormElementsInstance[]
-        return <FormSubmitComponent content={formContent} url={id} />
+        return <FormSubmitComponent content={formContent} url={id} formId={String(formData?.id)} isPublished={formData?.published} />
     } catch (e) {
         console.log(e)
         return (
