@@ -362,122 +362,7 @@ export async function calculateFormMetrics(formId: string) {
 
  
  
-export const SubmitFormAction = async (
-    url: string, 
-    JsonContent: string,
-    isAnonymous: boolean,
-    feedback: string 
-) => {
-    const user = await currentUser();
 
-    if (!user) {
-        return { message: 'User not found!', error: true };
-    }
-
-    try {
-        // First, find the form by URL to ensure it exists
-        const form = await prisma.form.findUnique({
-            where: {
-                shareURL: url,
-                published: true
-            }
-        });
-
-        if (!form) {
-            return { error: true, message: 'Form not found or not published' };
-        }
-
-        // Check if form allows multiple submissions from the same user
-        if (!form.allowMultipleSubmissions) {
-            const existingSubmission = await prisma.formSubmissions.findFirst({
-                where: {
-                    formId: form.id,
-                    email: user.emailAddresses[0].emailAddress,
-                    status: 'COMPLETED'
-                }
-            });
-
-            if (existingSubmission) {
-                return { error: true, message: 'You have already submitted this form' };
-            }
-        }
-
-        // Check if form has a max submissions limit
-        if (form.maxSubmissions > 0 && form.submissions >= form.maxSubmissions) {
-            return { error: true, message: 'This form has reached its maximum submission limit' };
-        }
-
-        // Check for existing draft
-        const existingDraft = await prisma.formSubmissions.findFirst({
-            where: {
-                formId: form.id,
-                email: user.emailAddresses[0].emailAddress,
-                status: 'DRAFT'
-            }
-        });
-
-        // Prepare updated form data with atomic operations
-        const formData = await prisma.form.update({
-            where: {
-                id: form.id
-            },
-            data: {
-                submissions: {
-                    increment: 1
-                }
-            }
-        });
-
-        // Handle submission (update draft or create new)
-        if (existingDraft) {
-            await prisma.formSubmissions.update({
-                where: { 
-                    id: existingDraft.id 
-                },
-                data: {
-                    content: JsonContent,
-                    email: isAnonymous ? 'anonymous@temp.com' : user.emailAddresses[0].emailAddress,
-                    isAnonymous: isAnonymous,
-                    feedback: feedback,
-                    status: 'COMPLETED',
-                    lastUpdatedAt: new Date()
-                }
-            });
-        } else {
-            await prisma.formSubmissions.create({
-                data: {
-                    formId: form.id,
-                    content: JsonContent,
-                    email: isAnonymous ? 'anonymous@temp.com' : user.emailAddresses[0].emailAddress,
-                    isAnonymous: isAnonymous,
-                    feedback: feedback,
-                    status: 'COMPLETED'
-                }
-            });
-        }
-
-        // Calculate metrics in a separate operation to avoid transaction issues
-        await calculateFormMetrics(String(form.id));
-
-
-
-        // Create notification for form owner
-        // if (form.userId) {
-            // await prisma.notification.create({
-            //     data: {
-            //         userId: user.id,
-            //         formId: form.id,
-            //         content: `New submission received for form "${form.name}"`,
-            //     }
-            // });
-        // }
-
-        return { error: false, formData };
-    } catch (error) {
-        console.error('Form submission error:', error);
-        return { error: true, message: 'Failed to submit form' };
-    }
-};
 
 export const saveDraft = async (
     url: string,
@@ -507,41 +392,46 @@ export const saveDraft = async (
             return { error: true, message: 'Form not found' };
         }
 
-        // Check if draft already exists
+        // Get the user's primary email
+        const userEmail = user.emailAddresses[0].emailAddress;
+
+        // Find any existing draft for this user and form, regardless of anonymous setting
         const existingDraft = await prisma.formSubmissions.findFirst({
             where: {
                 formId: form.id,
-                email: user.emailAddresses[0].emailAddress,
+                email: userEmail, // Always use the real email to find existing drafts
                 status: 'DRAFT'
             }
         });
 
         if (existingDraft) {
-            // Update existing draft
+            // Update existing draft - only change the isAnonymous flag and content
             await prisma.formSubmissions.update({
                 where: { 
                     id: existingDraft.id 
                 },
                 data: {
                     content,
-                    email: isAnonymous ? 'anonymous@temp.com' : user.emailAddresses[0].emailAddress,
-                    isAnonymous,
+                    isAnonymous, // Just update the flag
                     feedback,
                     lastUpdatedAt: new Date()
                 }
             });
+            
         } else {
-            // Create new draft
+            // Create new draft - always with user's real email for identification
             await prisma.formSubmissions.create({
                 data: {
                     formId: form.id,
                     content,
-                    email: user.emailAddresses[0].emailAddress,
-                    isAnonymous,
+                    email: userEmail, // Always store the real email
+                    isAnonymous, // Store anonymous preference
                     feedback,
                     status: 'DRAFT'
                 }
             });
+            
+            console.log(`Created new draft for user ${userEmail} with isAnonymous: ${isAnonymous}`);
         }
 
         return { success: true };
@@ -601,6 +491,115 @@ export async function loadDraft(formUrl: string) {
   }
 
 
+  export const SubmitFormAction = async (
+    url: string, 
+    JsonContent: string,
+    isAnonymous: boolean,
+    feedback: string 
+) => {
+    const user = await currentUser();
+
+    if (!user) {
+        return { message: 'User not found!', error: true };
+    }
+
+    try {
+        // First, find the form by URL to ensure it exists
+        const form = await prisma.form.findUnique({
+            where: {
+                shareURL: url,
+                published: true
+            }
+        });
+
+        if (!form) {
+            return { error: true, message: 'Form not found or not published' };
+        }
+
+        // Get the user's real email for identification
+        const userEmail = user.emailAddresses[0].emailAddress;
+
+        // Check if form allows multiple submissions from the same user
+        if (!form.allowMultipleSubmissions) {
+            const existingSubmission = await prisma.formSubmissions.findFirst({
+                where: {
+                    formId: form.id,
+                    email: userEmail, // Use real email for checking previous submissions
+                    status: 'COMPLETED'
+                }
+            });
+
+            if (existingSubmission) {
+                return { error: true, message: 'You have already submitted this form' };
+            }
+        }
+
+        // Check if form has a max submissions limit
+        if (form.maxSubmissions > 0 && form.submissions >= form.maxSubmissions) {
+            return { error: true, message: 'This form has reached its maximum submission limit' };
+        }
+
+        // Prepare updated form data with atomic operations
+        const formData = await prisma.form.update({
+            where: {
+                id: form.id
+            },
+            data: {
+                submissions: {
+                    increment: 1
+                }
+            }
+        });
+
+        // Check for existing draft using the real email
+        const existingDraft = await prisma.formSubmissions.findFirst({
+            where: {
+                formId: form.id,
+                email: userEmail, // Use real email to find draft
+                status: 'DRAFT'
+            }
+        });
+
+        // Handle submission (update draft or create new)
+        if (existingDraft) {
+            await prisma.formSubmissions.update({
+                where: { 
+                    id: existingDraft.id 
+                },
+                data: {
+                    content: JsonContent,
+                    // For anonymous submissions, we keep the real email but mark as anonymous
+                    isAnonymous: isAnonymous,
+                    feedback: feedback,
+                    status: 'COMPLETED',
+                    lastUpdatedAt: new Date()
+                }
+            });
+        } else {
+            await prisma.formSubmissions.create({
+                data: {
+                    formId: form.id,
+                    content: JsonContent,
+                    email: userEmail, // Always store real email
+                    isAnonymous: isAnonymous, // But mark if anonymous
+                    feedback: feedback,
+                    status: 'COMPLETED'
+                }
+            });
+        }
+
+        // Calculate metrics in a separate operation to avoid transaction issues
+        await calculateFormMetrics(String(form.id));
+
+        return { error: false, formData };
+    } catch (error) {
+        console.error('Form submission error:', error);
+        return { error: true, message: 'Failed to submit form' };
+    }
+};
+
+
+//todo find a work around with the anonymous p for now depending on the response ill do some p onthe frontend but yh for the sake of production level find something cooler maybe a bcrypt hash or something
 
 
 
@@ -759,3 +758,5 @@ export async function getFormActivities(formId: string) {
 
 // Add this to your existing SubmitFormAction
  
+
+

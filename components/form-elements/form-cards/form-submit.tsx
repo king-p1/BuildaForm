@@ -15,7 +15,7 @@ import {
 import Image from 'next/image'
 import draftError from '@/public/draft-form-error.png'
 import Link from 'next/link'
-import { ArrowLeft, EyeOff, MessageSquareText, Send } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, EyeOff, MessageSquareText, Newspaper, Send } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -78,12 +78,31 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
         console.error('Visit tracking failed:', error);
       }
     };
+    
+    const trackComment= async () => {
+      if (!formId) return;
+      
+      try {
+        await createActivity(
+          formId,
+          'comment',
+          user?.id,
+          user?.fullName as string,
+        );
+      } catch (error) {
+        console.error('comment tracking failed:', error);
+      }
+    };
 
     if (formId && user) {
       trackVisit();
       setStartTime(new Date());
     }
-  }, [formId, user]);
+
+    if (formId && user && debouncedFeedback ) {
+      trackComment();
+    }
+  }, [formId, user,debouncedFeedback]);
      
   // Load draft when user is available
   useEffect(() => {
@@ -281,15 +300,52 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
   if (submitted) {
     return (
       <div className='h-[80vh] w-full flex items-center justify-center motion-preset-expand'>
-        <Card className='w-1/2 border-2 shadow-lg shadow-emerald-700 p-3'>
+        <Card className='w-[450px] flex flex-col gap-3 border-2 shadow-lg border-emerald-300 p-3'>
           <CardHeader>
             <CardTitle className='text-center p-2 font-semibold text-2xl'>
-              Form Submitted Successfully
+            <div className="flex justify-center">
+            <div className="rounded-full bg-white border border-emerald-100 dark:border-emerald-200 mb-2 p-2 shadow-md motion-safe:animate-bounce">
+              <CheckCircle2 size={48} className="text-emerald-500" />
+            </div>
+          </div>
+            <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-neutral-100 mb-2">
+             Form Submission Successful!
+            </h2>
+            <p className="text-gray-600 text-center dark:text-gray-400 mb-4 text-muted-foreground text-lg">
+              Thank you for your submission.
+            </p>
             </CardTitle>
           </CardHeader>
-          <div className='border-t-2 -mt-2 mx-3'/>
-          <CardContent className='p-4 text-center flex items-center justify-center'>
-            Thank you! Your form has been successfully submitted.
+          <div className='border-t-2 -mt-10 mx-3'/>
+          <CardContent className='p-4 text-center flex flex-col items-center justify-center'>
+          <div className="bg-emerald-50 dark:bg-emerald-100 rounded-lg p-3 mb-4 border-2 border-emerald-100 dark:border-emerald-200">
+              <p className="text-sm text-gray-600 text-center">
+                Confirmation #: <span className="font-mono font-semibold">TRN-{Math.floor(100000 + Math.random() * 900000)}</span>
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 mt-2">
+
+              <Button asChild>
+<Link href="/dashboard" className="flex gap-2 items-center">
+<ArrowLeft size={16} />
+Return to Form
+</Link>
+</Button>
+    
+              <Button 
+              variant={'secondary'}
+              onClick={()=>{
+                window.location.reload()
+              }}
+              >
+ 
+<Newspaper size={16} />
+New Submission
+</Button>
+
+               
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -299,10 +355,13 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
   if (!isDraftLoaded && user && userLoaded) {
     return (
       <div className='h-[80vh] w-full flex  items-center justify-center'>
-        <Card className='w-1/2 border-2 p-3 shadow-md'>
+        <Card className='w-[300px] h-[145px] border-2 p-3 shadow-md'>
           <CardContent className='p-4 text-center flex flex-col items-center justify-center gap-4'>
             <TbLoader3 size={40} className='animate-spin'/>
-            <p>Loading your saved draft...</p>
+            <p>Loading your saved draft<span className='animate-pulse'>
+              ...
+              </span>
+              </p>
           </CardContent>
         </Card>
       </div>
@@ -360,31 +419,6 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
           );
         })}
 
-{/* <Dialog>
-  
-          <DialogTrigger asChild>
-            <div className="flex w-full justify-end">
-            <Button variant="secondary" className="-mt-2 w-12 " size={'sm'}>
-              h
-            </Button>
-            </div>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Share Your Feedback</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <Textarea
-                placeholder="Tell us about your experience with this form..."
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                className="min-h-[100px]"
-                rows={5}
-                cols={8}
-              />
-            </div>
-          </DialogContent>
-        </Dialog> */}
   <Dialog>
 <TooltipProvider>
     <Tooltip>
@@ -402,7 +436,8 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
 </div>
         </DialogTrigger>
       </TooltipTrigger>
-      <TooltipContent className="flex w-full justify-end">
+      <TooltipContent  side='right' sideOffset={10}>
+        
           Leave your feedback.
       </TooltipContent>
     </Tooltip>
@@ -445,5 +480,7 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
        
       </div>
     </div>
+
+
   );
 }
