@@ -11,13 +11,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { LuTrash2 } from "react-icons/lu";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "../../ui/button";
 import React, { useTransition, useState } from "react";
 import { deleteForm } from "@/actions/form";
 import { TbLoader3 } from "react-icons/tb";
-
+import { FolderX } from "lucide-react";
 export const DeleteFormBtn = ({ id }: { id: number }) => {
   const [loading, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
@@ -55,8 +54,9 @@ export const DeleteFormBtn = ({ id }: { id: number }) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button className=" font-semibold dark:bg-red-700 dark:hover:bg-red-500 bg-red-500 hover:bg-red-700" onClick={() => setIsOpen(true)}>
-          <LuTrash2 className="dark:text-white" size={33} />
+        <Button className=" font-semibold dark:bg-red-700 dark:hover:bg-red-500 bg-red-500 hover:bg-red-700 flex items-center gap-3" onClick={() => setIsOpen(true)}>
+          <FolderX className="dark:text-white font-semibold" size={33} />
+          <h2 className="text-md text-white">Delete Form</h2>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

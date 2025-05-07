@@ -15,7 +15,9 @@ import {
   ClipboardList,
   Trash2,
   Star,User,
-  FolderOpen
+  FolderOpen,
+  Logs,
+  MessagesSquare
 } from "lucide-react";
 import { TbWorldCancel } from "react-icons/tb";
 import { TbLoader3 } from "react-icons/tb"; // Add import for TbLoader3
@@ -72,14 +74,19 @@ export const DashboardSidebar = () => {
 
   const sidebarItems: SidebarItem[] = [
     {
-      icon: <FileText size={20} />,
-      label: "Documents",
-      href: "/dashboard/documents",
-    },
-    {
       icon: <BarChart2 size={20} />,
       label: "Analytics",
       href: "/dashboard/analytics",
+    },
+    {
+      icon: <Logs size={20} />,
+      label: "Logs",
+      href: "/dashboard/logs",
+    },
+    {
+      icon: <MessagesSquare  size={20} />,
+      label: "Feedback",
+      href: "/dashboard/documents",
     },
     {
       icon: <User size={20} />,
@@ -90,24 +97,24 @@ export const DashboardSidebar = () => {
 
   const subFormItems: SubForm[] = [
     {
-      icon: <FolderOpen />,
+      icon: <FolderOpen className="text-blue-500" />,
       toolText: "All forms",
-      link: "/dashboard/documents",
+      link: "/dashboard/all-forms",
     },
     {
       icon: <Star fill="yellow" className="text-yellow-300" />,
       toolText: "Favourite forms",
-      link: "/dashboard/documents",
+      link: "/dashboard/all-forms?isFavorite=true",
     },
     {
       icon: <Trash2 className="text-red-500" />,
       toolText: "Archived Forms",
-      link: "/dashboard/analytics",
+      link: "/dashboard/all-forms?isArchived=true",
     },
     {
       icon: <TbWorldCancel className="text-emerald-500" />,
       toolText: "Deactivated Forms",
-      link: "/dashboard/settings",
+      link: "/dashboard/all-forms?isDeactivated=true",
     },
   ];
 
@@ -150,8 +157,7 @@ export const DashboardSidebar = () => {
   };
 
   if (!mounted) {
-    // Use the appropriate skeleton based on initial state
-    return <SidebarSkeleton expanded={isOpen} />;
+    return <SidebarSkeleton expanded={isOpen} />
   }
 
   return (
@@ -179,7 +185,7 @@ export const DashboardSidebar = () => {
       <ScrollArea className="flex-1">
         <nav className="px-2 py-2">
           <TooltipProvider delayDuration={0}>
-            <ul className="space-y-8 mt-8">
+            <ul className="space-y-6 mt-8">
               {isOpen ? (
                 <div className="w-full flex items-center justify-center">
                   <CreateFormButton isOpen={isOpen} />
@@ -344,7 +350,7 @@ export const DashboardSidebar = () => {
           <div className="w-full flex items-center justify-center flex-col gap-3">
             <SignedIn>
               <div className="flex w-full gap-2 items-center justify-center">
-                <span className="p-2 flex items-center justify-center dark:bg-white bg-neutral-800 rounded-full">
+                <span className="p-1.5 flex items-center justify-center dark:bg-white bg-neutral-800 rounded-full">
                   <UserButton />
                 </span>
                 <p className="font-semibold">{user?.fullName}</p>
@@ -371,7 +377,7 @@ export const DashboardSidebar = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-5 justify-center items-center">
-            <span className="p-2 flex items-center justify-center dark:bg-white bg-neutral-800 rounded-full">
+            <span className="p-1.5 flex items-center justify-center dark:bg-white bg-neutral-800 rounded-full">
               <SignedIn>
                 <UserButton />
               </SignedIn>

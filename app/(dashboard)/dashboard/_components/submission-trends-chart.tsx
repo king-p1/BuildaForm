@@ -32,6 +32,8 @@ export function SubmissionTrendsChart() {
         fetchStats();
     }, []);
 
+    console.log(stats)
+
     if (loading) {
         return <SubmissionTrendsSkeleton />;
     }

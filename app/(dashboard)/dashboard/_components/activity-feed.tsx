@@ -3,9 +3,12 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Activity, Clock, MessageSquare, Users } from "lucide-react";
+import { Activity, Archive, Clock, MessageSquare, Star, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFormActivities } from "@/actions/form";
+import Link from "next/link";
+import { TbFolderX } from "react-icons/tb";
+import { LuFolderCheck } from "react-icons/lu";
 
 interface ActivityFeedProps {
   formIds: string[];
@@ -51,13 +54,25 @@ export function ActivityFeed({ formIds }: ActivityFeedProps) {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'submission':
-        return <Activity className="h-4 w-4" />;
+        return <Activity className="size-4  text-green-800" />;
       case 'comment':
-        return <MessageSquare className="h-4 w-4" />;
+        return <MessageSquare className="size-4  text-blue-800" />;
       case 'visit':
-        return <Users className="h-4 w-4" />;
+        return <Users className="size-4  text-purple-800" />;
+      case 'archived':
+        return <Archive className="size-4  text-red-500" />;
+      case 'unarchived':
+        return <Archive className="size-4  text-emerald-500" />;
+      case 'favorited':
+        return <Star className="size-4  text-yellow-800" fill='yellow' />;
+      case 'unfavorited':
+        return <Star className="size-4 text-yellow-800" />;
+      case 'deactivated':
+        return <TbFolderX className="size-4  text-red-600" />;
+      case 'activated':
+        return <LuFolderCheck className="size-4  text-green-800" />;
       default:
-        return <Activity className="h-4 w-4" />;
+        return <Activity className="size-4  text-gray-800" />;
     }
   };
 
@@ -100,9 +115,18 @@ export function ActivityFeed({ formIds }: ActivityFeedProps) {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium">
+                  {activity.type === 'visit' && `New visit from ${activity.userName || 'someone'}`}
                   {activity.type === 'submission' && `${activity.userName || 'Someone'} submitted a form`}
                   {activity.type === 'comment' && `${activity.userName || 'Someone'} commented on a form`}
-                  {activity.type === 'visit' && `New visit from ${activity.userName || 'someone'}`}
+                  
+                  {activity.type === 'archived' && `${activity.userName || 'Someone'} archived form`}
+                  {activity.type === 'unarchived' && `${activity.userName || 'Someone'} unarchived form`}
+           
+                  {activity.type === 'favorited' && `${activity.userName || 'Someone'} favorited form`}
+                  {activity.type === 'unfavorited' && `${activity.userName || 'Someone'} unfavorited form`}
+                 
+                  {activity.type === 'deactivated' && `${activity.userName || 'Someone'} deactivated form`}
+                  {activity.type === 'activated' && `${activity.userName || 'Someone'} activated form`}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(activity.createdAt).toLocaleString()}
@@ -113,7 +137,9 @@ export function ActivityFeed({ formIds }: ActivityFeedProps) {
         </div>
       </CardContent>
       <CardFooter className="text-xs text-primary cursor-pointer hover:underline">
+        <Link href='/dashboard/logs'>
             View all recent activity
+        </Link>
           </CardFooter>
     </Card>
   );

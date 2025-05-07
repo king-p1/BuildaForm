@@ -112,13 +112,13 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
       setDraftLoadAttempted(true);
       
       try {
-        console.log('Attempting to load draft for URL:', url);
+       
         const result = await loadDraft(url);
         
         if (!result.error && result.draft) {
           // Parse the content from the draft
           const draftContent = result.draft.content ? JSON.parse(result.draft.content) : {};
-          console.log('Draft loaded successfully:', draftContent);
+         
           
           setFormValues(draftContent);
           setIsAnonymous(result.draft.isAnonymous || false);
@@ -164,7 +164,7 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
       setIsSaving(true);
       
       try {
-        console.log('Saving draft with values:', debouncedValues);
+        ;
         await saveDraft(
           url, 
           JSON.stringify(debouncedValues), 
@@ -172,7 +172,7 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
           debouncedFeedback
         );
         
-        console.log('Draft saved successfully');
+    
       } catch (error) {
         console.error('Failed to save draft:', error);
         toast({
@@ -216,7 +216,7 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
     });
   }, []);
 
-  // Submit the completed form
+
   const submitForm = async () => {
     const validForm = validateForm();
 
@@ -368,7 +368,7 @@ New Submission
     );
   }
 
-  // Main form render
+   
   return (
     <div className='h-full w-full items-center flex justify-center p-8'>
       <div key={renderKey} className="flex flex-col max-w-[625px] flex-grow gap-4 bg-background w-full p-8 overflow-y-auto shadow-xl rounded-lg border-2">

@@ -1,3 +1,4 @@
+ 
 import { getFormTableData } from "@/actions/form"
 import {
   Table,
@@ -11,8 +12,10 @@ import {
 import { toast } from "@/hooks/use-toast"
 import { ElementsType, FormElementsInstance } from "../sidebar-form-values/form-elemts-type"
 import { Row } from '@/lib/types'
-import { format, formatDistance } from "date-fns"
+import { formatDistance } from "date-fns"
 import { RowCell } from "./row-cell"
+import { StatusIndicator } from "./status-indicator"
+import { EmailVisibilityToggle } from "./email-visibilty"
 
 export const SubmissionsTable = async({ id }: { id: number }) => {
   const { formData } = await getFormTableData(id)
@@ -22,6 +25,7 @@ export const SubmissionsTable = async({ id }: { id: number }) => {
       title: 'Error',
       description: 'Form data not found.'
     })
+    return null
   }
 
   const formElements = formData?.content ? JSON.parse(formData.content) as FormElementsInstance[] : []
@@ -42,7 +46,6 @@ export const SubmissionsTable = async({ id }: { id: number }) => {
       case "CheckboxField":
       case "SelectField":
       case "ImageUploadField":
-      case "FileUploadField":
         columns.push({
           id: element.id,
           label: element.extraAttributes?.label,
@@ -56,14 +59,25 @@ export const SubmissionsTable = async({ id }: { id: number }) => {
     }
   })
 
-  const rows: Row[] = []
+  type SubmissionData = {
+    content: string;
+    createdAt: Date;
+    email: string;
+    isAnonymous: boolean;
+    status: string;
+    feedback?: string;
+  }
 
-  formData?.FormSubmissions.forEach((submission: { content: string; createdAt: Date; email: string }) => {
+  const rows: (Row & { isAnonymous: boolean; status: string; })[] = []
+
+  formData?.FormSubmissions.forEach((submission: SubmissionData) => {
     const content = JSON.parse(submission.content)
     rows.push({
       ...content,
-      submittedAt: new Date(submission.createdAt), // Ensure date is properly parsed
+      submittedAt: new Date(submission.createdAt),
       email: submission.email,
+      isAnonymous: submission.isAnonymous,
+      status: submission.status || 'PENDING'
     });
   })
 
@@ -78,10 +92,11 @@ export const SubmissionsTable = async({ id }: { id: number }) => {
         Submissions Table
       </h1>
 
-      <Table className="mt-6 border-2">
+      <Table className="mt-6 ">
         <TableCaption>All Form Submissions</TableCaption>
-        <TableHeader>
+        <TableHeader className="border-t">
           <TableRow>
+            <TableHead>Status</TableHead>
             {columns.map(({ label, id }) => (
               <TableHead key={id}>{label}</TableHead>
             ))}
@@ -89,9 +104,12 @@ export const SubmissionsTable = async({ id }: { id: number }) => {
             <TableHead>User</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="border-b">
           {sortedRows.map((row, index) => (
             <TableRow key={index}>
+              <TableCell>
+                <StatusIndicator status={row.status} />
+              </TableCell>
               {columns.map((column) => (
                 <RowCell
                   key={column.id}
@@ -102,7 +120,12 @@ export const SubmissionsTable = async({ id }: { id: number }) => {
               <TableCell>
                 {formatDistance(row.submittedAt, new Date(), { addSuffix: true })}
               </TableCell>
-              <TableCell>{row.email}</TableCell>
+              <TableCell>
+                <EmailVisibilityToggle 
+                  email={row.email} 
+                  isAnonymous={row.isAnonymous} 
+                />
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

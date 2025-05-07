@@ -7,6 +7,8 @@ import { formSchemaType } from "@/lib/types"
 import { currentUser } from "@clerk/nextjs/server"
 
 
+
+
 export const handleUserSignIn = async () => {
     const user = await currentUser();
 
@@ -95,7 +97,6 @@ export const getFormStats = async () => {
 
     const bounceRate = 100 - submissionRate
 
-    // Format recent submissions data for charts
     const submissionTrends = recentSubmissions.map(sub => ({
         date: sub.createdAt,
         count: sub._count.id
@@ -260,12 +261,12 @@ export const getFormContentById = async (id: string) => {
 
 
         if (formData.isArchived) {
-            return { error: true, message: 'This form has been ARCHIVED and is no longer accepting submissions. Check back later or reach out to the author.' };
+            return { error: true, message: 'This form has been ARCHIVED and is no longer accepting submissions.\n Check back later or reach out to the author.' };
         }
     
         
         if (formData.isDeactivated) {
-            return { error: true, message: 'This form has been DEACTIVATED and is no longer accepting submissions. Check back later or reach out to the author.' };
+            return { error: true, message: 'This form has been DEACTIVATED and is no longer accepting submissions.\n Check back later or reach out to the author.' };
         }
     
 
@@ -491,6 +492,8 @@ export async function loadDraft(formUrl: string) {
   }
 
 
+
+  //todo add the responses to the users response array so whatever form you've submitted you can view your response.a responses page where you can see all your responses then the ability to edit them and delete them, so when you edit them it opens the form submit page where you can change the data
   export const SubmitFormAction = async (
     url: string, 
     JsonContent: string,
@@ -623,6 +626,9 @@ export const getFormTableData = async (id: number) => {
                     content: true,
                     createdAt: true,
                     email: true, // Include the email field here
+                    isAnonymous: true,
+                    status:true,
+                    feedback:true
                 }
             }
         },
@@ -630,7 +636,7 @@ export const getFormTableData = async (id: number) => {
 
     return { error: false, formData };
 };
-// ... existing code ...
+ 
 
 export const deleteForm = async (id: number) => {
     const user = await currentUser();
@@ -639,86 +645,65 @@ export const deleteForm = async (id: number) => {
         return { message: 'User not found!', error: true };
     }
 
-    // Use a transaction to delete the form and its submissions
-    await prisma.$transaction(async (prisma) => {
-        // Delete form submissions first
-        await prisma.formSubmissions.deleteMany({
-            where: {
-                formId: id,
-                form: {
-                    userId: user.id, // Ensure the user owns the form
-                },
-            },
-        });
-
-        // Then delete the form
-        await prisma.form.delete({
+    try {
+        // First check if the form exists and belongs to the user
+        const form = await prisma.form.findUnique({
             where: {
                 id,
                 userId: user.id, // Ensure the user owns the form
             },
         });
 
-    });
+        if (!form) {
+            return { message: 'Form not found or you do not have permission to delete it', error: true };
+        }
 
-    return { message: 'Form deleted successfully!', error: false };
+        // Use a transaction to delete all related data and the form
+        await prisma.$transaction(async (prisma) => {
+            // Delete form submissions
+            await prisma.formSubmissions.deleteMany({
+                where: {
+                    formId: id,
+                },
+            });
+
+            // Delete form metrics
+            await prisma.formMetrics.deleteMany({
+                where: {
+                    formId: id,
+                },
+            });
+
+            // Delete activities related to the form
+            await prisma.activity.deleteMany({
+                where: {
+                    formId: id,
+                },
+            });
+
+            // Finally delete the form itself
+            await prisma.form.delete({
+                where: {
+                    id,
+                    userId: user.id, // Double check user permission
+                },
+            });
+        });
+
+        return { message: 'Form and all associated data deleted successfully!', error: false };
+    } catch (error) {
+        console.error('Error deleting form:', error);
+        return { message: 'Failed to delete form. Please try again.', error: true };
+    }
 };
 
-
-
-// add just before the end of submitformaction
-// const formId = String(formData.id)
-// await calculateFormMetrics(formId);
-
-//todo add an edit published form function
-//todo a function to send in form feedback from the user and the options to be anonymous or not and the option for the author to see/bypass that 
-
-// export async function getFormActivities(formId: string) {
-//   try {
-//     const activities = await prisma.activity.findMany({
-//       where: { formId },
-//       orderBy: { createdAt: 'desc' },
-//       take: 5
-//     });
-//     return { activities };
-//   } catch (error) {
-//     throw new Error('Failed to fetch activities');
-//   }
-// }
-
-// export async function getFormMetrics(formId: string) {
-//   try {
-//     const metrics = await prisma.formMetrics.findUnique({
-//       where: { formId }
-//     });
-//     return { metrics };
-//   } catch (error) {
-//     throw new Error('Failed to fetch metrics');
-//   }
-// }
-
-// export async function createActivity(formId: string, type: string, userId?: string, userName?: string) {
-//   try {
-//     const activity = await prisma.activity.create({
-//       data: {
-//         formId,
-//         type,
-//         userId,
-//         userName
-//       }
-//     });
-//     return { activity };
-//   } catch (error) {
-//     throw new Error('Failed to create activity');
-//   }
-// }
 
 export async function getFormActivities(formId: string) {
     try {
       const activities = await prisma.activity.findMany({
         where: { formId: parseInt(formId) }, // Convert string to number
         orderBy: { createdAt: 'desc' },
-        take: 5
+        // take: 5
       });
       return { activities };
     } catch (error) {
@@ -755,8 +740,170 @@ export async function getFormActivities(formId: string) {
   }
 
 
+  export const updateFormStatus = async (
+    formId: number,
+    data: {
+      isFavorite?: boolean;
+      isArchived?: boolean;
+      isDeactivated?: boolean;
+    }
+  ) => {
+    const user = await currentUser();
+  
+    if (!user) {
+      return { message: "User not found!", error: true };
+    }
+  
+    try {
+      // First check if the form belongs to the user
+      const form = await prisma.form.findUnique({
+        where: {
+          id: formId,
+          userId: user.id,
+        },
+      });
+  
+      if (!form) {
+        return { message: "Form not found or unauthorized", error: true };
+      }
+  
+      // Update the form with the new status
+      const updatedForm = await prisma.form.update({
+        where: {
+          id: formId,
+        },
+        data: {
+          ...data,
+          lastUpdatedAt: new Date(),
+        },
+      });
+  
+      // Create an activity record for the status change
+      let activityType = "";
+      if (data.isFavorite !== undefined) {
+        activityType = data.isFavorite ? "favorited" : "unfavorited";
+      } else if (data.isArchived !== undefined) {
+        activityType = data.isArchived ? "archived" : "unarchived";
+      } else if (data.isDeactivated !== undefined) {
+        activityType = data.isDeactivated ? "deactivated" : "activated";
+      }
+  
+      if (activityType) {
+        await prisma.activity.create({
+          data: {
+            formId: formId,
+            type: activityType,
+            userId: user.id,
+            userName: user.fullName,
+          },
+        });
+      }
+  
+      return {
+        message: "Form status updated successfully",
+        error: false,
+        form: updatedForm,
+      };
+    } catch (error) {
+      console.error("Error updating form status:", error);
+      return { message: "Failed to update form status", error: true };
+    }
+  };
+  
+  export const toggleFormFavorite = async (formId: number) => {
+    const user = await currentUser();
+  
+    if (!user) {
+      return { message: "User not found!", error: true };
+    }
+  
+    try {
+      // Get the current form to check its favorite status
+      const form = await prisma.form.findUnique({
+        where: {
+          id: formId,
+          userId: user.id,
+        },
+        select: {
+          isFavorite: true,
+        },
+      });
+  
+      if (!form) {
+        return { message: "Form not found or unauthorized", error: true };
+      }
+  
+      // Toggle the favorite status
+      return await updateFormStatus(formId, { isFavorite: !form.isFavorite });
+    } catch (error) {
+      console.error("Error toggling form favorite:", error);
+      return { message: "Failed to update favorite status", error: true };
+    }
+  };
+  
+  export const toggleFormArchived = async (formId: number) => {
+    const user = await currentUser();
+  
+    if (!user) {
+      return { message: "User not found!", error: true };
+    }
+  
+    try {
+      // Get the current form to check its archived status
+      const form = await prisma.form.findUnique({
+        where: {
+          id: formId,
+          userId: user.id,
+        },
+        select: {
+          isArchived: true,
+        },
+      });
+  
+      if (!form) {
+        return { message: "Form not found or unauthorized", error: true };
+      }
+  
+      // Toggle the archived status
+      return await updateFormStatus(formId, { isArchived: !form.isArchived });
+    } catch (error) {
+      console.error("Error toggling form archived:", error);
+      return { message: "Failed to update archived status", error: true };
+    }
+  };
+  
+  export const toggleFormDeactivated = async (formId: number) => {
+    const user = await currentUser();
+  
+    if (!user) {
+      return { message: "User not found!", error: true };
+    }
+  
+    try {
+      // Get the current form to check its deactivated status
+      const form = await prisma.form.findUnique({
+        where: {
+          id: formId,
+          userId: user.id,
+        },
+        select: {
+          isDeactivated: true,
+        },
+      });
+  
+      if (!form) {
+        return { message: "Form not found or unauthorized", error: true };
+      }
+  
+      // Toggle the deactivated status
+      return await updateFormStatus(formId, { isDeactivated: !form.isDeactivated });
+    } catch (error) {
+      console.error("Error toggling form deactivated:", error);
+      return { message: "Failed to update deactivated status", error: true };
+    }
+  };
 
-// Add this to your existing SubmitFormAction
+ 
  
 
 

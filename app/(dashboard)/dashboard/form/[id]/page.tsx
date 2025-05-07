@@ -23,7 +23,7 @@ const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
     const bounceRate = 100 - submissionRate
 
   return (<>
-<div className="w-full py-10 border-t border-b border-muted">
+<div className="w-full py-10  ">
 
 <div className="p-4 -mt-8 flex justify-between ">
   <h1 className="text-3xl font-bold truncate capitalize">
