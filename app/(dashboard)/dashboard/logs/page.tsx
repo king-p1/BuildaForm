@@ -79,6 +79,7 @@ const LogPage = () => {
   const [exportOpen, setExportOpen] = useState(false);
   const [exportDays, setExportDays] = useState("7");
   const [exportFormat, setExportFormat] = useState("excel");
+const [isMobile, setIsMobile] = useState(false);
 
   // Get all possible activity types from the data
   const activityTypes = Array.from(new Set(activities.map(a => a.type)));
@@ -203,6 +204,22 @@ const LogPage = () => {
     // Reset visible count when filters change
     setVisibleCount(ITEMS_PER_PAGE);
   }, [activities, selectedTypes, dateRange, searchQuery, activeTab]);
+
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 1105); // 768px is a common breakpoint for medium screens
+    };
+    
+    // Check on initial load
+    checkScreenSize();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkScreenSize);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const handleLoadMore = () => {
     setVisibleCount(prevCount => prevCount + ITEMS_PER_PAGE);
@@ -786,20 +803,47 @@ const exportToPDF = async (data: any[], fileName: string) => {
                     size="sm" 
                     className="absolute right-2 top-2"
                     onClick={() => setSearchQuery("")}
+
                   >
                     <X className="size-4" />
                   </Button>
                 )}
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="flex flex-wrap">
-                    <TabsTrigger value="all" className="flex-grow">All</TabsTrigger>
-                    <TabsTrigger value="submission" className="flex-grow">Submissions</TabsTrigger>
-                    <TabsTrigger value="visit" className="flex-grow">Visits</TabsTrigger>
-                    <TabsTrigger value="comment" className="flex-grow">Comments</TabsTrigger>
-                    <TabsTrigger value="favorited" className="flex-grow">Favorites</TabsTrigger>
-                    <TabsTrigger value="archived" className="flex-grow">Archives</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+ 
+
+{isMobile ? (
+  // Select dropdown for mobile
+  <div className="w-full">
+    <Select 
+      value={activeTab}
+      onValueChange={(value) => setActiveTab(value)}
+    //   className="w-full p-2 border border-gray-300 rounded-md bg-background"
+    >
+         <SelectTrigger className="w-full">
+    <SelectValue placeholder="Select log type" />
+  </SelectTrigger>
+  <SelectContent>
+      <SelectItem value="all">All</SelectItem>
+      <SelectItem value="submission">Submissions</SelectItem>
+      <SelectItem value="visit">Visits</SelectItem>
+      <SelectItem value="comment">Comments</SelectItem>
+      <SelectItem value="favorited">Favorites</SelectItem>
+      <SelectItem value="archived">Archives</SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+) : (
+  // Tabs for desktop
+  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <TabsList className="flex flex-wrap">
+      <TabsTrigger value="all" className="flex-grow">All</TabsTrigger>
+      <TabsTrigger value="submission" className="flex-grow">Submissions</TabsTrigger>
+      <TabsTrigger value="visit" className="flex-grow">Visits</TabsTrigger>
+      <TabsTrigger value="comment" className="flex-grow">Comments</TabsTrigger>
+      <TabsTrigger value="favorited" className="flex-grow">Favorites</TabsTrigger>
+      <TabsTrigger value="archived" className="flex-grow">Archives</TabsTrigger>
+    </TabsList>
+  </Tabs>
+)}
               </div>
             </CardHeader>
             <CardContent>

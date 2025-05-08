@@ -53,7 +53,7 @@ const useMultiSelect = () => {
  * MultiSelect Docs: {@link: https://shadcn-extension.vercel.app/docs/multi-select}
  */
 
-// TODO : expose the visibility of the popup
+ 
 
 const MultiSelector = ({
   values: value,
