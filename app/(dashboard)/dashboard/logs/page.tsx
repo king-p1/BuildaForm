@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf'
+import { autoTable } from 'jspdf-autotable'
+import Papa from 'papaparse';
+import { saveAs } from 'file-saver';
 import { useEffect, useState } from "react";
 import { 
   Activity, 
@@ -9,16 +13,15 @@ import {
   Users, 
   Archive, 
   Star, 
-  Power, 
-  Filter, 
-  Calendar, 
-  ChevronDown, 
-  ChevronRight, 
   RefreshCcw,
   Search,
   Download,
-  X
+  X,  
+  FileText,
 } from "lucide-react";
+import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
+import { BsFileEarmarkPdf } from "react-icons/bs";
+
 import { getFormActivities, getUserForms } from "@/actions/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,19 +35,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TbFolderX } from "react-icons/tb";
 import { LuFolderCheck } from "react-icons/lu";
@@ -73,6 +76,10 @@ const LogPage = () => {
   const [dateRange, setDateRange] = useState<string>("all");
   const [activeTab, setActiveTab] = useState("all");
 
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportDays, setExportDays] = useState("7");
+  const [exportFormat, setExportFormat] = useState("excel");
+
   // Get all possible activity types from the data
   const activityTypes = Array.from(new Set(activities.map(a => a.type)));
 
@@ -95,6 +102,11 @@ const LogPage = () => {
  
 
   useEffect(() => {
+    // Set initial state
+    setLoading(true);
+    setActivities([]);
+    setFilteredActivities([]);
+    
     const fetchActivities = async () => {
       if (!formIds || formIds.length === 0) {
         setActivities([]);
@@ -102,31 +114,39 @@ const LogPage = () => {
         setLoading(false);
         return;
       }
-
+  
       try {
-        // Fetch activities for all forms
-        const activitiesPromises = formIds.map(formId => getFormActivities(formId));
-        const activitiesResults = await Promise.all(activitiesPromises);
-        
-        // Merge all activities into a single array
-        const allActivities = activitiesResults.flatMap(result => result.activities);
-        
-        // Sort activities by creation date (most recent first)
-        const sortedActivities = allActivities.sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        
-        setActivities(sortedActivities);
-        setFilteredActivities(sortedActivities);
+        // Add a small delay to ensure loading state is visible for better UX
+        setTimeout(async () => {
+          try {
+            // Fetch activities for all forms
+            const activitiesPromises = formIds.map(formId => getFormActivities(formId));
+            const activitiesResults = await Promise.all(activitiesPromises);
+            
+            // Merge all activities into a single array
+            const allActivities = activitiesResults.flatMap(result => result.activities);
+            
+            // Sort activities by creation date (most recent first)
+            const sortedActivities = allActivities.sort((a, b) => 
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            
+            setActivities(sortedActivities);
+            setFilteredActivities(sortedActivities);
+          } catch (error) {
+            console.error("Error fetching activities:", error);
+            setActivities([]);
+            setFilteredActivities([]);
+          } finally {
+            setLoading(false);
+          }
+        }, 300);
       } catch (error) {
-        console.error("Error fetching activities:", error);
-        setActivities([]);
-        setFilteredActivities([]);
-      } finally {
+        console.error("Error in fetch process:", error);
         setLoading(false);
       }
     };
-
+  
     fetchActivities();
   }, [formIds]);
 
@@ -305,6 +325,208 @@ const LogPage = () => {
     }
   };
 
+
+
+
+
+  const handleExport = async () => {
+    setExportOpen(false);
+    
+    // Show loading state
+    setLoading(true);
+    
+    try {
+      // Get the data to export
+      let dataToExport = [...activities];
+      
+      // Apply date filter based on selected export days
+      if (exportDays !== "all") {
+        const now = new Date();
+        const cutoffDate = new Date();
+        cutoffDate.setDate(now.getDate() - parseInt(exportDays));
+        
+        dataToExport = dataToExport.filter(activity => 
+          new Date(activity.createdAt) >= cutoffDate
+        );
+      }
+      
+      // Format the data for export
+      const exportableData = dataToExport.map(activity => ({
+        Type: activity.type.charAt(0).toUpperCase() + activity.type.slice(1),
+        Description: formatActivityDescription(activity),
+        UserName: activity.userName || 'Anonymous',
+        Date: new Date(activity.createdAt).toLocaleDateString(),
+        Time: new Date(activity.createdAt).toLocaleTimeString(),
+        FormID: activity.formId
+      }));
+      
+      // Generate filename with current date
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+      const fileName = `activity-log_${dateStr}`;
+      
+      // Export based on selected format
+      switch (exportFormat) {
+        case 'excel':
+          await exportToExcel(exportableData, fileName);
+          break;
+        case 'pdf':
+          await exportToPDF(exportableData, fileName);
+          break;
+        case 'text':
+          exportToCSV(exportableData, fileName);
+          break;
+        default:
+          console.error('Unknown export format');
+      }
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      // Display error message to user
+      alert('Failed to export data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // 3. Add these export helper functions
+  
+  // Excel Export
+  const exportToExcel = async (data: any[], fileName: string) => {
+    try {
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Activities');
+      
+      // Apply some styling to the worksheet
+      const range = XLSX.utils.decode_range(worksheet['!ref']);
+      for (let i = range.s.r; i <= range.e.r; i++) {
+        for (let j = range.s.c; j <= range.e.c; j++) {
+          const cell_address = XLSX.utils.encode_cell({ r: i, c: j });
+          if (!worksheet[cell_address]) continue;
+          
+          // Apply header style
+          if (i === 0) {
+            worksheet[cell_address].s = {
+              font: { bold: true },
+              fill: { fgColor: { rgb: "ECECEC" } }
+            };
+          }
+        }
+      }
+      
+      // Auto-size columns
+      const max_width = data.reduce((w: any[], r: { [x: string]: any; }) => {
+        return Object.keys(r).map((k, i) => Math.max(w[i] || 0, k.length, String(r[k]).length));
+      }, []);
+      
+      worksheet['!cols'] = max_width.map((w: number) => ({ wch: w + 2 }));
+      
+      // Generate buffer
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      // Save file
+      saveAs(blob, `${fileName}.xlsx`);
+      return true;
+    } catch (error) {
+      console.error('Excel export error:', error);
+      throw error;
+    }
+  };
+  
+  // PDF Export
+const exportToPDF = async (data: any[], fileName: string) => {
+    try {
+      const doc = new jsPDF('l', 'mm', 'a4'); // landscape orientation
+      
+      // Add title
+      doc.setFontSize(18);
+      doc.text('Activity Log Report', 14, 22);
+      
+      doc.setFontSize(11);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+      doc.text(`Report period: ${exportDays === 'all' ? 'All time' : `Last ${exportDays} days`}`, 14, 36);
+      
+      // Prepare table data
+      const tableColumn = Object.keys(data[0]);
+      const tableRows = data.map((item: { [s: string]: unknown; } | ArrayLike<unknown>) => Object.values(item));
+      
+      // Use autoTable as a function instead of a method
+      autoTable(doc, {
+        head: [tableColumn as string[]],
+        body: tableRows as string[][],
+        startY: 45,
+        styles: {
+          fontSize: 9,
+          cellPadding: 3,
+          overflow: 'linebreak'
+        },
+        headStyles: {
+          fillColor: [66, 66, 66],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        columnStyles: {
+          Type: { cellWidth: 25 },
+          Description: { cellWidth: 70 },
+          Date: { cellWidth: 25 },
+          Time: { cellWidth: 25 },
+          UserName: { cellWidth: 30 },
+          FormID: { cellWidth: 20 }
+        }
+      });
+      
+      // Fix for getNumberOfPages
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(9);
+        doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 10);
+      }
+      
+      // Save file
+      doc.save(`${fileName}.pdf`);
+      return true;
+    } catch (error) {
+      console.error('PDF export error:', error);
+      throw error;
+    }
+  };
+  
+  
+  // CSV Export
+  const exportToCSV = (data: unknown[] | Papa.UnparseObject<unknown>, fileName: string) => {
+    try {
+      const csv = Papa.unparse(data, {
+        quotes: true, // Use quotes around fields
+        delimiter: ',',
+        header: true
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      saveAs(blob, `${fileName}.csv`);
+      return true;
+    } catch (error) {
+      console.error('CSV export error:', error);
+      throw error;
+    }
+  };
+  
+
+
+
+
+
+
+
+
+
+
+
+
   const isFiltering = selectedTypes.length > 0 || dateRange !== "all" || searchQuery !== "" || activeTab !== "all";
 
   
@@ -327,13 +549,106 @@ const LogPage = () => {
             onClick={handleRefresh}
             disabled={loading}
           >
-            <RefreshCcw className="h-4 w-4 mr-2" />
+            <RefreshCcw className={cn("h-4 w-4", loading && "animate-spin")} />
             Refresh
           </Button>
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
-            Export
+          <Popover open={exportOpen} onOpenChange={setExportOpen}>
+  <PopoverTrigger asChild>
+    <Button variant="outline" size="sm">
+      <Download className="h-4 w-4 mr-2" />
+      Export
+    </Button>
+  </PopoverTrigger>
+  <PopoverContent className="w-80">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium">Export Activity Log</h4>
+        {loading && <div className="animate-spin h-4 w-4 border-2 border-primary rounded-full border-t-transparent" />}
+      </div>
+      
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Time Range</label>
+        <Select value={exportDays} onValueChange={(value) => setExportDays(value)}>
+  <SelectTrigger className="w-full">
+    <SelectValue placeholder="Select export range" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="1">Today</SelectItem>
+    <SelectItem value="7">Last 7 days</SelectItem>
+    <SelectItem value="30">Last 30 days</SelectItem>
+    <SelectItem value="60">Last 60 days</SelectItem>
+    <SelectItem value="90">Last 90 days</SelectItem>
+    <SelectItem value="all">All time</SelectItem>
+  </SelectContent>
+</Select>
+        <p className="text-xs text-muted-foreground">
+          {exportDays === "all" 
+            ? "Exporting all activity logs" 
+            : `Exporting activities from ${new Date(Date.now() - parseInt(exportDays) * 24 * 60 * 60 * 1000).toLocaleDateString()} to today`}
+        </p>
+      </div>
+      
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Format</label>
+        <div className="grid grid-cols-3 gap-2">
+          <Button
+            type="button"
+            variant={exportFormat === "excel" ? "default" : "outline"}
+            size="sm"
+            className="w-full justify-start"
+            onClick={() => setExportFormat("excel")}
+            disabled={loading}
+          >
+            <PiMicrosoftExcelLogoFill className="h-4 w-4 mr-2" />
+            Excel
           </Button>
+          <Button
+            type="button"
+            variant={exportFormat === "pdf" ? "default" : "outline"}
+            size="sm"
+            className="w-full justify-start"
+            onClick={() => setExportFormat("pdf")}
+            disabled={loading}
+          >
+            <BsFileEarmarkPdf className="h-4 w-4 mr-2" />
+            PDF
+          </Button>
+          <Button
+            type="button"
+            variant={exportFormat === "text" ? "default" : "outline"}
+            size="sm"
+            className="w-full justify-start"
+            onClick={() => setExportFormat("text")}
+            disabled={loading}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            CSV
+          </Button>
+        </div>
+      </div>
+      
+      <div className="pt-2">
+        <Button 
+          className="w-full" 
+          onClick={handleExport}
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
+              Exporting...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4 mr-2" />
+              Export Records
+            </>
+          )}
+        </Button>
+      </div>
+    </div>
+  </PopoverContent>
+</Popover>
         </div>
       </div>
 
@@ -472,17 +787,17 @@ const LogPage = () => {
                     className="absolute right-2 top-2"
                     onClick={() => setSearchQuery("")}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="size-4" />
                   </Button>
                 )}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid grid-cols-3 sm:grid-cols-6">
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="submission">Submissions</TabsTrigger>
-                    <TabsTrigger value="visit">Visits</TabsTrigger>
-                    <TabsTrigger value="comment">Comments</TabsTrigger>
-                    <TabsTrigger value="favorited">Favorites</TabsTrigger>
-                    <TabsTrigger value="archived">Archives</TabsTrigger>
+                  <TabsList className="flex flex-wrap">
+                    <TabsTrigger value="all" className="flex-grow">All</TabsTrigger>
+                    <TabsTrigger value="submission" className="flex-grow">Submissions</TabsTrigger>
+                    <TabsTrigger value="visit" className="flex-grow">Visits</TabsTrigger>
+                    <TabsTrigger value="comment" className="flex-grow">Comments</TabsTrigger>
+                    <TabsTrigger value="favorited" className="flex-grow">Favorites</TabsTrigger>
+                    <TabsTrigger value="archived" className="flex-grow">Archives</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -500,8 +815,10 @@ const LogPage = () => {
                     </div>
                   ))}
                 </div>
-              ) : filteredActivities.length === 0 ? (
-                <div className="text-center py-32">
+              ) : 
+              
+              ( loading === false && filteredActivities.length === 0 ? (
+                <div className="text-center py-32 animate-pulse">
                   <Clock className="mx-auto h-12 w-12 text-muted-foreground" />
                   <h3 className="mt-4 text-lg font-medium">No activities found</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
@@ -521,8 +838,9 @@ const LogPage = () => {
                 </div>
               ) : (
                 <>
-                  <Table >
-                    <TableHeader>
+                <div className="max-h-[76vh] overflow-auto border rounded-md">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-background z-10">
                       <TableRow>
                         <TableHead>Type</TableHead>
                         <TableHead>Description</TableHead>
@@ -553,15 +871,18 @@ const LogPage = () => {
                       ))}
                     </TableBody>
                   </Table>
-                  {filteredActivities.length > visibleCount && (
-                    <div className="mt-4 flex justify-center">
-                      <Button variant="outline" onClick={handleLoadMore}>
-                        Load More
-                      </Button>
-                    </div>
-                  )}
+                </div>
+                {filteredActivities.length > visibleCount && (
+                  <div className="mt-4 flex justify-center">
+                    <Button variant="outline" onClick={handleLoadMore}>
+                      Load More
+                    </Button>
+                  </div>
+                )}
                 </>
-              )}
+              )
+              
+          )    }
             </CardContent>
           </Card>
         </div>
