@@ -38,12 +38,12 @@ export default function AnalyticsPage() {
       "90d": 90
     };
     
-    const days = ranges[timeRange] || 7;
+    const days = ranges[timeRange] ;
     const data = [];
     
-    let completion = metrics?.completionRate || 75;
-    let bounce = metrics?.bounceRate || 20;
-    let responseTime = metrics?.avgResponseTime || 3;
+    let completion = metrics?.completionRate;
+    let bounce = metrics?.bounceRate ;
+    let responseTime = metrics?.avgResponseTime ;
     
     for (let i = days; i >= 0; i--) {
       const date = new Date();
@@ -124,6 +124,8 @@ export default function AnalyticsPage() {
 
   const COLORS = ['#10b981', '#ef4444', '#d1d5db'];
   
+
+  // todo: dynamically render the change and trends
   const statCards = [
     {
       title: "Completion Rate",
@@ -150,6 +152,8 @@ export default function AnalyticsPage() {
       description: "Users abandoning your form"
     }
   ];
+
+
 
   return (
     <div className="container mx-auto py-8">
