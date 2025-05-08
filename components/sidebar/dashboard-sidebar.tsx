@@ -86,7 +86,7 @@ export const DashboardSidebar = () => {
     {
       icon: <MessagesSquare  size={20} />,
       label: "Feedback",
-      href: "/dashboard/documents",
+      href: "/dashboard/feedback",
     },
     {
       icon: <User size={20} />,
