@@ -1,11 +1,45 @@
-import React from 'react'
 
-//todo: theres no feedback model, so what you do is fetch the form with getUser forms then map through and display it in cards and also display the title and when the form was created then if you click the title it takes you to that og form page with the table I am yet to redesign.
+import { getFormTableData, getUserForms } from '@/actions/form'
+import { FeedbackPageClient } from './feedback-client'
 
-const FeedbackPage = () => {
-  return (
-    <div>FeedbackPage</div>
+
+// This needs to be a Server Component to fetch the initial data
+const FeedbackPageServer = async () => {
+  // Fetch all user forms
+  const { formData: userForms } = await getUserForms()
+  
+  if (!userForms || userForms.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <h2 className="text-2xl font-bold">No forms found</h2>
+        <p className="text-gray-500">Create a form to start collecting feedback</p>
+      </div>
+    )
+  }
+
+  // Fetch all feedback data upfront
+  const allFeedback = await Promise.all(
+    userForms.map(async (form) => {
+      const { formData } = await getFormTableData(form.id)
+      if (!formData) return []
+      
+      // Map submissions to include the form name
+      return formData.FormSubmissions.map(submission => ({
+        ...submission,
+        formName: formData.name || "Unnamed form",
+        formId: formData.id,
+        published: form.published || false
+      }))
+    })
   )
-}
+  
+  // Flatten the array of arrays
+  const flattenedFeedback = allFeedback.flat()
 
-export default FeedbackPage
+  // Pass the data to the client component
+  return <FeedbackPageClient initialFeedback={flattenedFeedback} userForms={userForms} />
+}
+ 
+
+
+export default FeedbackPageServer

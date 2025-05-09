@@ -7,6 +7,7 @@ import { TrendingUp, TrendingDown, PieChart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFormMetrics } from "@/actions/form";
 import { PieChart as RechartPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { usePathname } from "next/navigation";
 
 interface PerformanceMetricsProps {
   formIds: string[];
@@ -17,6 +18,9 @@ export function PerformanceMetrics({ formIds }: PerformanceMetricsProps) {
   const [chartData, setChartData] = useState<any[]>([]);
   const [metricCards, setMetricCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+
+  const noShow = pathname.startsWith('/dashboard/form')
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -94,6 +98,8 @@ export function PerformanceMetrics({ formIds }: PerformanceMetricsProps) {
     fetchMetrics();
   }, [formIds]);
 
+  
+
   if (loading) {
     return <PerformanceMetricsSkeleton />;
   }
@@ -157,8 +163,15 @@ export function PerformanceMetrics({ formIds }: PerformanceMetricsProps) {
                 <div className={`flex items-center gap-1 text-sm ${
                   metric.trend === 'up' ? 'text-emerald-500' : 'text-red-500'
                 }`}>
-                  {metric.trend === 'up' ? <TrendingUp className="size-4" /> : <TrendingDown className="size-4" />}
-                  {metric.change}%
+                  {!noShow && 
+                 (
+                  <div className="flex gap-2 items-center">
+
+                 { metric.trend === 'up' ? <TrendingUp className="size-4" /> : <TrendingDown className="size-4" />}
+                {metric.change}%
+                  </div>
+                )
+                  }
                 </div>
               </div>
             </div>

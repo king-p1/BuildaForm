@@ -229,7 +229,7 @@ const AllFormsPage = () => {
     }
   };
   return (
-    <div className="container mx-auto px-4 py-8 -mt-10">
+    <div className="container mx-auto px-2 py-8 -mt-10">
       <div className="flex items-center gap-3 mb-8">
         {getCurrentIcon()}
         <h1 className="text-3xl font-bold">{getPageTitle()}</h1>
@@ -393,8 +393,9 @@ const AllFormsPage = () => {
                           </Button>
                           
                       
-
-                          <DeleteFormBtn id={form.id}/>
+{isArchived && (
+  <DeleteFormBtn id={form.id}/>
+)}
                         </div>
                       </PopoverContent>
                     </Popover>

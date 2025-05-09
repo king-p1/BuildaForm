@@ -7,7 +7,6 @@ import Link from "next/link";
 
 import { usePathname, useRouter } from "next/navigation";
 import {
-  FileText,
   BarChart2,
   ArrowLeft,
   ArrowRight,
@@ -19,8 +18,8 @@ import {
   Logs,
   MessagesSquare
 } from "lucide-react";
-import { TbWorldCancel } from "react-icons/tb";
-import { TbLoader3 } from "react-icons/tb"; // Add import for TbLoader3
+import { TbWorldCancel,TbLoader3 } from "react-icons/tb";
+import { LuLayoutDashboard } from "react-icons/lu";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,6 +72,11 @@ export const DashboardSidebar = () => {
   };
 
   const sidebarItems: SidebarItem[] = [
+    {
+      icon: <LuLayoutDashboard size={20} />,
+      label: "Dashboard",
+      href: "/dashboard",
+    },
     {
       icon: <BarChart2 size={20} />,
       label: "Analytics",
@@ -297,11 +301,13 @@ export const DashboardSidebar = () => {
                 return (
                   <li key={index}>
                     {isOpen ? (
+                      <div className=" w-full flex items-center justify-center">
+
                       <Button
                         asChild
                         variant={isActive ? "secondary" : "ghost"}
                         className={cn(
-                          "w-full justify-start",
+                          "w-[80%] justify-start",
                           "transition-all duration-200",
                           isActive
                             ? "bg-secondary text-secondary-foreground"
@@ -315,6 +321,8 @@ export const DashboardSidebar = () => {
                           </span>
                         </Link>
                       </Button>
+                      </div>
+
                     ) : (
                       <Tooltip>
                         <TooltipTrigger asChild>

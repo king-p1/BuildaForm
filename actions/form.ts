@@ -594,6 +594,8 @@ export async function loadDraft(formUrl: string) {
         // Calculate metrics in a separate operation to avoid transaction issues
         await calculateFormMetrics(String(form.id));
 
+        // todo add responses stuff here to keep track and populate your responses array once youve sent in your response
+
         return { error: false, formData };
     } catch (error) {
         console.error('Form submission error:', error);
@@ -628,7 +630,8 @@ export const getFormTableData = async (id: number) => {
                     email: true, // Include the email field here
                     isAnonymous: true,
                     status:true,
-                    feedback:true
+                    feedback:true,
+                    formId:true,
                 }
             }
         },

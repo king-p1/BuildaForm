@@ -5,6 +5,7 @@ import { SubmissionsTable } from '@/components/form-elements/form-cards/submissi
 import { StatCardWrapper } from '@/components/stats-card/card-wrapper'
 import { StatCards } from '@/components/stats-card/stats-cards'
 import React, { Suspense } from 'react'
+import { PerformanceMetrics } from '../../_components/performance-metrics'
 
 const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
 
@@ -38,14 +39,11 @@ const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
 
 </div>
  
+
+
  <div className="p-3">
-<Suspense fallback={<StatCards loading={true}/>}>
-<StatCardWrapper/>
-       </Suspense>
+ <PerformanceMetrics formIds={formID ? [formID] : []}/>
  </div>
-
-<div className='w-full border-t-2 mt-9'/>
-
 <div className=" pt-10">
   <SubmissionsTable id={formID}/>
 </div>

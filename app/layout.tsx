@@ -21,9 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-       <head>
+       {/* <head>
   <link rel="icon" href="/buildaform-1.png" type="image/svg+xml" />
-        </head>
+        </head> */}
 
       <body
         className={` font-mono antialiased custom-scrollbar `}

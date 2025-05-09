@@ -79,9 +79,9 @@ return ( <div className='h-full w-full flex items-center justify-center'>
 
 const shareUrl = `${window.location.origin}/submit/${shareURL}`
 
-if(published){
-  return(<PublishedFormView shareUrl={shareUrl} id={id}/>)
-}
+// if(published){
+//   return(<PublishedFormView shareUrl={shareUrl} id={id}/>)
+// }
 
   return (
     <DndContext sensors={sensors}>
@@ -104,9 +104,9 @@ if(published){
   </div>
     <div className="flex items-center gap-2">
         <PreviewDialogBtn/>
-        {!published && (<>
+        {/* {!published && (<> */}
         <PublishFormBtn id={id}/>
-        </>)}
+        {/* </>)} */}
     </div>
 </nav>
 

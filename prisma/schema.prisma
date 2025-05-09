@@ -38,7 +38,7 @@ model Notification {
   form      Form     @relation(fields: [formId], references: [id]) // Relation to Form
 }
 
-model Response {
+model Response { // monitors the form you have submitted 
   id        Int      @id @default(autoincrement())
   userId    String   // UUID for user ID
   formId    Int      // ID of the form the user responded to
@@ -54,6 +54,7 @@ model Form {
   createdBy              String
   createdAt              DateTime         @default(now())
   published              Boolean          @default(false)
+  isEditing              Boolean          @default(false)
   isDeactivated          Boolean          @default(false)
   isArchived             Boolean          @default(false)
   isFavorite             Boolean          @default(false)
@@ -61,14 +62,15 @@ model Form {
   description            String           @default("")
   content                String           @default("[]")
   roomType               FormRoonType     @default(PUBLIC)
-  roomCode               String? 
+  roomCode               String?
+  roomCodeSalt           String?
   visits                 Int              @default(0)
   submissions            Int              @default(0)
   maxSubmissions         Int              @default(0)
   shareURL               String           @unique @default(uuid())
   FormSubmissions        FormSubmissions[]
   responses              Response[]         
-  notifications              Notification[]         
+  notifications          Notification[]         
   allowMultipleSubmissions Boolean         @default(false)
   expiresAt              DateTime?
   lastUpdatedAt          DateTime         @updatedAt

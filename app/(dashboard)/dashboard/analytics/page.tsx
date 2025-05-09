@@ -126,32 +126,61 @@ export default function AnalyticsPage() {
   
 
   // todo: dynamically render the change and trends
-  const statCards = [
-    {
-      title: "Completion Rate",
-      value: metrics?.completionRate.toFixed(1) + "%",
-      change: "+5.2%",
-      trend: "up",
-      icon: <Users className="size-4" />,
-      description: "Users completing your form"
-    },
-    {
-      title: "Avg. Response Time",
-      value: metrics?.avgResponseTime.toFixed(1) + "s",
-      change: "-0.8s",
-      trend: "down",
-      icon: <Clock className="size-4" />,
-      description: "Time spent on form"
-    },
-    {
-      title: "Bounce Rate",
-      value: metrics?.bounceRate.toFixed(1) + "%",
-      change: "+2.1%",
-      trend: "up",
-      icon: <ArrowRight className="size-4" />,
-      description: "Users abandoning your form"
+  const calculateTrends = () => {
+    // If we don't have metrics or historical data yet, return empty array
+    if (!metrics || !historicalData || historicalData.length < 2) {
+      return [];
     }
-  ];
+  
+    // Get the oldest and newest data points for comparison
+    const oldestData = historicalData[0];
+    const newestData = historicalData[historicalData.length - 1];
+    
+    // For completionRate
+    const completionChange = newestData.completionRate - oldestData.completionRate;
+    const completionTrend = completionChange >= 0 ? "up" : "down";
+    const completionChangeFormatted = `${completionChange >= 0 ? "+" : ""}${completionChange.toFixed(1)}%`;
+    
+    // For responseTime
+    const responseTimeChange = newestData.responseTime - oldestData.responseTime;
+    const responseTimeTrend = responseTimeChange <= 0 ? "down" : "up"; // Lower is better for response time
+    const responseTimeChangeFormatted = `${responseTimeChange >= 0 ? "+" : ""}${responseTimeChange.toFixed(1)}s`;
+    
+    // For bounceRate
+    const bounceChange = newestData.bounceRate - oldestData.bounceRate;
+    const bounceTrend = bounceChange <= 0 ? "down" : "up"; // Lower is better for bounce rate
+    const bounceChangeFormatted = `${bounceChange >= 0 ? "+" : ""}${bounceChange.toFixed(1)}%`;
+  
+    return [
+      {
+        title: "Completion Rate",
+        value: metrics?.completionRate.toFixed(1) + "%",
+        change: completionChangeFormatted,
+        trend: completionTrend,
+        icon: <Users className="size-4" />,
+        description: "Users completing your form"
+      },
+      {
+        title: "Avg. Response Time",
+        value: metrics?.avgResponseTime.toFixed(1) + "s",
+        change: responseTimeChangeFormatted,
+        trend: responseTimeTrend,
+        icon: <Clock className="size-4" />,
+        description: "Time spent on form"
+      },
+      {
+        title: "Bounce Rate",
+        value: metrics?.bounceRate.toFixed(1) + "%",
+        change: bounceChangeFormatted,
+        trend: bounceTrend,
+        icon: <ArrowRight className="size-4" />,
+        description: "Users abandoning your form"
+      }
+    ];
+  };
+  
+  // Generate the statCards only when metrics and historicalData are available
+  const statCards = calculateTrends();
 
 
 
@@ -196,7 +225,7 @@ export default function AnalyticsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          {statCards.map((stat, index) => (
+          {statCards.length > 0 ?  statCards.map((stat, index) => (
             <Card key={index}>
               <CardContent className="p-6">
                 <div className="flex justify-between items-start">
@@ -232,7 +261,10 @@ export default function AnalyticsPage() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )): (
+            // Fallback message or empty state
+            <p>No trend data available</p>
+          )}
         </div>
       )}
       
