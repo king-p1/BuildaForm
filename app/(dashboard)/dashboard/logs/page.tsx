@@ -18,11 +18,12 @@ import {
   Download,
   X,  
   FileText,
+  LockKeyhole
 } from "lucide-react";
 import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
 import { BsFileEarmarkPdf } from "react-icons/bs";
-
-import { getFormActivities, getUserForms } from "@/actions/form";
+import { IoEarth } from "react-icons/io5";
+import { getFormActivities, getUserFormById, getUserForms } from "@/actions/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +52,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TbFolderX } from "react-icons/tb";
 import { LuFolderCheck } from "react-icons/lu";
+import Link from 'next/link'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 interface Activity {
   id: string;
@@ -70,6 +79,10 @@ const LogPage = () => {
   const [formIds, setFormIds] = useState<any[]>([]);
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [searchQuery, setSearchQuery] = useState("");
+  const [formNames, setFormNames] = useState<Record<number, string>>({});
+  const [formData, setFormData] = useState<Record<number, { name: string; published: boolean; roomType: string }>>({});
+
+
   
   // Filters
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -117,7 +130,6 @@ const [isMobile, setIsMobile] = useState(false);
       }
   
       try {
-        // Add a small delay to ensure loading state is visible for better UX
         setTimeout(async () => {
           try {
             // Fetch activities for all forms
@@ -131,7 +143,35 @@ const [isMobile, setIsMobile] = useState(false);
             const sortedActivities = allActivities.sort((a, b) => 
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
+  
+            // Get unique form IDs using Array.from
+            const uniqueFormIds = Array.from(new Set(sortedActivities.map(activity => activity.formId)));
             
+            // Fetch form names for all unique form IDs
+            const formNamesPromises = uniqueFormIds.map(formId => getUserFormById(formId));
+            const formResults = await Promise.all(formNamesPromises);
+            
+            // Create a map of form IDs to form names
+            const formNamesMap = formResults.reduce((acc, result) => {
+              if (result.formData) {
+                acc[result.formData.id] = result.formData.name;
+              }
+              return acc;
+            }, {} as Record<number, string>);
+
+            const formDataMap = formResults.reduce((acc, result) => {
+              if (result.formData) {
+                acc[result.formData.id] = {
+                  name: result.formData.name,
+                  published: result.formData.published,
+                  roomType: result.formData.roomType
+                };
+              }
+              return acc;
+            }, {} as Record<number, { name: string; published: boolean; roomType: string }>);
+            
+            setFormData(formDataMap);
+            setFormNames(formNamesMap);
             setActivities(sortedActivities);
             setFilteredActivities(sortedActivities);
           } catch (error) {
@@ -163,7 +203,7 @@ const [isMobile, setIsMobile] = useState(false);
     // Apply date range filter
     if (dateRange !== "all") {
       const now = new Date();
-      let cutoffDate = new Date();
+      const cutoffDate = new Date();
       
       switch (dateRange) {
         case "today":
@@ -369,6 +409,7 @@ const [isMobile, setIsMobile] = useState(false);
       
       // Format the data for export
       const exportableData = dataToExport.map(activity => ({
+        FormName:formNames[activity.formId],
         Type: activity.type.charAt(0).toUpperCase() + activity.type.slice(1),
         Description: formatActivityDescription(activity),
         UserName: activity.userName || 'Anonymous',
@@ -886,6 +927,7 @@ const exportToPDF = async (data: any[], fileName: string) => {
                   <Table>
                     <TableHeader className="sticky top-0 bg-background z-10">
                       <TableRow>
+                        <TableHead>Form Name</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Description</TableHead>
                         <TableHead>Date & Time</TableHead>
@@ -895,6 +937,38 @@ const exportToPDF = async (data: any[], fileName: string) => {
                     <TableBody>
                       {filteredActivities.slice(0, visibleCount).map((activity) => (
                         <TableRow key={activity.id}>
+                          <TableCell>
+        {formData[activity.formId] ? (
+        <div className='flex items-center gap-3'>
+
+        <Link 
+        href={formData[activity.formId].published ? (`/dashboard/form/${activity.formId}`): (`/dashboard/form-builder/${activity.formId}`)}
+        className="text-primary hover:underline"
+      >
+        {formData[activity.formId].name}
+      </Link>
+ 
+
+            <TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger>
+    <span className="text-xs text-muted-foreground">
+              {formData[activity.formId].roomType === 'PUBLIC' ? (
+                <IoEarth className='size-4 text-emerald-500'/>
+                ) : (<LockKeyhole className='size-4 text-red-600'/>)}
+            </span>
+    </TooltipTrigger>
+    <TooltipContent>
+    {formData[activity.formId].roomType === 'PUBLIC' ? 'This form is public' : 'This form is private'}
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>
+
+        </div>
+      ) : (
+        'Loading...'
+      )}
+      </TableCell>
                           <TableCell>
                             <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getActivityBadgeColor(activity.type)}`}>
                               {getActivityIcon(activity.type)}

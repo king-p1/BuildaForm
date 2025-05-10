@@ -2,10 +2,8 @@ import { getUserFormById } from '@/actions/form'
 import { FormLinkShare } from '@/components/form-elements/form-btns/form-link-share'
 import { VisitBtn } from '@/components/form-elements/form-btns/visit-btn'
 import { SubmissionsTable } from '@/components/form-elements/form-cards/submissions-table'
-import { StatCardWrapper } from '@/components/stats-card/card-wrapper'
-import { StatCards } from '@/components/stats-card/stats-cards'
-import React, { Suspense } from 'react'
 import { PerformanceMetrics } from '../../_components/performance-metrics'
+import { RoomCodeDisplay } from '../../_components/room-code-display'
 
 const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
 
@@ -27,11 +25,24 @@ const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
 <div className="w-full py-10  ">
 
 <div className="p-4 -mt-8 flex justify-between ">
+  <div className="flex flex-col gap-2">
+
   <h1 className="text-3xl font-bold truncate capitalize">
     {name}
   </h1>
-  
+  {formData.roomType === "PRIVATE" && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Access Code:</span>
+              <RoomCodeDisplay
+                hashedCode={formData.roomCode!}
+                salt={formData.roomCodeSalt!}
+              />
+            </div>
+          )}
+  </div>
+
   <div className="flex items-center gap-3" >
+ 
   <VisitBtn shareURL={shareURL}/>
     <FormLinkShare shareURL={shareURL}/>
     Edit form

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFormStats } from "@/actions/form";
+import Link from "next/link";
 
 export function StatsDashboard() {
     const [stats, setStats] = useState<any>(null);
@@ -36,11 +37,13 @@ export function StatsDashboard() {
             </p>
           </CardContent>
           <CardFooter className="text-xs text-primary cursor-pointer hover:underline">
+            <Link href='/dashboard/all-forms'>
             View all forms
+            </Link>
           </CardFooter>
         </Card>
       
-        <Card className="h-full">
+        <Card className="h-full flex flex-col justify-between">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-semibold">Total Visits</CardTitle>
           </CardHeader>
@@ -51,11 +54,13 @@ export function StatsDashboard() {
             </p>
           </CardContent>
           <CardFooter className="text-xs text-primary cursor-pointer hover:underline">
+          <Link href='/dashboard/analytics'>
             Analyze traffic
+            </Link>
           </CardFooter>
         </Card>
       
-        <Card className="h-full">
+        <Card className="h-full flex flex-col justify-between">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-semibold">Submissions</CardTitle>
           </CardHeader>
@@ -70,7 +75,7 @@ export function StatsDashboard() {
           </CardFooter>
         </Card>
       
-        <Card className="h-full">
+        <Card className="h-full flex flex-col justify-between">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-semibold">Bounce Rate</CardTitle>
           </CardHeader>
@@ -93,7 +98,7 @@ function StatsSkeleton() {
     return (
         <>
             {[...Array(4)].map((_, i) => (
-                <Card key={i} className="h-full">
+                <Card key={i} className="h-full flex flex-col justify-between">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <Skeleton className="h-4 w-[100px]" />
                     </CardHeader>

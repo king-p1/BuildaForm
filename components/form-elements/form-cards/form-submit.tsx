@@ -5,7 +5,7 @@ import { FormElements, FormElementsInstance } from '../sidebar-form-values/form-
 import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/use-toast'
 import { TbLoader3 } from 'react-icons/tb'
-import { createActivity, getUserForms, SubmitFormAction, saveDraft, loadDraft } from '@/actions/form'
+import { createActivity, SubmitFormAction, saveDraft, loadDraft } from '@/actions/form'
 import {
     Card,
     CardContent,
@@ -36,12 +36,22 @@ import {
 } from "@/components/ui/dialog"
 import { RxUpdate } from "react-icons/rx";
 import { Textarea } from "@/components/ui/textarea"
+import { RoomCodeVerification } from '@/app/(dashboard)/dashboard/_components/room-code-verification'
 
-export const FormSubmitComponent = ({content, url, formId, isPublished}: {
-    url: string,
-    formId: string,
-    isPublished: boolean,
-    content: FormElementsInstance[]
+export const FormSubmitComponent = ({ content,
+  url,
+  formId,
+  isPublished,
+  roomType,
+  roomCode,
+  roomCodeSalt}: {
+    url: string;
+    formId: string;
+    isPublished: boolean;
+    content: FormElementsInstance[];
+    roomType: "PUBLIC" | "PRIVATE";
+    roomCode?: string;
+    roomCodeSalt?: string;
 }) => {
 
   const [formValues, setFormValues] = useState<{[key: string]: string}>({});
@@ -55,6 +65,7 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [draftLoadAttempted, setDraftLoadAttempted] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const {user, isLoaded: userLoaded} = useUser();
 
   // Debounced values for auto-saving
@@ -217,6 +228,23 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
   }, []);
 
 
+  if (!isDraftLoaded && user && userLoaded) {
+    return (
+      <div className='h-[80vh] w-full flex  items-center justify-center'>
+        <Card className='w-[300px] h-[145px] border-2 p-3 shadow-md'>
+          <CardContent className='p-4 text-center flex flex-col items-center justify-center gap-4'>
+            <TbLoader3 size={40} className='animate-spin'/>
+            <p>Loading your saved draft<span className='animate-pulse'>
+              ...
+              </span>
+              </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+
   const submitForm = async () => {
     const validForm = validateForm();
 
@@ -271,6 +299,18 @@ export const FormSubmitComponent = ({content, url, formId, isPublished}: {
       });
     }
   };
+
+
+  if (roomType === "PRIVATE" && !isVerified) {
+    return (
+      <RoomCodeVerification
+        formId={formId}
+        hashedCode={roomCode!}
+        salt={roomCodeSalt!}
+        onVerified={() => setIsVerified(true)}
+      />
+    );
+  }
 
   // Show error if form is not published
   if (isPublished === false) {
@@ -352,21 +392,6 @@ New Submission
     );
   }
 
-  if (!isDraftLoaded && user && userLoaded) {
-    return (
-      <div className='h-[80vh] w-full flex  items-center justify-center'>
-        <Card className='w-[300px] h-[145px] border-2 p-3 shadow-md'>
-          <CardContent className='p-4 text-center flex flex-col items-center justify-center gap-4'>
-            <TbLoader3 size={40} className='animate-spin'/>
-            <p>Loading your saved draft<span className='animate-pulse'>
-              ...
-              </span>
-              </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
    
   return (

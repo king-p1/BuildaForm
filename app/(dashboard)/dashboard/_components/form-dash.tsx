@@ -16,6 +16,13 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 export function DashboardFormClient({ forms }: { forms: Form }) {
   const [mounted, setMounted] = useState(false);
 
@@ -27,6 +34,12 @@ export function DashboardFormClient({ forms }: { forms: Form }) {
 
 
   const FormDashboard = () => {
+
+    const truncateText = (text: string, wordCount: number) => {
+      const words = text.split(' ')
+      if (words.length <= wordCount) return text
+      return words.slice(0, wordCount).join(' ') + '...'
+    }
      
     return(
  
@@ -86,7 +99,18 @@ export function DashboardFormClient({ forms }: { forms: Form }) {
           )}
         </TableCell>
         <TableCell className="text-muted-foreground truncate">
-          {form.description}
+          <TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger> 
+          {truncateText(form.description,8)}
+    </TooltipTrigger>
+    <TooltipContent className="max-w-[300px]">
+     {form.description}
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>
+
+
         </TableCell>
         <TableCell className="text-muted-foreground truncate">
           <span>

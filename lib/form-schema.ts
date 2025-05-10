@@ -6,6 +6,9 @@ export const formSchema = z.object({
     maxSubmissions: z.number().min(0).default(0),
     allowMultipleSubmissions: z.boolean().default(false),
     expiresAt: z.date().optional().nullable(),
+    roomType: z.string(),
+    roomCode: z.string().optional(),
+
 })
 
 export const feedbackFormSchema = z.object({

@@ -115,26 +115,35 @@ export const getFormStats = async () => {
     }
 }
 
-export const generateForm = async (data: formSchemaType) => {
-    const validation = formSchema.safeParse(data)
-    if (!validation) return { message: 'Invalid form data!', error: true }
-
+export const generateForm = async (values: {
+    name: string;
+    description: string;
+    maxSubmissions: number;
+    allowMultipleSubmissions: boolean;
+    expiresAt: Date | null;
+    roomType: "PUBLIC" | "PRIVATE";
+    roomCode?: string;
+    roomCodeSalt?: string;
+  }) => {
+    try {
+        
     const user = await currentUser()
-
 
     if (!user) {
         return { message: 'User not found!', error: true }
     }
-
-    const { name, description, maxSubmissions, allowMultipleSubmissions, expiresAt } = data
+ 
     const form = await prisma.form.create({
         data: {
             userId: user.id,
-            name,
-            description: description || "",
-            maxSubmissions: maxSubmissions || 0,
-            allowMultipleSubmissions: allowMultipleSubmissions || false,
-            expiresAt: expiresAt || null,
+            name: values.name,
+            description: values.description|| "",
+            maxSubmissions: values.maxSubmissions || 0,
+            allowMultipleSubmissions: values.allowMultipleSubmissions || false,
+            expiresAt: values.expiresAt || null,
+            roomType: values.roomType,
+            roomCode: values.roomCode,
+            roomCodeSalt: values.roomCodeSalt,
             createdBy: user.emailAddresses[0].emailAddress,
 
         }
@@ -144,7 +153,18 @@ export const generateForm = async (data: formSchemaType) => {
         return { message: 'An error occurred!', error: true }
     }
 
-    return { message: 'Form created successfully!', error: false, formID: form.id }
+    return {
+        error: false,
+        message: "Form created successfully",
+        formID: form.id,
+      };
+}catch (error) {
+    console.error(error);
+    return {
+      error: true,
+      message: "Failed to create form",
+    };
+  }
 }
 
 export const getUserForms = async () => {
@@ -247,6 +267,9 @@ export const getFormContentById = async (id: string) => {
                 allowMultipleSubmissions: true,
                 id: true,
                 published:true,
+                roomCode:true,
+                roomCodeSalt:true,
+                roomType:true
             },
             data: {
                 visits: {
