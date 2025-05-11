@@ -3,6 +3,7 @@
 
 import { formSchema } from "@/lib/form-schema"
 import prisma from "@/lib/prisma"
+import { encryptRoomCode } from "@/lib/room-code"
 import { formSchemaType } from "@/lib/types"
 import { currentUser } from "@clerk/nextjs/server"
 
@@ -132,7 +133,8 @@ export const generateForm = async (values: {
     if (!user) {
         return { message: 'User not found!', error: true }
     }
- 
+
+  
     const form = await prisma.form.create({
         data: {
             userId: user.id,
@@ -143,7 +145,7 @@ export const generateForm = async (values: {
             expiresAt: values.expiresAt || null,
             roomType: values.roomType,
             roomCode: values.roomCode,
-            roomCodeSalt: values.roomCodeSalt,
+        roomCodeSalt: values.roomCodeSalt,
             createdBy: user.emailAddresses[0].emailAddress,
 
         }

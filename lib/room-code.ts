@@ -1,26 +1,31 @@
-import { randomBytes, createHash } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
-export const generateRoomCode = () => {
-  // Generate a random 4-digit code
-  const code = Math.floor(1000 + Math.random() * 9000).toString();
-  const salt = randomBytes(16).toString('hex');
+// Use a secure key from environment variables
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'your-fallback-key-32-chars-long!!';
+const IV_LENGTH = 16; // For AES, this is always 16
+
+export const encryptRoomCode = (code: string) => {
+  const iv = randomBytes(IV_LENGTH);
+  const cipher = createCipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY), iv);
   
-  // Hash the code with the salt
-  const hashedCode = createHash('sha256')
-    .update(code + salt)
-    .digest('hex');
-    
+  let encrypted = cipher.update(code);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  
   return {
-    code, // The original code to show to the user
-    hashedCode, // The hashed version to store in DB
-    salt // The salt to store in DB
+    encryptedCode: encrypted.toString('hex'),
+    iv: iv.toString('hex')
   };
 };
 
-export const verifyRoomCode = (inputCode: string, hashedCode: string, salt: string) => {
-  const hashedInput = createHash('sha256')
-    .update(inputCode + salt)
-    .digest('hex');
-    
-  return hashedInput === hashedCode;
+export const decryptRoomCode = (encryptedCode: string, iv: string) => {
+  const decipher = createDecipheriv(
+    'aes-256-cbc',
+    Buffer.from(ENCRYPTION_KEY),
+    Buffer.from(iv, 'hex')
+  );
+  
+  let decrypted = decipher.update(Buffer.from(encryptedCode, 'hex'));
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  
+  return decrypted.toString();
 };

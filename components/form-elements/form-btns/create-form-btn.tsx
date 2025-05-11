@@ -43,7 +43,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Eye, EyeOff } from "lucide-react";
-import { generateRoomCode } from "@/lib/room-code";
+
+import { encryptRoomCode } from "@/lib/room-code";
 import { useCallback, useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 
@@ -110,13 +111,13 @@ export const CreateFormButton = ({isOpen}:{
       // Generate hashed code if form is private
       let roomCodeData = null;
       if (values.roomType === "PRIVATE" && values.roomCode) {
-        roomCodeData = generateRoomCode();
+        roomCodeData = encryptRoomCode(values.roomCode);
       }
 
       const {error, message, formID} = await generateForm({
         ...values,
-        roomCode: roomCodeData?.hashedCode,
-        roomCodeSalt: roomCodeData?.salt,
+      roomCode: roomCodeData?.encryptedCode,
+      roomCodeSalt: roomCodeData?.iv, 
       });
       
       if (error) {

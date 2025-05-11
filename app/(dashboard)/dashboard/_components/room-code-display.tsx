@@ -3,24 +3,25 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
-import { verifyRoomCode } from "@/lib/room-code";
+import { decryptRoomCode } from "@/lib/room-code";
 
 interface RoomCodeDisplayProps {
-  hashedCode: string;
-  salt: string;
+  hashedCode: string; // This will now be the encrypted code
+  salt: string; // This will now be the IV
 }
 
 export const RoomCodeDisplay = ({ hashedCode, salt }: RoomCodeDisplayProps) => {
   const [showCode, setShowCode] = useState(false);
-  const [code, setCode] = useState<string | null>(null);
+  const [decryptedCode, setDecryptedCode] = useState<string | null>(null);
 
-  const handleShowCode = async () => {
-    if (!code) {
-      // In a real application, you would need to implement a secure way
-      // to retrieve the original code. This is just for demonstration.
-      const originalCode = "1234"; // This should come from a secure source
-      setCode(originalCode);
+  const handleShowCode = () => {
+    if (!decryptedCode) {
+      try {
+        const code = decryptRoomCode(hashedCode, salt);
+        setDecryptedCode(code);
+      } catch (error) {
+        console.error('Failed to decrypt code:', error);
+      }
     }
     setShowCode(!showCode);
   };
@@ -28,7 +29,7 @@ export const RoomCodeDisplay = ({ hashedCode, salt }: RoomCodeDisplayProps) => {
   return (
     <div className="flex items-center gap-2">
       <span className="font-mono">
-        {showCode ? code : "••••"}
+        {showCode ? decryptedCode : "••••"}
       </span>
       <Button
         variant="ghost"
