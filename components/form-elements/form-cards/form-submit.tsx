@@ -65,13 +65,14 @@ export const FormSubmitComponent = ({ content,
   const [isDraftLoaded, setIsDraftLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [draftLoadAttempted, setDraftLoadAttempted] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState<boolean>(false);
   const {user, isLoaded: userLoaded} = useUser();
 
   // Debounced values for auto-saving
   const debouncedValues = useDebounce(formValues, 1000);
   const debouncedIsAnonymous = useDebounce(isAnonymous, 1000);
   const debouncedFeedback = useDebounce(feedback, 1000);
+  const isVerifiedLS = typeof window !== "undefined" && localStorage.getItem("isVerified") === "true";
 
   // Track visits
   useEffect(() => {
@@ -245,6 +246,8 @@ export const FormSubmitComponent = ({ content,
   }
 
 
+ 
+
   const submitForm = async () => {
     const validForm = validateForm();
 
@@ -288,6 +291,7 @@ export const FormSubmitComponent = ({ content,
           title: 'Success',
           description: 'Form submitted successfully.'
         });
+        localStorage.removeItem('isVerified')
       } else {
         throw new Error(message || 'Failed to submit form');
       }
@@ -300,17 +304,22 @@ export const FormSubmitComponent = ({ content,
     }
   };
 
-
-  if (roomType === "PRIVATE" && !isVerified) {
+  if (roomType === "PRIVATE" && isVerified === false && !isVerifiedLS) {
     return (
-      <RoomCodeVerification
-        formId={formId}
-        hashedCode={roomCode!}
-        salt={roomCodeSalt!}
-        onVerified={() => setIsVerified(true)}
-      />
+      <div className="flex w-full justify-center items-center">
+<RoomCodeVerification
+  formId={formId}
+  hashedCode={roomCode!}
+  salt={roomCodeSalt!}
+  onVerified={() => {
+    setIsVerified(true);
+    localStorage.setItem("isVerified", "true");
+  }}
+/>
+        </div>
     );
   }
+
 
   // Show error if form is not published
   if (isPublished === false) {
@@ -369,7 +378,7 @@ export const FormSubmitComponent = ({ content,
               <Button asChild>
 <Link href="/dashboard" className="flex gap-2 items-center">
 <ArrowLeft size={16} />
-Return to Form
+Return to Dashboard
 </Link>
 </Button>
     

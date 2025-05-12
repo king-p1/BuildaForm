@@ -941,15 +941,7 @@ const exportToPDF = async (data: any[], fileName: string) => {
         {formData[activity.formId] ? (
         <div className='flex items-center gap-3'>
 
-        <Link 
-        href={formData[activity.formId].published ? (`/dashboard/form/${activity.formId}`): (`/dashboard/form-builder/${activity.formId}`)}
-        className="text-primary hover:underline"
-      >
-        {formData[activity.formId].name}
-      </Link>
- 
-
-            <TooltipProvider>
+<TooltipProvider>
   <Tooltip>
     <TooltipTrigger>
     <span className="text-xs text-muted-foreground">
@@ -964,6 +956,16 @@ const exportToPDF = async (data: any[], fileName: string) => {
   </Tooltip>
 </TooltipProvider>
 
+
+        <Link 
+        href={formData[activity.formId].published ? (`/dashboard/form/${activity.formId}`): (`/dashboard/form-builder/${activity.formId}`)}
+        className="text-primary hover:underline"
+      >
+        {formData[activity.formId].name}
+      </Link>
+ 
+
+          
         </div>
       ) : (
         'Loading...'

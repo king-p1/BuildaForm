@@ -42,9 +42,9 @@ const {elements} = useDesigner()
     <div className="h-[95%] w-full dark:bg-black bg-white  dark:bg-grid-white/[0.2] bg-grid-black/[0.2] relative flex flex-grow items-center justify-center border-2 dark:border-white border-neutral-700 rounded-lg mt-5 overflow-y-auto custom-scrollbar-2 ">
     <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_100%,black)]"></div>
 
-    <Card className=" max-w-[70vw] bg-transparent p-3  flex  flex-col gap-4 flex-grow w-full h-full ">
+    <Card className=" max-w-[75vw] bg-transparent p-3 border-none  flex  flex-col gap-4 flex-grow w-full h-full ">
        
-      <CardContent className="flex flex-col gap-4 mt-3 ">
+      <CardContent className="flex flex-col gap-4 mt-3 border-none ">
         {elements.map((element) => {
           const FormComponent = FormElements[element.type].formComponent;
           return <FormComponent key={element.id} elementInstance={element} />;
