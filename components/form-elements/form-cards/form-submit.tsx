@@ -15,7 +15,7 @@ import {
 import Image from 'next/image'
 import draftError from '@/public/draft-form-error.png'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle2, EyeOff, MessageSquareText, Newspaper, Send } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, MessageSquareText, Newspaper, Send } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
@@ -443,13 +443,17 @@ New Submission
         {content.map((element) => {
           const FormElement = FormElements[element.type].formComponent;
           return (
+            <div 
+            key={element.id}
+            className="">
             <FormElement 
               key={element.id} 
               elementInstance={element} 
               submitValue={submitValue} 
               isInvalid={formErrors.current[element.id]}
               defaultValues={formValues[element.id]}
-            />
+              />
+              </div>
           );
         })}
 

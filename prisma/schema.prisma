@@ -40,7 +40,7 @@ model Notification {
 
 model Response { // monitors the form you have submitted 
   id        Int      @id @default(autoincrement())
-  userId    String   // UUID for user ID
+  userId    String   
   formId    Int      // ID of the form the user responded to
   content   String
   createdAt DateTime @default(now())
@@ -86,6 +86,7 @@ model FormSubmissions {
   createdAt     DateTime @default(now())
   lastUpdatedAt DateTime @updatedAt
   isAnonymous   Boolean  
+  isEditing     Boolean          @default(false)
   status        SubmissionStatus @default(DRAFT)
   formId        Int
   form          Form     @relation(fields: [formId], references: [id])

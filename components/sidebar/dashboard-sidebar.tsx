@@ -16,7 +16,8 @@ import {
   Star,User,
   FolderOpen,
   Logs,
-  MessagesSquare
+  MessagesSquare,
+  Folders
 } from "lucide-react";
 import { TbWorldCancel,TbLoader3 } from "react-icons/tb";
 import { LuLayoutDashboard } from "react-icons/lu";
@@ -91,6 +92,11 @@ export const DashboardSidebar = () => {
       icon: <MessagesSquare  size={20} />,
       label: "Feedback",
       href: "/dashboard/feedback",
+    },
+    {
+      icon: <Folders   size={20} />,
+      label: "Your Responses",
+      href: "/dashboard/responses",
     },
     {
       icon: <User size={20} />,
@@ -189,7 +195,7 @@ export const DashboardSidebar = () => {
       <ScrollArea className="flex-1">
         <nav className="px-2 py-2">
           <TooltipProvider delayDuration={0}>
-            <ul className="space-y-6 mt-8">
+            <ul className="space-y-3 mt-6">
               {isOpen ? (
                 <div className="w-full flex items-center justify-center">
                   <CreateFormButton isOpen={isOpen} />

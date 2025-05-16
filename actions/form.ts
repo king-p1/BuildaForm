@@ -517,8 +517,123 @@ export async function loadDraft(formUrl: string) {
   }
 
 
+  export const createUserResponse = async (
+    formId: string,
+    userId: string,
+    content: string,
+    userEmail: string
+  ) => {
+    if (!formId || !userId || !content) {
+      console.error('Missing required parameters for tracking user response');
+      return { error: true, message: 'Missing required parameters' };
+    }
+  
+    try {
+      // First, verify the user exists in the database
+      let user = await prisma.user.findUnique({
+        where: {
+          id: userId
+        }
+      });
+  
+      // If user doesn't exist in our database but we have their email (from Clerk),
+      // create the user record first
+      if (!user && userEmail) {
+        // Try to find by email
+        user = await prisma.user.findUnique({
+          where: {
+            email: userEmail
+          }
+        });
+  
+        // If user still not found, we can't proceed
+        if (!user) {
+          console.error('User not found in database and cannot be created');
+          return { 
+            error: true, 
+            message: 'User not found in database. This is likely because you are using Clerk for authentication and the user data has not been synchronized with your database.' 
+          };
+        }
+      }
+  
+      // Now create the response with the verified userId
+      const response = await prisma.response.create({
+        data: {
+          formId: parseInt(formId),
+          userId: user.id, // Use the verified user ID
+          content: content,
+        },
+      });
+  
+      return { error: false, response };
+    } catch (error) {
+      console.error('Error tracking user response:', error);
+      return { error: true, message: 'Failed to track user response' };
+    }
+  };
 
-  //todo add the responses to the users response array so whatever form you've submitted you can view your response.a responses page where you can see all your responses then the ability to edit them and delete them, so when you edit them it opens the form submit page where you can change the data
+
+  export const getUserResponses = async (email: string) => {
+    if (!email) {
+      return { error: true, message: 'Email is required' };
+    }
+  
+    try {
+      // Step 1: First find the user by email to get their UUID
+      const user = await prisma.user.findUnique({
+        where: {
+          email: email
+        },
+        select: {
+          id: true // Select only the id field to keep the query efficient
+        }
+      });
+      
+      // If no user found with this email
+      if (!user) {
+        return { error: true, message: 'User not found with the provided email' };
+      }
+      
+      // Step 2: Now fetch all responses for the user using their UUID
+      const responses = await prisma.response.findMany({
+        where: {
+          userId: user.id // Use the UUID from the user query
+        },
+        include: {
+          // Include form details to provide context for each response
+          form: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              createdAt: true,
+              createdBy: true,
+              expiresAt: true,
+              isEditing: true,
+              published: true,
+              roomType: true,
+              shareURL:true
+            }
+          }
+        },
+        orderBy: {
+          // Sort by newest first
+          createdAt: 'desc'
+        }
+      });
+  
+      return {
+        error: false,
+        responses,
+        count: responses.length
+      };
+    } catch (error) {
+      console.error('Error fetching user responses:', error);
+      return { error: true, message: 'Failed to fetch user responses' };
+    }
+  };
+
+
   export const SubmitFormAction = async (
     url: string, 
     JsonContent: string,
@@ -619,6 +734,7 @@ export async function loadDraft(formUrl: string) {
         // Calculate metrics in a separate operation to avoid transaction issues
         await calculateFormMetrics(String(form.id));
 
+        await createUserResponse(String(form.id), user.id, JsonContent, userEmail);
         // todo add responses stuff here to keep track and populate your responses array once youve sent in your response
 
         return { error: false, formData };
@@ -631,6 +747,7 @@ export async function loadDraft(formUrl: string) {
 
 //todo find a work around with the anonymous p for now depending on the response ill do some p onthe frontend but yh for the sake of production level find something cooler maybe a bcrypt hash or something
 
+// help build out the responses page. I essentially want to display the responses  in a card, show the form name its description, the author, the roomType, when it was created, whether or not if its published, and the content in the responses, btw use the  getUserResponses in building the page cause, that's the function that we will make use of
 
 
 
