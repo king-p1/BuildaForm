@@ -81,6 +81,7 @@ const ResponsesPage = () => {
 
       try {
         const result = await getUserResponses(userEmail);
+        // console.log(result)
         
         if (result.error) {
           setError(result.message || 'Failed to fetch responses');
@@ -306,11 +307,11 @@ const ResponsesPage = () => {
                 <div className="border-t pt-4">
                   <h3 className="font-medium text-foreground mb-2">Your Response</h3>
 
-<Button>
-  <Link href={`${window.location.origin}/submit/${response.form.shareURL}`}>
-  View Response
-  </Link>
-</Button>
+                  <Button asChild>
+                    <Link href={`/submit/${response.form.shareURL}?submissionId=${response.form.FormSubmissions[0]?.id}`}>
+                      View Response
+                    </Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>

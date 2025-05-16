@@ -67,6 +67,10 @@ body {
     --chart-5: 340 75% 55%;
   }
 }
+.cl-internal-l6yznz{
+  background: #09090B;
+  border:none;
+}
 
 @layer base {
   * {
@@ -82,7 +86,7 @@ body {
 }
 
 
-.cl-internal-1l66zxt{
+.cl-internal-1l66zxt,.cl-internal-1rnh0sl,.cl-internal-1i9tj81{
   display: none;
 }
 

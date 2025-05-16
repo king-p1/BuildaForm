@@ -5,7 +5,7 @@ import { FormElements, FormElementsInstance } from '../sidebar-form-values/form-
 import { Button } from '@/components/ui/button'
 import { toast } from '@/hooks/use-toast'
 import { TbLoader3 } from 'react-icons/tb'
-import { createActivity, SubmitFormAction, saveDraft, loadDraft } from '@/actions/form'
+import { createActivity, SubmitFormAction, saveDraft, loadDraft, getSubmissionById, toggleSubmissionEditing } from '@/actions/form'
 import {
     Card,
     CardContent,
@@ -15,10 +15,9 @@ import {
 import Image from 'next/image'
 import draftError from '@/public/draft-form-error.png'
 import Link from 'next/link'
-import { ArrowLeft, CheckCircle2, MessageSquareText, Newspaper, Send } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, MessageSquareText, Newspaper, Send, Edit } from 'lucide-react'
 import { useUser } from '@clerk/nextjs'
 import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
 import {
     Tooltip,
     TooltipContent,
@@ -37,6 +36,7 @@ import {
 import { RxUpdate } from "react-icons/rx";
 import { Textarea } from "@/components/ui/textarea"
 import { RoomCodeVerification } from '@/app/(dashboard)/dashboard/_components/room-code-verification'
+import { useSearchParams } from 'next/navigation'
 
 export const FormSubmitComponent = ({ content,
   url,
@@ -67,7 +67,14 @@ export const FormSubmitComponent = ({ content,
   const [draftLoadAttempted, setDraftLoadAttempted] = useState(false);
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const {user, isLoaded: userLoaded} = useUser();
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [submissionId, setSubmissionId] = useState<number | null>(null);
+  const [isViewingSubmission, setIsViewingSubmission] = useState(false);
+  
+  // Get search params to check for submissionId
+  const searchParams = useSearchParams();
+  const submissionIdParam = searchParams.get('submissionId');
+  
   // Debounced values for auto-saving
   const debouncedValues = useDebounce(formValues, 1000);
   const debouncedIsAnonymous = useDebounce(isAnonymous, 1000);
@@ -200,6 +207,68 @@ export const FormSubmitComponent = ({ content,
     saveDraftData();
   }, [debouncedValues, debouncedIsAnonymous, debouncedFeedback, url, isDraftLoaded, user]);
  
+  useEffect(() => {
+    const fetchSubmission = async () => {
+      if (!submissionIdParam || !user) return;
+      
+      try {
+        const submissionId = parseInt(submissionIdParam);
+        const result = await getSubmissionById(submissionId);
+        
+        if (!result.error && result.submission) {
+          // Parse the content from the submission
+          const submissionContent = result.submission.content ? JSON.parse(result.submission.content) : {};
+          
+          setFormValues(submissionContent);
+          setIsAnonymous(result.submission.isAnonymous || false);
+          setFeedback(result.submission.feedback || "");
+          setSubmissionId(result.submission.id);
+          setIsViewingSubmission(true);
+          
+          // Force re-render of form elements with the loaded values
+          setRenderKey(new Date().getTime());
+          
+          toast({
+            title: 'Submission Loaded',
+            description: 'You are viewing your previous submission.',
+            variant: 'default'
+          });
+        } else {
+          console.log('Failed to load submission:', result.message);
+          toast({
+            title: 'Error',
+            description: result.message,
+            variant: 'destructive'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load submission:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load your submission',
+          variant: 'destructive'
+        });
+      }
+    };
+    
+    if (userLoaded && user && submissionIdParam) {
+      fetchSubmission();
+    }
+  }, [user, userLoaded, submissionIdParam]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   // Validate form fields
   const validateForm = useCallback(() => {
     formErrors.current = {}; // Reset errors first
@@ -261,6 +330,11 @@ export const FormSubmitComponent = ({ content,
     }
 
     try {
+      // If we're editing, update the database editing state first
+      if (isEditing && submissionId) {
+        await toggleSubmissionEditing(submissionId, false);
+      }
+      
       const processedValues = Object.entries(formValues).reduce((acc, [key, value]) => {
         acc[key] = Array.isArray(value) ? value.join(',') : value;
         return acc;
@@ -272,26 +346,37 @@ export const FormSubmitComponent = ({ content,
         url, 
         JsonContent, 
         isAnonymous, 
-        feedback
+        feedback,
+        isEditing ? submissionId || undefined : undefined // Pass submissionId only when editing
       );
       
       if (error === false) {
-        // Record submission activity
-        if (formId) {
-          await createActivity(
-            formId,
-            'submission',
-            user?.id,
-            user?.fullName as string
-          );
-        }
+        // If we were editing, update UI state
+        if (isEditing) {
+          setIsEditing(false);
+          setIsViewingSubmission(true);
+          toast({
+            title: 'Success',
+            description: 'Your submission has been updated.'
+          });
+        } else {
+          // Record submission activity for new submissions
+          if (formId) {
+            await createActivity(
+              formId,
+              'submission',
+              user?.id,
+              user?.fullName as string
+            );
+          }
 
-        setSubmitted(true);
-        toast({
-          title: 'Success',
-          description: 'Form submitted successfully.'
-        });
-        localStorage.removeItem('isVerified')
+          setSubmitted(true);
+          toast({
+            title: 'Success',
+            description: 'Form submitted successfully.'
+          });
+          localStorage.removeItem('isVerified');
+        }
       } else {
         throw new Error(message || 'Failed to submit form');
       }
@@ -303,6 +388,8 @@ export const FormSubmitComponent = ({ content,
       });
     }
   };
+
+
 
   if (roomType === "PRIVATE" && isVerified === false && !isVerifiedLS) {
     return (
@@ -416,8 +503,35 @@ New Submission
               )}
           </div>
           
-          <div className="flex items-center gap-2">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center w-full gap-2 justify-between">
+          {isViewingSubmission && (
+          <Button 
+            variant="default" 
+            className="flex items-center gap-2 mb-4"
+            onClick={async () => {
+              if (submissionId) {
+                // Update database first
+                const result = await toggleSubmissionEditing(submissionId, true);
+                if (result.error) {
+                  toast({
+                    title: 'Error',
+                    description: result.message,
+                    variant: 'destructive'
+                  });
+                  return;
+                }
+                // Then update local state
+                setIsEditing(true);
+              }
+            }}
+            disabled={isEditing}
+          >
+            <Edit className="h-4 w-4" />
+            {isEditing ? 'Editing...' : 'Edit Response'}
+          </Button>
+        )}
+
+          <div className={`flex items-center space-x-2 ${isViewingSubmission && !isEditing ? 'pointer-events-none cursor-not-allowed' : ''}`}>
            
               <TooltipProvider>
               <Tooltip>
@@ -440,7 +554,10 @@ New Submission
           </div>
         </div>
 
-        {content.map((element) => {
+
+        
+
+        {/* {content.map((element) => {
           const FormElement = FormElements[element.type].formComponent;
           return (
             <div 
@@ -496,21 +613,86 @@ New Submission
         />
       </div>
     </DialogContent>
-  </Dialog>
+  </Dialog> */}
+
+
+<div 
+          key={renderKey}
+          className={`flex flex-col gap-4 ${isViewingSubmission && !isEditing ? 'pointer-events-none cursor-not-allowed' : ''}`}
+          style={{ 
+            cursor: isViewingSubmission && !isEditing ? 'not-allowed' : 'default' 
+          }}
+        >
+          {content.map((element) => {
+            const FormElement = FormElements[element.type].formComponent;
+            return (
+              <div key={element.id} className="">
+                <FormElement 
+                  key={element.id} 
+                  elementInstance={element} 
+                  submitValue={submitValue} 
+                  isInvalid={formErrors.current[element.id]}
+                  defaultValues={formValues[element.id]}
+                />
+              </div>
+            );
+          })}
+          
+          {/* Feedback dialog - keep inside the disabled area */}
+          <Dialog>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DialogTrigger asChild>
+                    <div className="flex w-full justify-end">
+                      <Button
+                        variant="secondary"
+                        className="-mt-2 w-12"
+                        size="sm"
+                      >
+                        <MessageSquareText className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  </DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent side='right' sideOffset={10}>
+                  Leave your feedback.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Share Your Feedback</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <Textarea
+                  placeholder="Tell us about your experience with this form..."
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  className="min-h-[100px]"
+                  rows={5}
+                  cols={8}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
 
         <Button 
-          className='mt-1'
+          className='mt-4'
           onClick={() => {
             startTransition(submitForm);
           }}
-          disabled={loading}
+          disabled={loading || (isViewingSubmission && !isEditing)}
         >
           {loading ? (
             <TbLoader3 size={26} className='animate-spin text-white dark:text-black'/>
           ) : (
             <span className='flex gap-2 font-semibold items-center'>
-              <Send size={35}  />
-              Submit
+              <Send size={20} />
+              {isEditing ? 'Update' : 'Submit'}
             </span>
           )}
         </Button>

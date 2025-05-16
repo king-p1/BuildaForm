@@ -612,7 +612,20 @@ export async function loadDraft(formUrl: string) {
               isEditing: true,
               published: true,
               roomType: true,
-              shareURL:true
+              shareURL:true,       
+FormSubmissions:{
+  select:{
+    id:true,
+    content:true,
+    createdAt:true,
+    email:true,
+    isAnonymous:true,
+    status:true,
+    feedback:true,
+  }, orderBy:{
+    createdAt:'desc'
+  }
+}
             }
           }
         },
@@ -638,7 +651,8 @@ export async function loadDraft(formUrl: string) {
     url: string, 
     JsonContent: string,
     isAnonymous: boolean,
-    feedback: string 
+    feedback: string,
+    submissionId?: number // Add submissionId parameter for editing
 ) => {
     const user = await currentUser();
 
@@ -662,12 +676,45 @@ export async function loadDraft(formUrl: string) {
         // Get the user's real email for identification
         const userEmail = user.emailAddresses[0].emailAddress;
 
+        // If we're editing an existing submission
+        if (submissionId) {
+            // Verify the submission exists and belongs to this user
+            const existingSubmission = await prisma.formSubmissions.findUnique({
+                where: {
+                    id: submissionId,
+                    email: userEmail,
+                    formId: form.id
+                }
+            });
+
+            if (!existingSubmission) {
+                return { error: true, message: 'Submission not found or not authorized to edit' };
+            }
+
+            // Update the existing submission
+            await prisma.formSubmissions.update({
+                where: { 
+                    id: submissionId 
+                },
+                data: {
+                    content: JsonContent,
+                    isAnonymous: isAnonymous,
+                    feedback: feedback,
+                    lastUpdatedAt: new Date(),
+                    isEditing: false // Set editing back to false
+                }
+            });
+
+            return { error: false, message: 'Submission updated successfully' };
+        }
+
+        // Original submission logic for new submissions
         // Check if form allows multiple submissions from the same user
         if (!form.allowMultipleSubmissions) {
             const existingSubmission = await prisma.formSubmissions.findFirst({
                 where: {
                     formId: form.id,
-                    email: userEmail, // Use real email for checking previous submissions
+                    email: userEmail,
                     status: 'COMPLETED'
                 }
             });
@@ -1053,3 +1100,98 @@ export async function getFormActivities(formId: string) {
  
 
 
+export const getSubmissionById = async (submissionId: number) => {
+  try {
+    const user = await currentUser();
+    
+    if (!user) {
+      return { error: true, message: "User not found", submission: null };
+    }
+    
+    // Get the user's primary email address
+    const userEmail = user.emailAddresses[0]?.emailAddress;
+    
+    if (!userEmail) {
+      return { error: true, message: "User email not found", submission: null };
+    }
+
+    // Find the submission by ID
+    const submission = await prisma.formSubmissions.findUnique({
+      where: {
+        id: submissionId,
+        email: userEmail, // Ensure the submission belongs to this user
+        status: 'COMPLETED'
+      },
+      include: {
+        form: {
+          select: {
+            content: true,
+            shareURL: true,
+            id: true,
+            published: true,
+            roomType: true,
+            roomCode: true,
+            roomCodeSalt: true
+          }
+        }
+      }
+    });
+
+    if (!submission) {
+      return { error: true, message: "Submission not found", submission: null };
+    }
+
+    return { 
+      error: false, 
+      submission,
+      message: "Submission loaded successfully"
+    };
+  } catch (error) {
+    console.error("Error loading submission:", error);
+    return { 
+      error: true, 
+      message: "Failed to load submission", 
+      submission: null 
+    };
+  }
+}
+
+export const toggleSubmissionEditing = async (submissionId: number, isEditing: boolean) => {
+  try {
+    const user = await currentUser();
+    
+    if (!user) {
+      return { error: true, message: "User not found" };
+    }
+    
+    // Get the user's primary email address
+    const userEmail = user.emailAddresses[0]?.emailAddress;
+    
+    if (!userEmail) {
+      return { error: true, message: "User email not found" };
+    }
+
+    // Find and update the submission
+    const submission = await prisma.formSubmissions.update({
+      where: {
+        id: submissionId,
+        email: userEmail, // Ensure the submission belongs to this user
+      },
+      data: {
+        isEditing: isEditing
+      }
+    });
+
+    return { 
+      error: false, 
+      submission,
+      message: isEditing ? "Editing mode enabled" : "Editing mode disabled"
+    };
+  } catch (error) {
+    console.error("Error toggling submission editing state:", error);
+    return { 
+      error: true, 
+      message: "Failed to update submission state"
+    };
+  }
+}

@@ -4,6 +4,7 @@ import { VisitBtn } from '@/components/form-elements/form-btns/visit-btn'
 import { SubmissionsTable } from '@/components/form-elements/form-cards/submissions-table'
 import { PerformanceMetrics } from '../../_components/performance-metrics'
 import { RoomCodeDisplay } from '../../_components/room-code-display'
+import { Button } from '@/components/ui/button'
 
 const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
 
@@ -45,7 +46,10 @@ const FormDetailsPage = async({params :{id}} :{params:{id:string}}) => {
  
   <VisitBtn shareURL={shareURL}/>
     <FormLinkShare shareURL={shareURL}/>
+
+    <Button>
     Edit form
+    </Button>
   </div>
 
 </div>
