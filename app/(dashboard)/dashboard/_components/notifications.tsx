@@ -6,7 +6,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import { Bell, Check, CheckCheck, Trash2 } from "lucide-react"
+import { Bell, Check, CheckCheck, CircleCheck, Pencil, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { getUserNotifications, markNotificationAsRead, deleteNotification, markAllNotificationsAsRead } from "@/actions/form"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -14,6 +14,8 @@ import { Separator } from "@/components/ui/separator"
 import { formatDistanceToNow } from "date-fns"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { RxUpdate } from "react-icons/rx"
+import { TbEditCircle } from "react-icons/tb"
 
 type NotificationType = "SUBMISSION" | "FORM_EDIT" | "FORM_UPDATE" | "RESPONSE_EDIT";
 
@@ -112,15 +114,17 @@ export const Notifications = () => {
     const getNotificationIcon = (type: NotificationType) => {
         switch (type) {
             case 'SUBMISSION':
-                return '📝'
+                return <CircleCheck className="size-5" />
             case 'FORM_EDIT':
-                return '✏️'
+                return <Pencil className="size-5" />
             case 'FORM_UPDATE':
-                return '🔄'
+                return <RxUpdate className="size-5" />
             case 'RESPONSE_EDIT':
-                return '📝'
+                return <TbEditCircle className="size-5" />
+
             default:
-                return '🔔'
+                return   <Bell className="size-5" />
+
         }
     }
 
