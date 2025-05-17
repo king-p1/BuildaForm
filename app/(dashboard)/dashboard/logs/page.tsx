@@ -50,7 +50,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TbFolderX } from "react-icons/tb";
+import { TbEditCircle, TbEditCircleOff, TbFolderX } from "react-icons/tb";
 import { LuFolderCheck } from "react-icons/lu";
 import Link from 'next/link'
 import {
@@ -327,6 +327,10 @@ const [isMobile, setIsMobile] = useState(false);
         return <TbFolderX className="size-4" />;
       case 'activated':
         return <LuFolderCheck className="size-4" />;
+      case 'started_editing':
+        return <TbEditCircle className="size-4" />;
+      case 'stopped_editing':
+        return <TbEditCircleOff  className="size-4" />;
       default:
         return <Activity className="size-4" />;
     }
@@ -352,6 +356,10 @@ const [isMobile, setIsMobile] = useState(false);
         return "bg-red-100 text-red-600";
       case 'activated':
         return "bg-green-100 text-green-800";
+      case 'started_editing':
+        return "bg-indigo-100 text-indigo-800";
+      case 'stopped_editing':
+        return "bg-amber-100 text-amber-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -377,7 +385,11 @@ const [isMobile, setIsMobile] = useState(false);
         return `${activity.userName || 'Someone'} deactivated form`;
       case 'activated':
         return `${activity.userName || 'Someone'} activated form`;
-      default:
+        case 'started_editing':
+          return `${activity.userName || 'Someone'} edited a form`;
+        case 'stopped_editing':
+          return `${activity.userName || 'Someone'} stopped editing a form`;   
+             default:
         return `Unknown activity`;
     }
   };

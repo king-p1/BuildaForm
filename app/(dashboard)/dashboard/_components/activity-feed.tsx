@@ -7,7 +7,7 @@ import { Activity, Archive, Clock, MessageSquare, Star, Users } from "lucide-rea
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFormActivities } from "@/actions/form";
 import Link from "next/link";
-import { TbFolderX } from "react-icons/tb";
+import { TbEditCircle, TbEditCircleOff, TbFolderX } from "react-icons/tb";
 import { LuFolderCheck } from "react-icons/lu";
 
 interface ActivityFeedProps {
@@ -71,6 +71,10 @@ export function ActivityFeed({ formIds }: ActivityFeedProps) {
         return <TbFolderX className="size-4  text-red-600" />;
       case 'activated':
         return <LuFolderCheck className="size-4  text-green-800" />;
+      case 'started_editing':
+        return <TbEditCircle className="size-4  text-indigo-600" />;
+      case 'stopped_editing':
+        return <TbEditCircleOff className="size-4  text-amber-500" />;
       default:
         return <Activity className="size-4  text-gray-800" />;
     }
@@ -127,6 +131,9 @@ export function ActivityFeed({ formIds }: ActivityFeedProps) {
                  
                   {activity.type === 'deactivated' && `${activity.userName || 'Someone'} deactivated form`}
                   {activity.type === 'activated' && `${activity.userName || 'Someone'} activated form`}
+          
+                  {activity.type === 'started_editing' && `${activity.userName || 'Someone'}  edited a form`}
+                  {activity.type === 'stopped_editing' && `${activity.userName || 'Someone'}  stopped editing a form`}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(activity.createdAt).toLocaleString()}

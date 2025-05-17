@@ -46,8 +46,8 @@ export function SubmissionTrendsChart() {
                 <div className="h-[330px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart 
-                        data={mockSubmissionTrends}
-                        // data={stats.submissionTrends}
+                        // data={mockSubmissionTrends}
+                        data={stats.submissionTrends}
                         >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="date" />
