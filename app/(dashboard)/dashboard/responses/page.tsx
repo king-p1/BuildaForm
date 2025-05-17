@@ -81,7 +81,7 @@ const ResponsesPage = () => {
 
       try {
         const result = await getUserResponses(userEmail);
-        // console.log(result)
+        console.log(result)
         
         if (result.error) {
           setError(result.message || 'Failed to fetch responses');

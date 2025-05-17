@@ -35,7 +35,11 @@ export function QuickActions({ forms }: QuickActionsProps) {
             Share Forms
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-80">
+        <PopoverContent className="w-80"
+        side="bottom"
+        sideOffset={20}
+        align="start"
+        >
         <Table>
         <TableCaption>Share your forms.</TableCaption>
 
@@ -65,6 +69,7 @@ export function QuickActions({ forms }: QuickActionsProps) {
                  <Button
                  key={form.id}
                   size="sm"
+                  variant="secondary"
                   onClick={() => {
                     navigator.clipboard.writeText(`${window.location.origin}/submit/${form.shareURL}`);
                     toast({

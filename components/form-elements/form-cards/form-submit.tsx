@@ -292,7 +292,7 @@ export const FormSubmitComponent = ({ content,
         ...prev,
         [key]: value
       };
-      console.log('Updated form values:', newValues);
+      // console.log('Updated form values:', newValues);
       return newValues;
     });
   }, []);
@@ -389,50 +389,6 @@ export const FormSubmitComponent = ({ content,
     }
   };
 
-
-
-  if (roomType === "PRIVATE" && isVerified === false && !isVerifiedLS) {
-    return (
-      <div className="flex w-full justify-center items-center">
-<RoomCodeVerification
-  formId={formId}
-  hashedCode={roomCode!}
-  salt={roomCodeSalt!}
-  onVerified={() => {
-    setIsVerified(true);
-    localStorage.setItem("isVerified", "true");
-  }}
-/>
-        </div>
-    );
-  }
-
-
-  // Show error if form is not published
-  if (isPublished === false) {
-    return (
-      <div className='h-[65vh] w-full flex flex-col items-center justify-center gap-5'>
-        <Image
-          src={draftError}
-          alt="Draft Error"
-          width={500}
-          height={500}
-          className='-mt-24'
-        />
-
-        <h2 className='text-3xl'>This form is not live, please check back later.</h2>
-
-        <Button asChild variant={'link'} className='text-2xl group'>
-          <Link href={'/'} className='text-2xl flex items-center gap-3'>
-            <ArrowLeft className='size-8 transform transition-transform duration-300 group-hover:-translate-x-1'/>
-            Return Home
-          </Link>
-        </Button>
-      </div>
-    );
-  }
-
-  // Show success message after submission
   if (submitted) {
     return (
       <div className='h-[80vh] w-full flex items-center justify-center motion-preset-expand'>
@@ -487,6 +443,50 @@ New Submission
       </div>
     );
   }
+
+  if (roomType === "PRIVATE" && isVerified === false && !isVerifiedLS) {
+    return (
+      <div className="flex w-full justify-center items-center">
+<RoomCodeVerification
+  formId={formId}
+  hashedCode={roomCode!}
+  salt={roomCodeSalt!}
+  onVerified={() => {
+    setIsVerified(true);
+    localStorage.setItem("isVerified", "true");
+  }}
+/>
+        </div>
+    );
+  }
+
+
+  // Show error if form is not published
+  if (isPublished === false) {
+    return (
+      <div className='h-[65vh] w-full flex flex-col items-center justify-center gap-5'>
+        <Image
+          src={draftError}
+          alt="Draft Error"
+          width={500}
+          height={500}
+          className='-mt-24'
+        />
+
+        <h2 className='text-3xl'>This form is not live, please check back later.</h2>
+
+        <Button asChild variant={'link'} className='text-2xl group'>
+          <Link href={'/'} className='text-2xl flex items-center gap-3'>
+            <ArrowLeft className='size-8 transform transition-transform duration-300 group-hover:-translate-x-1'/>
+            Return Home
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  // Show success message after submission
+ 
 
 
    
@@ -554,66 +554,7 @@ New Submission
           </div>
         </div>
 
-
-        
-
-        {/* {content.map((element) => {
-          const FormElement = FormElements[element.type].formComponent;
-          return (
-            <div 
-            key={element.id}
-            className="">
-            <FormElement 
-              key={element.id} 
-              elementInstance={element} 
-              submitValue={submitValue} 
-              isInvalid={formErrors.current[element.id]}
-              defaultValues={formValues[element.id]}
-              />
-              </div>
-          );
-        })}
-
-  <Dialog>
-<TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <DialogTrigger asChild>
-        <div className="flex w-full justify-end">
-
-          <Button
-            variant="secondary"
-            className="-mt-2 w-12"
-            size="sm"
-          >
-            <MessageSquareText className="h-4 w-4 text-muted-foreground" />
-          </Button>
-</div>
-        </DialogTrigger>
-      </TooltipTrigger>
-      <TooltipContent  side='right' sideOffset={10}>
-        
-          Leave your feedback.
-      </TooltipContent>
-    </Tooltip>
-        </TooltipProvider>
-
-    <DialogContent className="sm:max-w-[425px]">
-      <DialogHeader>
-        <DialogTitle>Share Your Feedback</DialogTitle>
-      </DialogHeader>
-      <div className="grid gap-4 py-4">
-        <Textarea
-          placeholder="Tell us about your experience with this form..."
-          value={feedback}
-          onChange={(e) => setFeedback(e.target.value)}
-          className="min-h-[100px]"
-          rows={5}
-          cols={8}
-        />
-      </div>
-    </DialogContent>
-  </Dialog> */}
+ 
 
 
 <div 

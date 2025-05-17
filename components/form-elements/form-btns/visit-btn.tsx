@@ -1,5 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button'
+import { Telescope } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 
 export const VisitBtn = ({shareURL}:{shareURL:string}) => {
@@ -18,6 +19,9 @@ const shareLink =`${window.location.origin}/submit/${shareURL}`
     onClick={()=>{
         window.open(shareLink,'_blank')
     }}
-    >Visit</Button>
+    className='flex items-center gap-2'
+    >
+      <Telescope className='size-4'/>
+      Visit</Button>
   )
 }

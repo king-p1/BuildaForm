@@ -6,11 +6,13 @@ import Link from 'next/link'
 
 // Add this import
 import dynamic from 'next/dynamic'
+import { Notifications } from '@/app/(dashboard)/dashboard/_components/notifications'
 
 // Create a client-side only version of the navbar content
 const NavbarContent = () => {
   return (
     <div className="flex gap-3 items-center">
+      <Notifications/>
       <ModeToggle/>
     </div>
   )

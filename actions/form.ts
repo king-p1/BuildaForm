@@ -17,7 +17,6 @@ export const handleUserSignIn = async () => {
         throw new Error("User not found");
     }
 
-
     // Check if the user already exists in the database
     const existingUser = await prisma.user.findUnique({
         where: { email: user.emailAddresses[0].emailAddress },
@@ -27,10 +26,17 @@ export const handleUserSignIn = async () => {
     if (!existingUser) {
         await prisma.user.create({
             data: {
+                id: user.id, // Use the Clerk user ID
                 email: user.emailAddresses[0].emailAddress,
-                name: user.fullName || "", // Adjust based on your user object structure
+                name: user.fullName || "", 
                 username: user.username || user.emailAddresses[0].emailAddress.split('@')[0],   
             },
+        });
+    } else if (existingUser.id !== user.id) {
+        // If the user exists but has a different ID (this can happen if the user was created before we started using Clerk IDs)
+        await prisma.user.update({
+            where: { email: user.emailAddresses[0].emailAddress },
+            data: { id: user.id }
         });
     }
 }; 
@@ -235,18 +241,73 @@ export const publishForm = async (id: number) => {
         return { message: 'User not found!', error: true }
     }
 
-    const formData = await prisma.form.update({
-        where: {
-            userId: user.id,
-            id
-        },
-        data: {
-            published: true
+    try {
+        const form = await prisma.form.findUnique({
+            where: {
+                id,
+                userId: user.id
+            },
+            select: {
+                name: true,
+                isEditing: true
+            }
+        });
+        
+        if (!form) {
+            return { message: 'Form not found!', error: true }
         }
-    })
+        
+        const formData = await prisma.form.update({
+            where: {
+                userId: user.id,
+                id
+            },
+            data: {
+                published: true,
+                isEditing: false // Turn off editing mode when publishing
+            }
+        });
+        
+        // If the form was being edited, notify users about the update
+        if (form.isEditing) {
+            // Get all users who have submitted to this form
+            const submissions = await prisma.formSubmissions.findMany({
+                where: {
+                    formId: id,
+                    status: 'COMPLETED'
+                },
+                select: {
+                    email: true
+                },
+                distinct: ['email']
+            });
+            
+            // Get users from Clerk who have submitted to this form
+            for (const submission of submissions) {
+                // Find user by email
+                const user = await prisma.user.findFirst({
+                    where: {
+                        email: submission.email
+                    }
+                });
+                
+                if (user) {
+                    // Create notification for each user
+                    await createNotification(
+                        id,
+                        `The form "${form.name}" has been updated. You may want to review your previous submissions.`,
+                        "FORM_UPDATE",
+                        user.id
+                    );
+                }
+            }
+        }
 
-    return { error: false, formData }
-
+        return { error: false, formData }
+    } catch (error) {
+        console.error(error);
+        return { error: true, message: 'Failed to publish form' };
+    }
 }
 
  
@@ -652,7 +713,7 @@ FormSubmissions:{
     JsonContent: string,
     isAnonymous: boolean,
     feedback: string,
-    submissionId?: number // Add submissionId parameter for editing
+    submissionId?: number
 ) => {
     const user = await currentUser();
 
@@ -661,8 +722,27 @@ FormSubmissions:{
     }
 
     try {
-        // First, find the form by URL to ensure it exists
-        const form = await prisma.form.findUnique({
+        const userEmail = user.emailAddresses[0].emailAddress;
+        
+        // First, ensure the user exists in our database
+        let dbUser = await prisma.user.findUnique({
+            where: { email: userEmail }
+        });
+        
+        // If user doesn't exist in our database, create them
+        if (!dbUser) {
+            dbUser = await prisma.user.create({
+                data: {
+                    email: userEmail,
+                    name: user.fullName || "",
+                    username: user.username || userEmail.split('@')[0],
+                    id: user.id // Use the Clerk user ID
+                }
+            });
+        }
+        
+        // Get form by URL
+        const form = await prisma.form.findFirst({
             where: {
                 shareURL: url,
                 published: true
@@ -672,9 +752,6 @@ FormSubmissions:{
         if (!form) {
             return { error: true, message: 'Form not found or not published' };
         }
-
-        // Get the user's real email for identification
-        const userEmail = user.emailAddresses[0].emailAddress;
 
         // If we're editing an existing submission
         if (submissionId) {
@@ -704,6 +781,13 @@ FormSubmissions:{
                     isEditing: false // Set editing back to false
                 }
             });
+
+            // Create notification for form owner about edited response
+            await createNotification(
+                form.id,
+                `${isAnonymous ? 'An anonymous user' : user.fullName || userEmail} has edited their response to your form "${form.name}"`,
+                "RESPONSE_EDIT"
+            );
 
             return { error: false, message: 'Submission updated successfully' };
         }
@@ -782,7 +866,22 @@ FormSubmissions:{
         await calculateFormMetrics(String(form.id));
 
         await createUserResponse(String(form.id), user.id, JsonContent, userEmail);
-        // todo add responses stuff here to keep track and populate your responses array once youve sent in your response
+
+        // Create notification for form owner about new submission
+        try {
+            const notificationResult = await createNotification(
+                form.id,
+                `${isAnonymous ? 'An anonymous user' : user.fullName || userEmail} has submitted a response to your form "${form.name}"`,
+                "SUBMISSION"
+            );
+            
+            if (notificationResult.error) {
+                console.error('Failed to create notification:', notificationResult.message);
+            }
+        } catch (notificationError) {
+            console.error('Error in notification creation:', notificationError);
+            // Continue with form submission even if notification fails
+        }
 
         return { error: false, formData };
     } catch (error) {
@@ -1095,6 +1194,93 @@ export async function getFormActivities(formId: string) {
     }
   };
 
+  export const toggleFormEditing = async (formId: number, isEditing: boolean) => {
+    const user = await currentUser();
+  
+    if (!user) {
+      return { message: "User not found!", error: true };
+    }
+  
+    try {
+      // First check if the form belongs to the user
+      const form = await prisma.form.findUnique({
+        where: {
+          id: formId,
+          userId: user.id,
+        },
+      });
+  
+      if (!form) {
+        return { message: "Form not found or unauthorized", error: true };
+      }
+  
+      // Update the form with the new editing status
+      const updatedForm = await prisma.form.update({
+        where: {
+          id: formId,
+        },
+        data: {
+          isEditing: isEditing,
+          lastUpdatedAt: new Date(),
+        },
+      });
+      
+      // Create activity record
+      await prisma.activity.create({
+        data: {
+          formId: formId,
+          type: isEditing ? "started_editing" : "stopped_editing",
+          userId: user.id,
+          userName: user.fullName,
+        },
+      });
+      
+      // If starting to edit, create notifications for users who have submitted responses
+      if (isEditing) {
+        // Get all users who have submitted to this form
+        const submissions = await prisma.formSubmissions.findMany({
+          where: {
+            formId: formId,
+            status: 'COMPLETED'
+          },
+          select: {
+            email: true
+          },
+          distinct: ['email']
+        });
+        
+        // Get users from Clerk who have submitted to this form
+        for (const submission of submissions) {
+          // Find user by email
+          const user = await prisma.user.findFirst({
+            where: {
+              email: submission.email
+            }
+          });
+          
+          if (user) {
+            // Create notification for each user
+            await createNotification(
+              formId,
+              `The form "${form.name}" is being edited. Your previous submissions will still be available.`,
+              "FORM_EDIT",
+              user.id
+            );
+          }
+        }
+      }
+  
+      return {
+        message: isEditing ? "Form is now in editing mode" : "Form editing completed",
+        error: false,
+        form: updatedForm,
+      };
+    } catch (error) {
+      console.error("Error updating form editing status:", error);
+      return { message: "Failed to update form editing status", error: true };
+    }
+  };
+
 //   todo create notifications for forms submitted and commented on
  
  
@@ -1195,3 +1381,238 @@ export const toggleSubmissionEditing = async (submissionId: number, isEditing: b
     };
   }
 }
+
+// Create a notification
+export const createNotification = async (
+  formId: number,
+  content: string,
+  type: "SUBMISSION" | "FORM_EDIT" | "FORM_UPDATE" | "RESPONSE_EDIT",
+  userId?: string
+) => {
+  try {
+    // If no userId is provided, get the form owner's ID
+    if (!userId) {
+      const form = await prisma.form.findUnique({
+        where: { id: formId },
+        select: { userId: true, createdBy: true }
+      });
+      
+      if (!form) {
+        console.error(`Form not found with ID: ${formId}`);
+        return { error: true, message: 'Form not found' };
+      }
+      
+      userId = form.userId;
+      
+      // Verify the user exists in our database
+      const userExists = await prisma.user.findUnique({
+        where: { id: userId }
+      });
+      
+      if (!userExists && form.createdBy) {
+        // Try to find user by email
+        const userByEmail = await prisma.user.findUnique({
+          where: { email: form.createdBy }
+        });
+        
+        if (userByEmail) {
+          userId = userByEmail.id;
+        } else {
+          console.error(`User not found in database with ID: ${userId} or email: ${form.createdBy}`);
+          return { error: true, message: 'User not found in database' };
+        }
+      }
+    } else {
+      // Verify the provided userId exists
+      const userExists = await prisma.user.findUnique({
+        where: { id: userId }
+      });
+      
+      if (!userExists) {
+        console.error(`User not found in database with ID: ${userId}`);
+        return { error: true, message: 'User not found in database' };
+      }
+    }
+    
+    // Create the notification now that we've verified the user exists
+    const notification = await prisma.notification.create({
+      data: {
+        formId,
+        userId,
+        content,
+        type,
+        isRead: false
+      }
+    });
+    
+    return { notification, error: false };
+  } catch (error) {
+    console.error('Error creating notification:', error);
+    return { error: true, message: 'Failed to create notification' };
+  }
+};
+
+export const getUserNotifications = async (limit = 5, skip = 0) => {
+  try {
+    const user = await currentUser();
+    
+    if (!user) {
+      return { error: true, message: 'User not found', notifications: [] };
+    }
+    
+    // Find the user in our database
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.emailAddresses[0].emailAddress }
+    });
+    
+    if (!dbUser) {
+      return { error: true, message: 'User not found in database', notifications: [] };
+    }
+    
+    // Get notifications for this user
+    const notifications = await prisma.notification.findMany({
+      where: {
+        userId: dbUser.id
+      },
+      include: {
+        form: {
+          select: {
+            name: true,
+            shareURL: true,
+            id:true,
+            
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      },
+      take: limit,
+      skip: skip
+    });
+    
+    // Count total unread notifications
+    const unreadCount = await prisma.notification.count({
+      where: {
+        userId: dbUser.id,
+        isRead: false
+      }
+    });
+    
+    // Check if there are more notifications
+    const totalCount = await prisma.notification.count({
+      where: {
+        userId: dbUser.id
+      }
+    });
+    
+    return { 
+      error: false, 
+      notifications, 
+      unreadCount,
+      hasMore: totalCount > skip + limit
+    };
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return { error: true, message: 'Failed to fetch notifications', notifications: [] };
+  }
+};
+
+export const markNotificationAsRead = async (notificationId: string) => {
+  try {
+    const user = await currentUser();
+    
+    if (!user) {
+      return { error: true, message: 'User not found' };
+    }
+    
+    // Find the user in our database
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.emailAddresses[0].emailAddress }
+    });
+    
+    if (!dbUser) {
+      return { error: true, message: 'User not found in database' };
+    }
+    
+    await prisma.notification.update({
+      where: {
+        id: notificationId,
+        userId: dbUser.id // Ensure the notification belongs to this user
+      },
+      data: {
+        isRead: true
+      }
+    });
+    
+    return { error: false, message: 'Notification marked as read' };
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return { error: true, message: 'Failed to mark notification as read' };
+  }
+};
+
+export const markAllNotificationsAsRead = async () => {
+  try {
+    const user = await currentUser();
+    
+    if (!user) {
+      return { error: true, message: 'User not found' };
+    }
+    
+    // Find the user in our database
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.emailAddresses[0].emailAddress }
+    });
+    
+    if (!dbUser) {
+      return { error: true, message: 'User not found in database' };
+    }
+    
+    await prisma.notification.updateMany({
+      where: {
+        userId: dbUser.id,
+        isRead: false
+      },
+      data: {
+        isRead: true
+      }
+    });
+    
+    return { error: false, message: 'All notifications marked as read' };
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    return { error: true, message: 'Failed to mark all notifications as read' };
+  }
+};
+
+export const deleteNotification = async (notificationId: string) => {
+  try {
+    const user = await currentUser();
+    
+    if (!user) {
+      return { error: true, message: 'User not found' };
+    }
+    
+    // Find the user in our database
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.emailAddresses[0].emailAddress }
+    });
+    
+    if (!dbUser) {
+      return { error: true, message: 'User not found in database' };
+    }
+    
+    await prisma.notification.delete({
+      where: {
+        id: notificationId,
+        userId: dbUser.id // Ensure the notification belongs to this user
+      }
+    });
+    
+    return { error: false, message: 'Notification deleted' };
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    return { error: true, message: 'Failed to delete notification' };
+  }
+};

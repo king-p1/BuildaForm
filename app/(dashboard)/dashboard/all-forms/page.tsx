@@ -533,7 +533,11 @@ const AllFormsPage = () => {
                     </Popover>
 
                     <Button variant="outline" asChild>
-                      <Link href={`/forms/${form.id}/edit`}>
+                      <Link href={ 
+                        form.published
+                        ? `/dashboard/form/${form.id}`
+                        : `/dashboard/form-builder/${form.id}`
+                      }>
                         <FileEdit className="h-4 w-4 mr-2" /> Edit
                       </Link>
                     </Button>

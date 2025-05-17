@@ -9,6 +9,7 @@ import React, { useEffect ,useState} from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/hooks/use-toast'
+import { Link2 } from 'lucide-react'
   
 export const FormLinkShare = ({shareURL}:{shareURL:string}) => {
     const [mounted, setMounted] = useState<boolean>(false)
@@ -22,7 +23,11 @@ const shareLink =`${window.location.origin}/submit/${shareURL}`
   return (
 <Dialog>
   <DialogTrigger>
-    <Button>Share Link</Button>
+    <Button className='flex items-center gap-2' 
+    variant={'outline'}
+    >
+      <Link2 className='size-4'/>
+       Share Link</Button>
   </DialogTrigger>
   <DialogContent>
 
