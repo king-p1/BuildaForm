@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import logo from '@/public/buildaform-1.png'
+import { ChartNoAxesCombined } from "lucide-react";
+import { BiCustomize } from "react-icons/bi";
+
 
 const Home = async () => {
   const user = await currentUser();
@@ -11,7 +14,7 @@ const Home = async () => {
   if (user) redirect('/dashboard');
     
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen justify-center items-center">
       {/* Navigation */}
       <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full items-center justify-center">
         <div className="w-full p-2 flex h-16 items-center justify-between">
@@ -79,7 +82,7 @@ const Home = async () => {
           {/* Feature 2 */}
           <div className="flex flex-col items-center text-center p-6 rounded-lg border border-border bg-card">
             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>
+            <ChartNoAxesCombined className="size-6" />
             </div>
             <h3 className="text-xl font-bold mb-2">Real-time Analytics</h3>
             <p className="text-muted-foreground">
@@ -90,7 +93,8 @@ const Home = async () => {
           {/* Feature 3 */}
           <div className="flex flex-col items-center text-center p-6 rounded-lg border border-border bg-card">
             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+            <BiCustomize className="size-6" />
+
             </div>
             <h3 className="text-xl font-bold mb-2">Customizable Templates</h3>
             <p className="text-muted-foreground">
@@ -101,7 +105,7 @@ const Home = async () => {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-muted py-16">
+      <section className="bg-muted py-16 w-full flex justify-center">
         <div className="container text-center">
           <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
           <p className="text-muted-foreground max-w-[600px] mx-auto mb-8">
@@ -114,31 +118,20 @@ const Home = async () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border/40 py-8 mt-auto">
+      <footer className="border-t border-border/40 py-8 mt-auto w-full flex justify-center">
         <div className="container flex flex-col md:flex-row justify-between items-center">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
+          <div className="flex items-center gap-2 mb-2 md:mb-0">
           <Image 
               src={logo} 
               alt="BuildAForm Logo" 
-              width={32} 
-              height={32} 
+              width={60} 
+              height={42} 
               className="h-8 w-8"
             />
             <span className="font-medium">BuildAForm</span>
           </div>
-          <div className="flex gap-6">
-            <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">
-              Privacy Policy
-            </Link>
-            <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">
-              Terms of Service
-            </Link>
-            <Link href="#" className="text-sm text-muted-foreground hover:text-foreground">
-              Contact Us
-            </Link>
-          </div>
           <div className="text-sm text-muted-foreground mt-4 md:mt-0">
-            © {new Date().getFullYear()} BuildAForm. All rights reserved.
+            © {new Date().getFullYear()} OPAULO.inc - BuildAForm. 
           </div>
         </div>
       </footer>
