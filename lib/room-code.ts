@@ -1,7 +1,8 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 // Use a secure key from environment variables
-const ENCRYPTION_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY!;
+// Ensure the key is exactly 32 bytes (256 bits) for AES-256-CBC
+const ENCRYPTION_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY!.slice(0, 32);
 const IV_LENGTH = 16; // For AES, this is always 16
 
 export const encryptRoomCode = (code: string, existingIv?: string) => {
@@ -19,15 +20,20 @@ export const encryptRoomCode = (code: string, existingIv?: string) => {
 };
 
 export const decryptRoomCode = (encryptedCode: string, iv: string) => {
-  const decipher = createDecipheriv(
-    'aes-256-cbc',
-    Buffer.from(ENCRYPTION_KEY),
-    Buffer.from(iv, 'hex')
-  );
-  
-  let decrypted = decipher.update(Buffer.from(encryptedCode, 'hex'));
-  decrypted = Buffer.concat([decrypted, decipher.final()]);
-  
-  return decrypted.toString();
+  try {
+    const decipher = createDecipheriv(
+      'aes-256-cbc',
+      Buffer.from(ENCRYPTION_KEY), // Already sliced to 32 bytes
+      Buffer.from(iv, 'hex')
+    );
+    
+    let decrypted = decipher.update(Buffer.from(encryptedCode, 'hex'));
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    
+    return decrypted.toString();
+  } catch (error) {
+    console.error('Decryption error:', error);
+    return null;
+  }
 }; 
  
