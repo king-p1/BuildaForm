@@ -6,7 +6,7 @@ without writing a single line of code.
 ## 🎯 What It Does
 
 BuildaForm eliminates the friction of form creation. Whether you're collecting customer feedback, 
-running surveys, or gathering data—BuildaForm gets you from idea to live form in minutes, not hours.
+running surveys, or gathering data BuildaForm gets you from idea to live form in minutes, not hours.
 
 ## ✨ Key Features
 
